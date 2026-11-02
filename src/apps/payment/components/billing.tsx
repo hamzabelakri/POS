@@ -9,10 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { type Article, type BillingLine } from "../types"
-import { ArticleIcon } from "./article-icon"
+import { BillingLine, type Article } from "@/models/articles-model"
 
-// A line inside Billing: icon on the left, title next, remove button on the right
+// A line inside Billing: optional icon, title, remove button on the right
 function BillingArticle({
   article,
   onRemove,
@@ -23,7 +22,13 @@ function BillingArticle({
   return (
     <Card className="gap-0 py-0">
       <CardContent className="flex items-center gap-3 p-3">
-        <ArticleIcon article={article} className="size-8 shrink-0" />
+        {article.iconUrl && (
+          <img
+            src={article.iconUrl}
+            alt=""
+            className="size-8 shrink-0 object-contain"
+          />
+        )}
         <span className="flex-1 truncate text-sm font-medium">
           {article.title}
         </span>
@@ -41,7 +46,7 @@ function BillingArticle({
   )
 }
 
-export function BillingCard({
+export function Billing({
   lines,
   onRemove,
   onClear,

@@ -24,7 +24,9 @@ import {
   useOpenBarrier,
   useUnlockBarrier,
 } from "@/hooks/use-barrier"
+import { usePrintLastReceipt } from "@/hooks/use-printer"
 import { type BarrierAction } from "@/models/barrier-model"
+import { useAuthStore } from "@/stores/auth-store"
 import { EvaluationModal } from "@/components/shared/modal/evaluation-modal"
 
 const BARRIER_ACTIONS = [
@@ -41,11 +43,14 @@ const BARRIER_ACTIONS = [
 // Actions that require the evaluation password first
 const PROTECTED_ACTIONS: BarrierAction[] = ["open", "unlock"]
 
-export function BarrierActionsCard() {
+export function BarrierActions() {
   const open = useOpenBarrier()
   const close = useCloseBarrier()
   const lock = useLockBarrier()
   const unlock = useUnlockBarrier()
+
+  const shift = useAuthStore((state) => state.shift)
+  const printReceipt = usePrintLastReceipt()
 
   const barrierBusy =
     open.isPending || close.isPending || lock.isPending || unlock.isPending
@@ -64,6 +69,11 @@ export function BarrierActionsCard() {
       return
     }
     runBarrierAction(action)
+  }
+
+  const handlePrintLastReceipt = () => {
+    if (!shift) return
+    printReceipt.mutate(shift.id)
   }
 
   return (
@@ -96,7 +106,12 @@ export function BarrierActionsCard() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button variant="outline" className="h-20 flex-col gap-2">
+          <Button
+            variant="outline"
+            className="h-20 flex-col gap-2"
+            disabled={!shift || printReceipt.isPending}
+            onClick={handlePrintLastReceipt}
+          >
             <Printer />
             Error
           </Button>

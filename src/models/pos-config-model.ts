@@ -1,3 +1,4 @@
+
 export interface PosConfigPayload {
   base_url: string;
   pos_token: string;
@@ -7,6 +8,60 @@ export interface PosConfigPayload {
 export interface ConfigurePosVariables {
   payload: PosConfigPayload;
   save: boolean;
+}
+
+export interface PmsCardInfo {
+  trans_type: number;
+  trans_mark: number;
+  card_type: number;
+  card_sub_type: number;
+  card_class: number;
+  money_value: number;
+  point_value: number;
+  time_value: number;
+  payment_counter: number;
+  wk_day_prog_ref: number;
+  meeting_number: number;
+  recode_ticket_by_trans_type: number;
+}
+
+export interface PmsArticleDefinition {
+  article_ref: number;
+  article_class_ref: number;
+  quantity: number;
+  quantity_exp: number;
+  amount: number;
+  influence_revenue: boolean;
+  influence_cash_flow: boolean;
+  card_info: PmsCardInfo;
+}
+
+export interface PosProductTranslation {
+  id: number;
+  article_id: number;
+  language: string;
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PosProduct {
+  id: number;
+  code: string;
+  icon: string;
+  is_production: boolean;
+  amount: number;
+  discount_type: string;
+  discount_value: number;
+  check_pms: boolean;
+  permission_required: boolean;
+  is_discount: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  pms_article_definition: PmsArticleDefinition;
+  translations: PosProductTranslation[];
 }
 
 export interface PosInfo {
@@ -20,7 +75,7 @@ export interface PosInfo {
   standalone: boolean;
   payment_method: string;
   with_barrier: boolean;
-  products: unknown[] | null;
+  products: PosProduct[] | null;
   camera_id: number;
   camera_name: string;
   exit_lane_id: number;
@@ -39,6 +94,11 @@ export interface PosInfo {
   timezone: string;
 }
 
+export interface CarparkFacility {
+  id: number;
+  name: string;
+}
+
 export interface Carpark {
   id: number;
   carpark_name: string;
@@ -49,7 +109,7 @@ export interface Carpark {
   separator: string;
   nats_url: string;
   date_format: string;
-  facilities: unknown[] | null;
+  facilities: CarparkFacility[] | null;
   created_at: string;
   updated_at: string;
 }

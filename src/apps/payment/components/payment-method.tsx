@@ -3,7 +3,7 @@ import { CreditCard, Wallet } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-export function PaymentMethodCard() {
+export function PaymentMethod() {
   return (
     <Card>
       <CardHeader>

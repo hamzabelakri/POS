@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-export function VehicleInfoCard() {
+// TODO: receive the vehicle / exit data as props once the API is wired
+export function VehicleInfo() {
   return (
     <Card>
       <CardContent className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
