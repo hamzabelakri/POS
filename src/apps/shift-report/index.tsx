@@ -1,151 +1,147 @@
-import type { ComponentType } from 'react'
+import { useEffect, useMemo } from 'react'
 import {
-  AlertTriangle,
-  Clock,
-  Download,
-  Gauge,
-  Landmark,
-  Package,
-  TrendingUp,
-  type LucideProps,
-} from 'lucide-react'
+  IconCash,
+  IconInfoCircle,
+  IconListDetails,
+  IconReceipt2,
+  IconReportMoney,
+} from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
+import { useAuthStore } from '@/stores/auth-store'
+import { useShiftReportStore } from '@/stores/shift-report-store'
+import { useShiftReport } from '@/hooks/use-shift-report'
+import { Card } from '@/components/ui/card'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { Main } from '@/components/layout/main'
-
-type Icon = ComponentType<LucideProps>
-
-type Kpi = {
-  icon: Icon
-  label: string
-  value: string
-  sub: string
-  tone: 'up' | 'warn' | 'muted'
-  subIcon?: Icon
-}
-
-// Replace with real data / props from your API
-const KPIS: Kpi[] = [
-  {
-    icon: Package,
-    label: 'TOTAL OUTPUT',
-    value: '17,300',
-    sub: '+5.2% vs prior',
-    tone: 'up',
-    subIcon: TrendingUp,
-  },
-  {
-    icon: Gauge,
-    label: 'EFFICIENCY',
-    value: '92.4%',
-    sub: '+8.7% vs prior',
-    tone: 'up',
-    subIcon: TrendingUp,
-  },
-  {
-    icon: AlertTriangle,
-    label: 'OPEN INCIDENTS',
-    value: '34',
-    sub: '34 need review',
-    tone: 'warn',
-    subIcon: AlertTriangle,
-  },
-  {
-    icon: Clock,
-    label: 'SHIFT PROGRESS',
-    value: '62%',
-    sub: 'Hour 5 of 8 · ends 22:00',
-    tone: 'muted',
-  },
-]
-
-const subTone = {
-  up: 'text-emerald-400',
-  warn: 'text-amber-400',
-  muted: 'text-white/55',
-} as const
-
-function ControlCenterBanner({
-  title = 'Shift Operations Control Center',
-  kpis = KPIS,
-  actionLabel = 'Export Report',
-  onAction,
-}: {
-  title?: string
-  kpis?: Kpi[]
-  actionLabel?: string
-  onAction?: () => void
-}) {
-  return (
-    <section className='relative overflow-hidden rounded-xl bg-gradient-to-br from-[#06302a] via-[#04221d] to-[#03130f] p-6 text-white lg:px-8 lg:py-7'>
-      {/* dot texture */}
-      <div
-        aria-hidden
-        className='pointer-events-none absolute inset-0 opacity-[0.07]'
-        style={{
-          backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)',
-          backgroundSize: '18px 18px',
-        }}
-      />
-      {/* blue glow, top right */}
-      <div
-        aria-hidden
-        className='pointer-events-none absolute -top-20 -right-10 size-72 rounded-full bg-blue-500/15 blur-3xl'
-      />
-      {/* green glow, bottom centre */}
-      <div
-        aria-hidden
-        className='pointer-events-none absolute -bottom-24 left-1/2 size-72 rounded-full bg-emerald-500/15 blur-3xl'
-      />
-
-      <div className='relative'>
-        {/* Header: icon + title, button */}
-        <div className='flex items-center justify-between gap-4'>
-          <div className='flex items-center gap-4'>
-            <span className='flex size-12 shrink-0 items-center justify-center rounded-lg border border-emerald-400/20 bg-emerald-500/20 text-emerald-300'>
-              <Landmark className='size-5' />
-            </span>
-            <h1 className='text-xl font-bold tracking-tight lg:text-2xl'>
-              {title}
-            </h1>
-          </div>
-          <button
-            type='button'
-            onClick={onAction}
-            className='inline-flex shrink-0 items-center gap-2 rounded-md border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:outline-none'
-          >
-            <Download className='size-4' />
-            {actionLabel}
-          </button>
-        </div>
-
-        {/* KPIs */}
-        <div className='mt-5 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-white/10 pt-5 lg:grid-cols-4'>
-          {kpis.map(({ icon: KpiIcon, subIcon: SubIcon, ...k }) => (
-            <div key={k.label} className='space-y-1'>
-              <div className='flex items-center gap-1.5 text-[11px] tracking-wide text-white/55'>
-                <KpiIcon className='size-3' />
-                {k.label}
-              </div>
-              <div className='text-2xl font-bold lg:text-[28px]'>{k.value}</div>
-              <div
-                className={`flex items-center gap-1 text-[11px] ${subTone[k.tone]}`}
-              >
-                {SubIcon && <SubIcon className='size-3' />}
-                {k.sub}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
+import { DataTable } from '@/components/shared/data-table'
+import { useShiftReportToolbarProps } from './table/data'
+import {
+  formatAmount,
+  useShiftReportColumns,
+} from './table/report-columns'
+import { ShiftReportModals } from './shift-report-modal'
 
 export function ShiftReport() {
+  const { t } = useTranslation()
+  const shiftId = useAuthStore((state) => state.shift?.id)
+  const { queryParams, setQueryParams, isAmountsUnlocked, setAmountsUnlocked } =
+    useShiftReportStore()
+  // lock the amounts again when leaving the page
+  useEffect(() => () => setAmountsUnlocked(false), [setAmountsUnlocked])
+
+  const { data: reportResponse, isLoading } = useShiftReport(
+    shiftId,
+    queryParams
+  )
+  const report = reportResponse?.data
+  const data = useMemo(() => report?.shift_report_rows ?? [], [report])
+  const toolbarProps = useShiftReportToolbarProps()
+  const columns = useShiftReportColumns()
+
   return (
-    <Main>
-      <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12'>
-        <ControlCenterBanner />
-      </div>
-    </Main>
+    <>
+      <Main>
+        <div className='mb-2 flex flex-wrap items-center space-x-2'>
+          <div className='bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg'>
+            <IconReceipt2 className='size-5' />
+          </div>
+
+          <h2 className='text-2xl font-bold tracking-tight'>
+            {t('shift_report')}
+            {shiftId ? ` #${shiftId}` : ''}
+          </h2>
+        </div>
+
+        <div className='mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+          <Card className='bg-card text-card-foreground gap-0 rounded-xl border p-0 shadow-sm'>
+            <div className='flex flex-row items-center justify-between space-y-0 p-6 pt-4 pb-2'>
+              <div className='flex items-center gap-2 text-sm font-medium tracking-tight'>
+                <IconReportMoney className='size-5' />
+                {t('total_turnover')}
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <IconInfoCircle
+                    size={24}
+                    strokeWidth={1.25}
+                    className='text-muted-foreground'
+                  />
+                </TooltipTrigger>
+
+                <TooltipContent>{t('total_turnover_tooltip')}</TooltipContent>
+              </Tooltip>
+            </div>
+            <div className='p-6 pt-0 pb-4'>
+              <div className='text-2xl font-bold'>
+                {isAmountsUnlocked ? formatAmount(report?.total_turnover ?? 0) : '••••••'}
+              </div>
+            </div>
+          </Card>
+          <Card className='bg-card text-card-foreground gap-0 rounded-xl border p-0 shadow-sm'>
+            <div className='flex flex-row items-center justify-between space-y-0 p-6 pt-4 pb-2'>
+              <div className='flex items-center gap-2 text-sm font-medium tracking-tight'>
+                <IconCash className='size-5' />
+                {t('total_cash')}
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <IconInfoCircle
+                    size={24}
+                    strokeWidth={1.25}
+                    className='text-muted-foreground'
+                  />
+                </TooltipTrigger>
+
+                <TooltipContent>{t('total_cash_tooltip')}</TooltipContent>
+              </Tooltip>
+            </div>
+            <div className='p-6 pt-0 pb-4'>
+              <div className='text-2xl font-bold'>
+                {isAmountsUnlocked ? formatAmount(report?.total_cash ?? 0) : '••••••'}
+              </div>
+            </div>
+          </Card>
+          <Card className='bg-card text-card-foreground gap-0 rounded-xl border p-0 shadow-sm'>
+            <div className='flex flex-row items-center justify-between space-y-0 p-6 pt-4 pb-2'>
+              <div className='flex items-center gap-2 text-sm font-medium tracking-tight'>
+                <IconListDetails className='size-5' />
+                {t('total_payments')}
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <IconInfoCircle
+                    size={24}
+                    strokeWidth={1.25}
+                    className='text-muted-foreground'
+                  />
+                </TooltipTrigger>
+
+                <TooltipContent>{t('total_payments_tooltip')}</TooltipContent>
+              </Tooltip>
+            </div>
+            <div className='p-6 pt-0 pb-4'>
+              <div className='text-2xl font-bold'>{report?.total_rows ?? 0}</div>
+            </div>
+          </Card>
+        </div>
+
+        <div className='-mx-4 mt-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12'>
+          <DataTable
+            data={data}
+            columns={columns}
+            toolbarProps={toolbarProps}
+            isLoading={isLoading}
+            queryParams={queryParams}
+            setQueryParams={setQueryParams}
+            pagination={report}
+          />
+        </div>
+      </Main>
+      <ShiftReportModals />
+    </>
   )
 }

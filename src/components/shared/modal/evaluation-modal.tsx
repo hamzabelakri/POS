@@ -24,7 +24,6 @@ import {
 import { PasswordInput } from "@/components/password-input";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { useAuthorizeEvaluation } from "@/hooks/use-evaluation";
-import { useShiftReportStore } from "@/stores/shift-report-store";
 
 const getSchema = (t: any) =>
   z.object({
@@ -38,11 +37,11 @@ type EvaluationForm = z.infer<ReturnType<typeof getSchema>>;
 interface Props {
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void; // runs after the password is accepted
 }
 
-export function EvaluationModal({ open, onClose }: Props) {
+export function EvaluationModal({ open, onClose, onSuccess }: Props) {
   const { t } = useTranslation();
-  const { setAmountsUnlocked } = useShiftReportStore();
   const { mutate: authorize, isPending } = useAuthorizeEvaluation();
 
   const schema = useMemo(() => getSchema(t), [t]);
@@ -60,7 +59,7 @@ export function EvaluationModal({ open, onClose }: Props) {
   const onSubmit = (values: EvaluationForm) => {
     authorize(values, {
       onSuccess: () => {
-        setAmountsUnlocked(true);
+        onSuccess?.();
         handleClose();
       },
     });

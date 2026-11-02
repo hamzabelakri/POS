@@ -37,7 +37,9 @@
   --sidebar-ring: var(--ring);
 
   --haze-primary-darker: #005e44;
-  --banner-to: oklch(0.15 0.05 230);
+--banner-from: #0a2f5a;
+--banner-via: #071f3d;
+--banner-to: #040f20;
 }
 
 .dark {

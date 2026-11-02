@@ -1,6 +1,6 @@
+import { EvaluationModal } from "@/components/shared/modal/evaluation-modal";
 import { ShiftReportDialogEnum } from "@/models/shift-report-model";
 import { useShiftReportStore } from "@/stores/shift-report-store";
-import { EvaluationModal } from "./evaluation-modal";
 
 export function ShiftReportModals() {
   const { open, setOpen } = useShiftReportStore();

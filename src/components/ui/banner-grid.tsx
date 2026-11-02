@@ -1,22 +1,29 @@
 import { cn } from '@/lib/utils'
 
-/** Faint grid texture + soft glow blobs. Parent needs `bg-banner relative overflow-hidden`. */
+/**
+ * Decorative layers for the page banner: a faint dot texture plus two soft
+ * glows. Purely visual, so it is hidden from assistive tech and ignores
+ * pointer events. Render it as the first child of a `relative overflow-hidden`
+ * container.
+ */
 export function BannerGrid({ className }: { className?: string }) {
   return (
     <div
-      aria-hidden='true'
+      aria-hidden
       className={cn('pointer-events-none absolute inset-0', className)}
     >
+      {/* dot texture */}
       <div
-        className='absolute inset-0'
+        className='absolute inset-0 opacity-[0.07]'
         style={{
-          backgroundImage:
-            'linear-gradient(to right, rgb(255 255 255 / 0.04) 1px, transparent 1px), linear-gradient(to bottom, rgb(255 255 255 / 0.04) 1px, transparent 1px)',
-          backgroundSize: '28px 28px',
+          backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)',
+          backgroundSize: '18px 18px',
         }}
       />
-      <div className='absolute -bottom-24 -left-16 size-72 rounded-full bg-emerald-400/10 blur-3xl' />
-      <div className='absolute -top-24 -right-16 size-72 rounded-full bg-teal-300/10 blur-3xl' />
+      {/* indigo glow, top right */}
+      <div className='absolute -top-20 -right-10 size-72 rounded-full bg-indigo-500/20 blur-3xl' />
+      {/* sky glow, bottom centre */}
+      <div className='absolute -bottom-24 left-1/2 size-72 rounded-full bg-sky-500/15 blur-3xl' />
     </div>
   )
 }

@@ -29,3 +29,8 @@ export interface ApiSearchParams {
   // to be passed without TypeScript throwing errors.
   [key: string]: any;
 }
+
+export interface ApiError {
+  status: number;
+  error: string;
+}

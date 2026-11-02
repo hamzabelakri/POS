@@ -9,6 +9,20 @@ import { isPosConfigured } from '@/stores/pos-config-store'
 //   3. No open shift        -> /start-shift
 //   4. Otherwise            -> allowed through (main page)
 export const Route = createFileRoute('/_authenticated')({
-  
+  beforeLoad: ({ location }) => {
+    if (!isPosConfigured()) {
+      throw redirect({ to: '/pos-setup' })
+    }
+
+    const { token, hasOpenShift } = useAuthStore.getState()
+
+    if (!token) {
+      throw redirect({ to: '/sign-in', search: { redirect: location.href } })
+    }
+
+    if (!hasOpenShift) {
+      throw redirect({ to: '/start-shift', search: { redirect: location.href } })
+    }
+  },
   component: AuthenticatedLayout,
 })

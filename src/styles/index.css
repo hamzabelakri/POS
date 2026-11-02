@@ -60,7 +60,8 @@
 @utility bg-banner {
   background: linear-gradient(
     135deg,
-    var(--haze-primary-darker),
+    var(--banner-from),
+    var(--banner-via),
     var(--banner-to)
   );
 }
