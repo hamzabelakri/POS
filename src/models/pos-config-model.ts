@@ -10,6 +10,7 @@ export interface ConfigurePosVariables {
   save: boolean;
 }
 
+
 export interface PmsCardInfo {
   trans_type: number;
   trans_mark: number;
