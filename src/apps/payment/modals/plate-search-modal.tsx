@@ -1,7 +1,10 @@
 import { type DateRange } from "react-day-picker"
 import { IconSearch } from "@tabler/icons-react"
+import { Search } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { DatePickerWithRange } from "@/components/ui/date-range-picker"
+import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogContent,
@@ -17,7 +20,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { PlateSearchFields } from "./plate-search-fields"
+
+// Duplicated from plate-search.tsx on purpose (zero shared files)
+const PLATE_SLOTS = 8
 
 type Props = {
   open: boolean
@@ -29,10 +34,17 @@ type Props = {
   onSearch: () => void
 }
 
-// Placeholder columns until the search API is defined
 const COLUMNS = ["License Plate", "EPAN", "Card Type", "Entry Time"]
 
-export function PlateSearchModal({ open, onClose, ...fields }: Props) {
+export function PlateSearchModal({
+  open,
+  onClose,
+  plate,
+  onPlateChange,
+  range,
+  onRangeChange,
+  onSearch,
+}: Props) {
   return (
     <Dialog
       open={open}
@@ -50,9 +62,31 @@ export function PlateSearchModal({ open, onClose, ...fields }: Props) {
           </DialogTitle>
         </DialogHeader>
 
-        <PlateSearchFields {...fields} />
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {plate.map((char, i) => (
+              <Input
+                key={i}
+                value={char}
+                maxLength={1}
+                className="size-9 p-0 text-center"
+                aria-label={`Plate character ${i + 1}`}
+                onChange={(e) => onPlateChange(i, e.target.value)}
+              />
+            ))}
+            <div className="flex h-9 w-20 items-center justify-center rounded-md border text-sm">
+              - - -
+            </div>
+          </div>
 
-        {/* Results: empty for now */}
+          <DatePickerWithRange value={range} onChange={onRangeChange} />
+
+          <Button className="min-w-24 flex-1" onClick={onSearch}>
+            <Search />
+            Search
+          </Button>
+        </div>
+
         <div className="max-h-72 overflow-y-auto rounded-md border">
           <Table>
             <TableHeader>
