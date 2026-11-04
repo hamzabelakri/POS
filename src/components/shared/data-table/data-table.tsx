@@ -47,6 +47,7 @@ interface DataTableProps<TData extends RowData> {
   setQueryParams?: (params: Record<string, any>) => void
   pagination?: PaginationMetadata
   header?: ReactNode
+  showToolbar?: boolean
 }
 
 export function DataTable<TData extends RowData>({
@@ -58,6 +59,7 @@ export function DataTable<TData extends RowData>({
   setQueryParams,
   pagination,
   header,
+  showToolbar = true,
 }: DataTableProps<TData>) {
   const { t } = useTranslation()
 
@@ -93,7 +95,9 @@ export function DataTable<TData extends RowData>({
       <div className='rounded-md'>
         <Card paddingY='pb-4' className={cn(header && 'overflow-hidden')}>
           {header}
-          <DataTableToolbar table={table} toolbarProps={toolbarProps} />
+          {showToolbar && (
+            <DataTableToolbar table={table} toolbarProps={toolbarProps} />
+          )}
           <Table className='[&_td:first-child>*:first-child]:ms-4 [&_td:last-child>*:first-child]:me-4 [&_th:first-child>*:first-child]:ms-4 [&_th:last-child>*:first-child]:me-4'>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

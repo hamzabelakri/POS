@@ -1,34 +1,37 @@
-export interface SearchParams {
-  license_plate?: string;
-  from: string; // ISO 8601, e.g. 2026-11-02T23:00:00.000Z
-  to: string;
-  page: number;
-  page_size: number;
-  lane_id?: number; // omitted when "All" is selected
+export interface PlateSearchCar {
+  image: string
+  image_id: string
+  external_unique_id: string
+  license_plate: string
+  card_type: string
+  entry_unit: number
+  entry_time: string // "YYYY-MM-DD HH:mm:ss"
 }
 
-export interface SearchCar {
-  image: string;
-  image_id: string;
-  external_unique_id: string; // EPAN
-  license_plate: string;
-  card_type: string;
-  entry_unit: number;
-  entry_time: string; // "2026-09-01 08:22:04"
+export interface PlateSearchData {
+  cars: PlateSearchCar[]
+  current_page: number
+  page_size: number
+  total_pages: number
 }
 
-export interface SearchData {
-  cars: SearchCar[] | null;
-  current_page: number;
-  page_size: number;
-  total_pages: number;
+export interface PlateSearchResponse {
+  status: number
+  data: PlateSearchData
 }
 
-// This endpoint does not use the ApiResponse<T> wrapper.
-export interface SearchResponse {
-  status: number;
-  data: SearchData;
+export interface PlateSearchQueryParams {
+  license_plate?: string
+  from?: string // ISO 8601
+  to?: string // ISO 8601
+  lane_id?: number
+  page?: number
+  page_size?: number
 }
 
-// Placeholder until the consult response shape is defined.
-export type ConsultResponse = Record<string, unknown>;
+// POST /consult?search=true
+export interface ProceedConsultPayload {
+  media: { lpn: string }
+  image_id: string
+  entry_time: string
+}

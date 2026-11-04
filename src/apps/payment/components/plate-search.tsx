@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { endOfDay, startOfDay } from "date-fns"
 import { type DateRange } from "react-day-picker"
 import { Search } from "lucide-react"
@@ -8,26 +8,37 @@ import { Button } from "@/components/ui/button"
 import { DatePickerWithRange } from "@/components/ui/date-range-picker"
 import { Input } from "@/components/ui/input"
 import { PlateSearchModal } from "../modals/plate-search-modal"
+import { PlateSearchQueryParams } from "@/models/consult-model"
+import { usePlateSearch } from "@/hooks/use-consult"
+import { buildPlateSearchParams } from "@/service/consult"
 
 const PLATE_SLOTS = 8
 const emptyPlate = () => Array<string>(PLATE_SLOTS).fill("")
 
-export function PlateSearch({
-  onSearch,
-}: {
-  onSearch: (range: DateRange | undefined) => void
-}) {
+export function PlateSearch() {
   const [range, setRange] = useState<DateRange | undefined>(() => ({
     from: startOfDay(new Date()),
     to: endOfDay(new Date()),
   }))
   const [plate, setPlate] = useState<string[]>(emptyPlate)
   const [modalOpen, setModalOpen] = useState(false)
+  // null until the first click on Search
+  const [queryParams, setQueryParams] =
+    useState<PlateSearchQueryParams | null>(null)
+
+  // the modal reports errors, so the parent stays silent to avoid a double alert
+  usePlateSearch(queryParams, { notifyOnError: false })
 
   const handlePlateChange = (index: number, value: string) =>
     setPlate((prev) => prev.map((char, i) => (i === index ? value : char)))
 
-  const runSearch = () => onSearch(range)
+  // stable reference: the modal's table columns depend on it
+  const closeModal = useCallback(() => setModalOpen(false), [])
+
+  const handleSearch = () => {
+    setQueryParams(buildPlateSearchParams(plate, range))
+    setModalOpen(true)
+  }
 
   return (
     <>
@@ -55,13 +66,7 @@ export function PlateSearch({
 
             <DatePickerWithRange value={range} onChange={setRange} />
 
-            <Button
-              className="min-w-24 flex-1"
-              onClick={() => {
-                runSearch()
-                setModalOpen(true)
-              }}
-            >
+            <Button className="min-w-24 flex-1" onClick={handleSearch}>
               <Search />
               Search
             </Button>
@@ -69,15 +74,14 @@ export function PlateSearch({
         </CardContent>
       </Card>
 
-      <PlateSearchModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        plate={plate}
-        onPlateChange={handlePlateChange}
-        range={range}
-        onRangeChange={setRange}
-        onSearch={runSearch}
-      />
+      {modalOpen && queryParams && (
+        <PlateSearchModal
+          onClose={closeModal}
+          initialPlate={plate}
+          initialRange={range}
+          initialParams={queryParams}
+        />
+      )}
     </>
   )
 }
