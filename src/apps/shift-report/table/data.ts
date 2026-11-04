@@ -1,18 +1,16 @@
 import { useCallback } from 'react'
-import { IconEye, IconEyeOff } from '@tabler/icons-react'
-import { useTranslation } from 'react-i18next'
 import { ApiSearchParams } from '@/models/api'
 import { ShiftReportDialogEnum } from '@/models/shift-report-model'
+import { IconEye, IconEyeOff } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
+import { useEvaluationStore } from '@/stores/evaluation-store'
 import { useShiftReportStore } from '@/stores/shift-report-store'
 
 export const useShiftReportToolbarProps = () => {
   const { t } = useTranslation()
-  const {
-    setQueryParams,
-    isAmountsUnlocked,
-    setAmountsUnlocked,
-    setOpen,
-  } = useShiftReportStore()
+  const { setQueryParams, setOpen } = useShiftReportStore()
+  const isEvaluated = useEvaluationStore((s) => s.isEvaluated)
+  const setEvaluated = useEvaluationStore((s) => s.setEvaluated)
 
   // DataTableSearch always sends { search, page: 1 }, but this API expects `lpn`.
   // useCallback keeps the reference stable: DataTableSearch re-runs its effect
@@ -30,11 +28,13 @@ export const useShiftReportToolbarProps = () => {
     },
     // Locked: opens the password modal. Unlocked: the same button hides amounts again.
     extraAction: {
-      label: isAmountsUnlocked ? t('hide_amounts') : t('show_amounts'),
-      icon: isAmountsUnlocked ? IconEyeOff : IconEye,
+      label: isEvaluated ? t('hide_amounts') : t('show_amounts'),
+      icon: isEvaluated ? IconEyeOff : IconEye,
       variant: 'outline' as const,
       onClick: () =>
-        isAmountsUnlocked ? setAmountsUnlocked(false) : setOpen(ShiftReportDialogEnum.EVALUATION),
+        isEvaluated
+          ? setEvaluated(false)
+          : setOpen(ShiftReportDialogEnum.EVALUATION),
     },
   }
 }

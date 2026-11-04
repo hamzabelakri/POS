@@ -1,6 +1,6 @@
 import { skipToken, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { previewReceipt } from "@/service/receipt-preview";
+import { getPaymentReceiptPreview, previewReceipt } from "@/service/receipt-preview";
 import {
   ReceiptPreviewPayload,
   ReceiptPreviewResponse,
@@ -40,5 +40,20 @@ export function useReceiptPreviewImage() {
   return useQuery<string>({
     queryKey: RECEIPT_PREVIEW_KEY,
     queryFn: skipToken,
+  });
+}
+
+export const paymentReceiptKey = (paymentId: number) =>
+  ["payment-receipt", paymentId] as const;
+
+// GET for one payment's receipt. Only fires while `enabled` (modal open),
+// and each payment is cached under its own key.
+export function usePaymentReceiptPreview(paymentId: number, enabled: boolean) {
+  return useQuery({
+    queryKey: paymentReceiptKey(paymentId),
+    queryFn: () => getPaymentReceiptPreview(paymentId),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+    select: (res) => res.data.receipt,
   });
 }

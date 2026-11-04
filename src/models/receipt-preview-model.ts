@@ -8,3 +8,8 @@ export interface ReceiptPreviewResponse {
   status: number;
   data: { image_base64: string };
 }
+
+export interface PaymentReceiptPreviewResponse {
+  status: number;
+  data: { receipt: string };
+}

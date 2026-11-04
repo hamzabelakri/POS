@@ -8,10 +8,6 @@ interface ShiftReportState {
   open: ShiftReportDialogEnum | null;
   setOpen: (open: ShiftReportDialogEnum | null) => void;
 
-  // amount KPIs are hidden until the evaluation password is validated
-  // (not persisted: a page refresh locks them again)
-  isAmountsUnlocked: boolean;
-  setAmountsUnlocked: (unlocked: boolean) => void;
 
   queryParams: ShiftReportQueryParams;
   setQueryParams: (params: Partial<ShiftReportQueryParams>) => void;
@@ -23,8 +19,6 @@ export const useShiftReportStore = create<ShiftReportState>((set) => ({
   open: null,
   setOpen: (open) => set({ open }),
 
-  isAmountsUnlocked: false,
-  setAmountsUnlocked: (unlocked) => set({ isAmountsUnlocked: unlocked }),
 
   queryParams: {},
   setQueryParams: (params) =>

@@ -6,8 +6,12 @@ import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { LongText } from '@/components/long-text'
 import { DataTableColumnHeader } from '@/components/shared/data-table'
+import { ReceiptPreviewButton } from '../shift-report-modal/receipt-preview-modal'
 
-const paymentMethods: Record<string, { icon: any; variant: 'success' | 'secondary' }> = {
+const paymentMethods: Record<
+  string,
+  { icon: any; variant: 'success' | 'secondary' }
+> = {
   cash: { icon: IconCash, variant: 'success' },
   card: { icon: IconCreditCard, variant: 'secondary' },
 }
@@ -32,7 +36,9 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
           <DataTableColumnHeader column={column} title={t('payment_id')} />
         ),
         meta: { label: t('payment_id') },
-        cell: ({ row }) => <div className='w-fit'>{row.original.payment_id}</div>,
+        cell: ({ row }) => (
+          <div className='w-fit'>{row.original.payment_id}</div>
+        ),
         enableHiding: false,
       },
       {
@@ -47,13 +53,17 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
           const Icon = config?.icon
 
           return (
-            <Badge variant={config?.variant ?? 'secondary'} className='capitalize'>
+            <Badge
+              variant={config?.variant ?? 'secondary'}
+              className='capitalize'
+            >
               {Icon && <Icon className='size-3' />}
               {method || '-'}
             </Badge>
           )
         },
-        filterFn: (row, id, value) => value.includes(row.original.payment_method),
+        filterFn: (row, id, value) =>
+          value.includes(row.original.payment_method),
       },
       {
         accessorKey: 'card_type',
@@ -62,7 +72,9 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
         ),
         meta: { label: t('card_type') },
         cell: ({ row }) => (
-          <LongText className='max-w-36'>{row.original.card_type || '-'}</LongText>
+          <LongText className='max-w-36'>
+            {row.original.card_type || '-'}
+          </LongText>
         ),
       },
       {
@@ -106,6 +118,17 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
             <LongText>{formatEntryTime(row.original.entry_time)}</LongText>
           </Badge>
         ),
+      },
+      {
+        id: 'receipt',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t('receipt')} />
+        ),
+        meta: { label: t('receipt') },
+        cell: ({ row }) => (
+          <ReceiptPreviewButton paymentId={row.original.payment_id} />
+        ),
+        enableSorting: false,
       },
     ],
     [t]
