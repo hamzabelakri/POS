@@ -32,7 +32,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Main } from '@/components/layout/main'
 import { PasswordInput } from '@/components/password-input'
 import { SidebarNav } from './components/sidebar-nav'
-import { useReceiptPreview, useReceiptPreviewImage } from '@/hooks/use-receipt-preview'
+import { useReceiptPreview, useReceiptPreviewImage } from '@/hooks/use-printer'
 
 const schema = z.object({
   base_url: z.string().trim().url('Enter a valid URL'),
