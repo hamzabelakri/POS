@@ -1,3 +1,5 @@
+import { ApiResponse } from "./api"
+
 export interface SeasonParker {
   participant_id: number
   company_id: number
@@ -12,15 +14,6 @@ export interface SeasonParker {
   facility_present: number
   epan: string
 }
-
-// NOTE: not wrapped in { status, data } like the plate search response
-export interface SeasonParkerSearchResponse {
-  current_page: number
-  page_size: number
-  season_parkers: SeasonParker[]
-  total_pages: number
-}
-
 export interface SeasonParkerSearchQueryParams {
   lpn?: string
   card_number?: string
@@ -28,8 +21,10 @@ export interface SeasonParkerSearchQueryParams {
   page_size?: number
 }
 
-// POST /season-parkers/exit
 export interface SeasonParkerExitPayload {
   participant_id: number
   company_id: number
 }
+
+
+export type SeasonParkerSearchResponse = ApiResponse<SeasonParker[]>

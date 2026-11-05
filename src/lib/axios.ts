@@ -5,22 +5,22 @@ import { AlertEnum } from "@/models/alert-model";
 import { router } from "@/main";
 import i18n from "./language/i18n/i18n";
 
-// The POS service listens on port 8090 (set VITE_API_URL to override, e.g. for a reverse proxy).
-const API_PORT = 8090;
-
 const getApiUrl = (): string => {
-  if (import.meta.env.VITE_API_URL) {
+  // Server-side fallback (SSR / Node, if needed)
+  if (typeof window === "undefined") {
     return import.meta.env.VITE_API_URL;
   }
 
-  // Server-side fallback (SSR / Node, if needed)
-  if (typeof window === "undefined") {
-    return `http://localhost:${API_PORT}/api`;
+  // Client-side logic
+  const host = window.location.hostname;
+  const protocol = window.location.protocol;
+
+  if (host === "localhost") {
+    return `${protocol}//${host}:8090/api`;
   }
 
-  return `${window.location.protocol}//${window.location.hostname}:${API_PORT}/api`;
+  return `${protocol}//${host}/api`;
 };
-
 // Axios Instance
 const axiosApi: AxiosInstance = axios.create({
   baseURL: getApiUrl(),

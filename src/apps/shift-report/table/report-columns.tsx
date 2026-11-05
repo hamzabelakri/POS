@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { LongText } from '@/components/long-text'
 import { DataTableColumnHeader } from '@/components/shared/data-table'
-import { ReceiptPreviewButton } from '../shift-report-modal/receipt-preview-modal'
+import { ReceiptActions } from '../shift-report-modal/receipt-actions'
 
 const paymentMethods: Record<
   string,
@@ -78,22 +78,17 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
         ),
       },
       {
-        accessorKey: 'media',
+        id: 'lpn',
+        accessorFn: (row) => row.media?.lpn,
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title={t('media')} />
+          <DataTableColumnHeader column={column} title={t('lpn')} />
         ),
-        meta: { label: t('media') },
-        // `media` is an object (empty in the sample); adapt once its shape is known.
-        cell: ({ row }) => {
-          const media = row.original.media
-          const count = media ? Object.keys(media).length : 0
-          return (
-            <span className='text-muted-foreground text-sm'>
-              {count > 0 ? count : '-'}
-            </span>
-          )
-        },
-        enableSorting: false,
+        meta: { label: t('lpn') },
+        cell: ({ row }) => (
+          <LongText className='max-w-36 font-mono'>
+            {row.original.media?.lpn || '-'}
+          </LongText>
+        ),
       },
       {
         accessorKey: 'total',
@@ -126,7 +121,7 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
         ),
         meta: { label: t('receipt') },
         cell: ({ row }) => (
-          <ReceiptPreviewButton paymentId={row.original.payment_id} />
+          <ReceiptActions paymentId={row.original.payment_id} />
         ),
         enableSorting: false,
       },

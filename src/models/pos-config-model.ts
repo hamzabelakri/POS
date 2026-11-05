@@ -1,10 +1,8 @@
-
 export interface PosConfigPayload {
   base_url: string;
   pos_token: string;
 }
 
-// `save: false` => test the connection only, `save: true` => test and persist.
 export interface ConfigurePosVariables {
   payload: PosConfigPayload;
   save: boolean;
@@ -162,7 +160,7 @@ export interface PosCamera {
   lane_id: number;
   timeout: number;
   soft_trigger: boolean;
-  pms: unknown | null;
+  pms: string;
   camera_mode: string;
   min_confidence: number;
   no_lpn_default_value: string;
@@ -170,7 +168,6 @@ export interface PosCamera {
   carpark_id: number;
 }
 
-// NOTE: this endpoint does not use the ApiResponse<T> wrapper.
 export interface PosConfigResponse {
   pos: PosInfo;
   carpark: Carpark;

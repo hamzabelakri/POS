@@ -7,7 +7,6 @@ import { IconLock } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { usePosConfigStore } from '@/stores/pos-config-store'
 import { getDailyPassword } from '@/lib/daily-password'
-import { useReceiptPreview } from '@/hooks/use-receipt-preview'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -26,6 +25,7 @@ import {
 } from '@/components/ui/form'
 import { PasswordInput } from '@/components/password-input'
 import type { TFunction } from 'i18next'
+import { useConfigReceiptPreview } from '@/hooks/use-printer'
 
 const getSchema = (t: TFunction) =>
   z.object({
@@ -50,7 +50,7 @@ export function ConfigPasswordModal({
   const router = useRouter()
 
   const schema = useMemo(() => getSchema(t), [t])
-  const { mutate: loadReceiptPreview } = useReceiptPreview()
+  const { mutate: loadReceiptPreview } = useConfigReceiptPreview()
 
   const form = useForm<Values>({
     resolver: zodResolver(schema),

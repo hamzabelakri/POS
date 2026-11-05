@@ -9,6 +9,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/auth-store'
 import { useShiftReportStore } from '@/stores/shift-report-store'
+import { useEvaluationStore } from '@/stores/evaluation-store'
 import { useShiftReport } from '@/hooks/use-shift-report'
 import { Card } from '@/components/ui/card'
 import {
@@ -28,10 +29,10 @@ import { ShiftReportModals } from './shift-report-modal'
 export function ShiftReport() {
   const { t } = useTranslation()
   const shiftId = useAuthStore((state) => state.shift?.id)
-  const { queryParams, setQueryParams, isAmountsUnlocked, setAmountsUnlocked } =
-    useShiftReportStore()
+  const { queryParams, setQueryParams } = useShiftReportStore()
+  const { isEvaluated, setEvaluated } = useEvaluationStore()
   // lock the amounts again when leaving the page
-  useEffect(() => () => setAmountsUnlocked(false), [setAmountsUnlocked])
+  useEffect(() => () => setEvaluated(false), [setEvaluated])
 
   const { data: reportResponse, isLoading } = useShiftReport(
     shiftId,
@@ -77,7 +78,7 @@ export function ShiftReport() {
             </div>
             <div className='p-6 pt-0 pb-4'>
               <div className='text-2xl font-bold'>
-                {isAmountsUnlocked ? formatAmount(report?.total_turnover ?? 0) : '••••••'}
+                {isEvaluated ? formatAmount(report?.total_turnover ?? 0) : '••••••'}
               </div>
             </div>
           </Card>
@@ -101,7 +102,7 @@ export function ShiftReport() {
             </div>
             <div className='p-6 pt-0 pb-4'>
               <div className='text-2xl font-bold'>
-                {isAmountsUnlocked ? formatAmount(report?.total_cash ?? 0) : '••••••'}
+                {isEvaluated ? formatAmount(report?.total_cash ?? 0) : '••••••'}
               </div>
             </div>
           </Card>

@@ -1,15 +1,14 @@
-import { useMemo } from "react"
-import { useTranslation } from "react-i18next"
-
-import type { PosProduct } from "@/models/pos-config-model"
-import { usePosConfigStore } from "@/stores/pos-config-store"
-import { Article } from "@/models/articles-model"
+import { useMemo } from 'react'
+import { Article } from '@/models/articles-model'
+import { PosProduct } from '@/models/pos-config-model'
+import { useTranslation } from 'react-i18next'
+import { usePosConfigStore } from '@/stores/pos-config-store'
 
 function toArticle(product: PosProduct, lang: string): Article {
   const translations = product.translations ?? []
   const translation =
     translations.find((tr) => tr.language === lang) ??
-    translations.find((tr) => tr.language === "en") ??
+    translations.find((tr) => tr.language === 'en') ??
     translations[0]
 
   return {
@@ -21,23 +20,18 @@ function toArticle(product: PosProduct, lang: string): Article {
     amount: product.amount,
     isDiscount: product.is_discount,
     permissionRequired: product.permission_required,
+    disabled: !product.is_production && !product.is_active,
   }
 }
 
-// Articles and validations come from the saved POS config (`pos.products`).
+// Articles come straight from the saved POS config (`pos.products`).
 export function usePosArticles() {
   const { i18n } = useTranslation()
   const products = usePosConfigStore((state) => state.config?.pos.products)
-  const lang = i18n.language?.split("-")[0] ?? "en"
+  const lang = i18n.language?.split('-')[0] ?? 'en'
 
-  return useMemo(() => {
-    const active = (products ?? [])
-      .filter((product) => product.is_active)
-      .map((product) => toArticle(product, lang))
-
-    return {
-      articles: active.filter((a) => !a.isDiscount),
-      validations: active.filter((a) => a.isDiscount),
-    }
-  }, [products, lang])
+  return useMemo(
+    () => ({ articles: (products ?? []).map((p) => toArticle(p, lang)) }),
+    [products, lang]
+  )
 }

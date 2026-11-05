@@ -3,10 +3,11 @@ export type Article = {
   code: string
   title: string
   description?: string
-  iconUrl?: string // from product.icon; no icon is shown when empty
+  iconUrl?: string 
   amount: number
-  isDiscount: boolean
+  isDiscount: boolean 
   permissionRequired: boolean
+  disabled: boolean 
 }
 
 

@@ -1,51 +1,81 @@
 import { skipToken, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
-import { previewReceipt, printLastReceipt } from "@/service/printer"
 import {
+  previewConfigReceipt,
+  previewPaymentReceipt,
+  printLastReceipt,
+  printReceipt,
+} from "@/service/printer"
+import {
+  ConfigReceiptPreviewPayload,
   PrintReceiptResponse,
-  ReceiptPreviewPayload,
   ReceiptPreviewResponse,
 } from "@/models/printer-model"
 import { ApiError } from "@/models/api"
 import { AlertEnum } from "@/models/alert-model"
 import { useAlertStore } from "@/stores/alert-store"
 
-export const RECEIPT_PREVIEW_KEY = ["receipt-preview"] as const
+export const CONFIG_RECEIPT_PREVIEW_KEY = ["config-receipt-preview"] as const
 
-export function usePrintLastReceipt() {
+// Shared success/error alerts for every print mutation
+function usePrintAlerts(fallbackError: string) {
   const { showAlert } = useAlertStore()
-
-  return useMutation<PrintReceiptResponse, AxiosError<ApiError>, number>({
-    mutationFn: printLastReceipt,
-    onSuccess: (data) => {
+  return {
+    onSuccess: (data: PrintReceiptResponse) => {
       showAlert({ message: data.message, type: AlertEnum.SUCCESS })
     },
-    onError: (error) => {
-      console.error("Print last receipt failed: ", error?.response?.data?.error)
+    onError: (error: AxiosError<ApiError>) => {
+      console.error("Print failed: ", error?.response?.data?.error)
       showAlert({
-        message:
-          error?.response?.data?.error ||
-          "Unable to print the last receipt. Please try again.",
+        message: error?.response?.data?.error || fallbackError,
         type: AlertEnum.ERROR,
       })
     },
+  }
+}
+
+// Reprint a specific payment's receipt
+export function usePrintReceipt() {
+  return useMutation<PrintReceiptResponse, AxiosError<ApiError>, number>({
+    mutationFn: printReceipt,
+    ...usePrintAlerts("Unable to print the receipt. Please try again."),
   })
 }
 
-// Fires the request and drops the image into the query cache, so any
-// component (e.g. the Receipt tab) can read it without prop drilling.
-export function useReceiptPreview() {
+// Receipt image of a stored payment (used by the shift report modal)
+export function usePaymentReceiptPreview(paymentId: number, enabled = true) {
+  return useQuery({
+    queryKey: ["payment-receipt-preview", paymentId],
+    queryFn: () => previewPaymentReceipt(paymentId),
+    select: (res) => res.data.image_base64,
+    enabled,
+    staleTime: Infinity, // a stored receipt never changes
+  })
+}
+
+export function usePrintLastReceipt() {
+  return useMutation<PrintReceiptResponse, AxiosError<ApiError>, number>({
+    mutationFn: printLastReceipt,
+    ...usePrintAlerts("Unable to print the last receipt. Please try again."),
+  })
+}
+
+// Config receipt preview (template/config-driven, re-generatable)
+export function useConfigReceiptPreview() {
   const queryClient = useQueryClient()
   const { showAlert } = useAlertStore()
 
   return useMutation<
     ReceiptPreviewResponse,
     AxiosError<ApiError>,
-    ReceiptPreviewPayload
+    ConfigReceiptPreviewPayload
   >({
-    mutationFn: previewReceipt,
+    mutationFn: previewConfigReceipt,
     onSuccess: (res) => {
-      queryClient.setQueryData(RECEIPT_PREVIEW_KEY, res.data.image_base64)
+      queryClient.setQueryData(
+        CONFIG_RECEIPT_PREVIEW_KEY,
+        res.data.image_base64
+      )
     },
     onError: (error) => {
       showAlert({
@@ -57,10 +87,10 @@ export function useReceiptPreview() {
   })
 }
 
-// Read-only view of the cached preview (never fetches by itself).
-export function useReceiptPreviewImage() {
+// Read-only view of the cached config preview (never fetches by itself).
+export function useConfigReceiptPreviewImage() {
   return useQuery<string>({
-    queryKey: RECEIPT_PREVIEW_KEY,
+    queryKey: CONFIG_RECEIPT_PREVIEW_KEY,
     queryFn: skipToken,
   })
 }

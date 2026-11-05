@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState } from 'react'
+import { type BarrierAction } from '@/models/barrier-model'
 import {
   ArrowDown,
   ArrowUp,
@@ -7,33 +8,32 @@ import {
   LockOpen,
   Printer,
   type LucideIcon,
-} from "lucide-react"
-
-import { cn } from "@/lib/utils"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from 'lucide-react'
+import { useAuthStore } from '@/stores/auth-store'
+import { useAutoPrintStore, usePrinterUi } from '@/stores/printer-store'
+import { cn } from '@/lib/utils'
 import {
   useCloseBarrier,
   useLockBarrier,
   useOpenBarrier,
   useUnlockBarrier,
-} from "@/hooks/use-barrier"
-import { usePrintLastReceipt } from "@/hooks/use-printer"
-import { type BarrierAction } from "@/models/barrier-model"
-import { useAuthStore } from "@/stores/auth-store"
-import { EvaluationModal } from "@/components/shared/modal/evaluation-modal"
+} from '@/hooks/use-barrier'
+import { usePrintLastReceipt } from '@/hooks/use-printer'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { EvaluationModal } from '@/components/shared/modal/evaluation-modal'
 
 const BARRIER_ACTIONS = [
-  { id: "open", label: "Open Barrier", icon: ArrowUp },
-  { id: "close", label: "Close Barrier", icon: ArrowDown },
-  { id: "lock", label: "Lock Barrier", icon: Lock },
-  { id: "unlock", label: "Unlock Barrier", icon: LockOpen },
+  { id: 'open', label: 'Open Barrier', icon: ArrowUp },
+  { id: 'close', label: 'Close Barrier', icon: ArrowDown },
+  { id: 'lock', label: 'Lock Barrier', icon: Lock },
+  { id: 'unlock', label: 'Unlock Barrier', icon: LockOpen },
 ] as const satisfies readonly {
   id: BarrierAction
   label: string
@@ -41,16 +41,20 @@ const BARRIER_ACTIONS = [
 }[]
 
 // Actions that require the evaluation password first
-const PROTECTED_ACTIONS: BarrierAction[] = ["open", "unlock"]
+const PROTECTED_ACTIONS: BarrierAction[] = ['open', 'unlock']
 
-export function BarrierActions() {
+export function QuickActions() {
   const open = useOpenBarrier()
   const close = useCloseBarrier()
   const lock = useLockBarrier()
   const unlock = useUnlockBarrier()
 
   const shift = useAuthStore((state) => state.shift)
-  const printReceipt = usePrintLastReceipt()
+  const printLast = usePrintLastReceipt()
+
+  const autoPrint = useAutoPrintStore((s) => s.autoPrint)
+  const toggleAutoPrint = useAutoPrintStore((s) => s.toggleAutoPrint)
+  const printerUi = usePrinterUi()
 
   const barrierBusy =
     open.isPending || close.isPending || lock.isPending || unlock.isPending
@@ -72,28 +76,28 @@ export function BarrierActions() {
   }
 
   const handlePrintLastReceipt = () => {
-    if (!shift) return
-    printReceipt.mutate(shift.id)
+    if (!shift || printerUi.blocked) return
+    printLast.mutate(shift.id)
   }
 
   return (
     <>
       <Card>
-        <CardContent className="grid grid-cols-3 gap-3">
+        <CardContent className='grid grid-cols-3 gap-3'>
           <DropdownMenu>
             {/* Styled trigger instead of `render`/`asChild`, so it works
                 with both the Radix and Base UI versions of the component */}
             <DropdownMenuTrigger
               disabled={barrierBusy}
               className={cn(
-                buttonVariants({ variant: "outline" }),
-                "h-20 flex-col gap-2"
+                buttonVariants({ variant: 'outline' }),
+                'h-20 flex-col gap-2'
               )}
             >
               <ArrowUp />
               Barrier
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="start" className="w-48">
+            <DropdownMenuContent side='top' align='start' className='w-48'>
               {BARRIER_ACTIONS.map(({ id, label, icon: Icon }) => (
                 <DropdownMenuItem
                   key={id}
@@ -107,15 +111,21 @@ export function BarrierActions() {
           </DropdownMenu>
 
           <Button
-            variant="outline"
-            className="h-20 flex-col gap-2"
-            disabled={!shift || printReceipt.isPending}
+            variant={printerUi.blocked ? 'destructive' : 'outline'}
+            className='h-20 flex-col gap-2'
+            disabled={!shift || printerUi.blocked || printLast.isPending}
             onClick={handlePrintLastReceipt}
           >
             <Printer />
-            Error
+            {printerUi.label}
           </Button>
-          <Button variant="outline" className="h-20 flex-col gap-2">
+
+          <Button
+            variant={autoPrint ? 'default' : 'outline'}
+            aria-pressed={autoPrint}
+            className='h-20 flex-col gap-2'
+            onClick={toggleAutoPrint}
+          >
             <FileText />
             Auto Print
           </Button>

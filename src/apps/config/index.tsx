@@ -32,7 +32,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Main } from '@/components/layout/main'
 import { PasswordInput } from '@/components/password-input'
 import { SidebarNav } from './components/sidebar-nav'
-import { useReceiptPreview, useReceiptPreviewImage } from '@/hooks/use-printer'
+import { useConfigReceiptPreview, useConfigReceiptPreviewImage } from '@/hooks/use-printer'
 
 const schema = z.object({
   base_url: z.string().trim().url('Enter a valid URL'),
@@ -58,8 +58,8 @@ function ReceiptPreview({
   footer: string
 }) {
   const { t } = useTranslation()
-  const { data: image } = useReceiptPreviewImage()
-  const { mutate, isPending } = useReceiptPreview()
+  const { data: image } = useConfigReceiptPreviewImage()
+  const { mutate, isPending } = useConfigReceiptPreview()
 
   return (
     <section className='space-y-3 rounded-lg border p-4'>

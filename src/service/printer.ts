@@ -1,12 +1,12 @@
 import axiosApi from "@/lib/axios"
 import {
+  ConfigReceiptPreviewPayload,
   PrintReceiptResponse,
-  ReceiptPreviewPayload,
   ReceiptPreviewResponse,
 } from "@/models/printer-model"
 
 export const PRINTER_ENDPOINT = `/printer`
-export const RECEIPT_PREVIEW_ENDPOINT = `/receipts/config/preview`
+export const RECEIPTS_ENDPOINT = `/receipts`
 
 export const printLastReceipt = async (
   shiftId: number
@@ -17,9 +17,30 @@ export const printLastReceipt = async (
   return response.data
 }
 
-export const previewReceipt = async (
-  payload: ReceiptPreviewPayload
+export const previewConfigReceipt = async (
+  payload: ConfigReceiptPreviewPayload
 ): Promise<ReceiptPreviewResponse> => {
-  const response = await axiosApi.post(RECEIPT_PREVIEW_ENDPOINT, payload)
+  const response = await axiosApi.post(
+    `${RECEIPTS_ENDPOINT}/config/preview`,
+    payload
+  )
+  return response.data
+}
+
+export const previewPaymentReceipt = async (
+  paymentId: number
+): Promise<ReceiptPreviewResponse> => {
+  const response = await axiosApi.get(
+    `${RECEIPTS_ENDPOINT}/${paymentId}/preview`
+  )
+  return response.data
+}
+
+export const printReceipt = async (
+  paymentId: number
+): Promise<PrintReceiptResponse> => {
+  const response = await axiosApi.post(
+    `${PRINTER_ENDPOINT}/receipt/${paymentId}`
+  )
   return response.data
 }

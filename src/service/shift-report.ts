@@ -6,7 +6,6 @@ import {
 
 const SHIFT_ENDPOINT = `/shifts`
 
-// GET /shifts/:shiftId/report?page=1&page_size=10&lpn=azerty
 export const getShiftReport = async (
   shiftId: number,
   params?: ShiftReportQueryParams
@@ -14,5 +13,5 @@ export const getShiftReport = async (
   const response = await axiosApi.get(`${SHIFT_ENDPOINT}/${shiftId}/report`, {
     params,
   })
-  return response?.data
+  return response.data
 }

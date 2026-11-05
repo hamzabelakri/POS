@@ -21,12 +21,12 @@ export const buildSeasonParkerParams = (
   page_size: SEASON_PARKER_PAGE_SIZE,
 })
 
-// GET /season-parkers/search?lpn=&card_number=&page=1&page_size=5
+
 export const getSeasonParkerSearch = async (
   params?: SeasonParkerSearchQueryParams
 ): Promise<SeasonParkerSearchResponse> => {
   const response = await axiosApi.get(SEARCH_ENDPOINT, { params })
-  return response?.data
+  return response.data
 }
 
 // POST /season-parkers/exit (the response is discarded)

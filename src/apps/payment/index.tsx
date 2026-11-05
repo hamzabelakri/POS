@@ -7,8 +7,8 @@ import { VehicleInfo } from "./components/vehicle-info"
 import { PlateSearch } from "./components/plate-search"
 import { Articles } from "./components/articles"
 import { Billing } from "./components/billing"
-import { BarrierActions } from "./components/barrier-actions"
 import { PaymentMethod } from "./components/payment-method"
+import { QuickActions } from "./components/quick-actions"
 
 
 export function Payment() {
@@ -23,10 +23,6 @@ export function Payment() {
   const removeFromBilling = (key: number) =>
     setBilling((prev) => prev.filter((line) => line.key !== key))
 
-  const handleSearch = (range: DateRange | undefined) => {
-    // TODO: run the search
-    console.debug("search:", range)
-  }
 
   return (
     <Main>
@@ -34,7 +30,7 @@ export function Payment() {
       <div className="grid flex-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-4">
           <VehicleInfo />
-          <PlateSearch onSearch={handleSearch} />
+          <PlateSearch />
           <Articles onSelect={addToBilling} />
         </div>
 
@@ -44,7 +40,7 @@ export function Payment() {
             onRemove={removeFromBilling}
             onClear={() => setBilling([])}
           />
-          <BarrierActions />
+          <QuickActions />
           <PaymentMethod />
         </div>
       </div>
