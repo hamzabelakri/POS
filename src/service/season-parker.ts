@@ -21,7 +21,8 @@ export const buildSeasonParkerParams = (
   page_size: SEASON_PARKER_PAGE_SIZE,
 })
 
-
+// GET /season-parkers/search?lpn=&card_number=&page=1&page_size=5
+// Returns ApiResponse<SeasonParkerSearchData>
 export const getSeasonParkerSearch = async (
   params?: SeasonParkerSearchQueryParams
 ): Promise<SeasonParkerSearchResponse> => {

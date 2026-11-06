@@ -16,6 +16,7 @@ import { DataTable } from "@/components/shared/data-table"
 import { useSeasonParkerColumns } from "../table/season-parker-columns"
 import { useSeasonParkerSearch } from "@/hooks/use-season-parker"
 import { buildSeasonParkerParams } from "@/service/season-parker"
+import type { PaginationMetadata } from "@/models/api"
 
 const PLATE_SLOTS = 8
 
@@ -34,15 +35,19 @@ export function SeasonParkerModal({ onClose, title }: Props) {
     buildSeasonParkerParams(Array<string>(PLATE_SLOTS).fill(""), "")
   )
 
-  const { data, isLoading } = useSeasonParkerSearch(queryParams)
+  // `res` is the envelope: { status, message, data: SeasonParkerSearchData }
+  const { data: res, isLoading } = useSeasonParkerSearch(queryParams)
   // a successful Proceed closes the modal
   const columns = useSeasonParkerColumns(onClose)
-  const parkers = useMemo(() => data?.season_parkers ?? [], [data])
+  const result = res?.data
+  const parkers = useMemo(() => result?.season_parkers ?? [], [result])
 
   // the API has no `total_rows`, so it is approximated for the table's pagination
-  const pagination = data && {
-    ...data,
-    total_rows: data.total_pages * data.page_size,
+  const pagination: PaginationMetadata | undefined = result && {
+    current_page: result.current_page,
+    page_size: result.page_size,
+    total_pages: result.total_pages,
+    total_rows: result.total_pages * result.page_size,
   }
 
   const handlePlateChange = (index: number, value: string) =>

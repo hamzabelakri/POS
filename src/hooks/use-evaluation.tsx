@@ -1,5 +1,7 @@
+import { AxiosError, isAxiosError } from 'axios'
 import { useMutation } from '@tanstack/react-query'
 import { AlertEnum } from '@/models/alert-model'
+import { ApiError } from '@/models/api'
 import {
   AuthorizeEvaluationPayload,
   AuthorizeEvaluationResponse,
@@ -12,20 +14,21 @@ export function useAuthorizeEvaluation() {
 
   return useMutation<
     AuthorizeEvaluationResponse,
-    Error,
+    AxiosError<ApiError> | Error,
     AuthorizeEvaluationPayload
   >({
     mutationFn: authorizeEvaluation,
-    onSuccess: (data) => {
-      showAlert({
-        message: data?.data?.message,
-        type: AlertEnum.SUCCESS,
-      })
+    onSuccess: (res) => {
+      // outer message: "Authorization successful"
+      // (inner one is res.data.message: "Password validated successfully")
+      showAlert({ message: res.message, type: AlertEnum.SUCCESS })
     },
-    onError: (error: any) => {
+    onError: (error) => {
       console.error('Error authorizing evaluation password:', error)
       showAlert({
-        message: error?.response?.data?.error ?? error?.message,
+        message: isAxiosError<ApiError>(error)
+          ? (error.response?.data?.error ?? error.message)
+          : error.message,
         type: AlertEnum.ERROR,
       })
     },

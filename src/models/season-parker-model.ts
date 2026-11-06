@@ -1,4 +1,4 @@
-import { ApiResponse } from "./api"
+import { ApiResponse } from "@/models/api"
 
 export interface SeasonParker {
   participant_id: number
@@ -14,6 +14,7 @@ export interface SeasonParker {
   facility_present: number
   epan: string
 }
+
 export interface SeasonParkerSearchQueryParams {
   lpn?: string
   card_number?: string
@@ -21,10 +22,19 @@ export interface SeasonParkerSearchQueryParams {
   page_size?: number
 }
 
+// POST /season-parkers/exit
 export interface SeasonParkerExitPayload {
   participant_id: number
   company_id: number
 }
 
+// Pagination fields live inside `data` for this endpoint (no total_rows).
+export interface SeasonParkerSearchData {
+  current_page: number
+  page_size: number
+  season_parkers: SeasonParker[]
+  total_pages: number
+}
 
-export type SeasonParkerSearchResponse = ApiResponse<SeasonParker[]>
+// GET /season-parkers/search => { status, message, data: SeasonParkerSearchData }
+export type SeasonParkerSearchResponse = ApiResponse<SeasonParkerSearchData>

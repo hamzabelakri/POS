@@ -51,16 +51,24 @@ export function EvaluationModal({ open, onClose, onSuccess }: Props) {
     defaultValues: { evaluation_password: "" },
   });
 
-  const handleClose = () => {
+  // Reset and close. Used after a successful authorization.
+  const finish = () => {
     form.reset(); // never keep the password around
     onClose();
+  };
+
+  // User-initiated close (Cancel, Esc, overlay click).
+  // Ignored while the request is in flight, so a cancelled attempt
+  // can't trigger the main action afterwards.
+  const handleCancel = () => {
+    if (!isPending) finish();
   };
 
   const onSubmit = (values: EvaluationForm) => {
     authorize(values, {
       onSuccess: () => {
-        onSuccess?.();
-        handleClose();
+        onSuccess?.(); // run the main action first...
+        finish(); // ...then close
       },
     });
   };
@@ -69,7 +77,7 @@ export function EvaluationModal({ open, onClose, onSuccess }: Props) {
     <Dialog
       open={open}
       onOpenChange={(nextOpen) => {
-        if (!nextOpen) handleClose();
+        if (!nextOpen) handleCancel();
       }}
     >
       <DialogContent className="sm:max-w-lg">
@@ -105,7 +113,12 @@ export function EvaluationModal({ open, onClose, onSuccess }: Props) {
         </Form>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={handleClose}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isPending}
+          >
             {t("cancel")}
           </Button>
 

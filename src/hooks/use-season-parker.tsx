@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { AxiosError } from 'axios'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { AlertEnum } from '@/models/alert-model'
+import { ApiError } from '@/models/api'
 import {
   SeasonParkerExitPayload,
   SeasonParkerSearchQueryParams,
@@ -15,10 +16,7 @@ export function useSeasonParkerSearch(
 ) {
   const { showAlert } = useAlertStore()
 
-  const query = useQuery<
-    SeasonParkerSearchResponse,
-    AxiosError<{ error?: string }>
-  >({
+  const query = useQuery<SeasonParkerSearchResponse, AxiosError<ApiError>>({
     queryKey: ['season-parker-search', params],
     queryFn: () => getSeasonParkerSearch(params!),
     enabled: !!params,
@@ -40,11 +38,7 @@ export function useSeasonParkerSearch(
 export function useSeasonParkerExit(options?: { onSuccess?: () => void }) {
   const { showAlert } = useAlertStore()
 
-  return useMutation<
-    void,
-    AxiosError<{ error?: string }>,
-    SeasonParkerExitPayload
-  >({
+  return useMutation<void, AxiosError<ApiError>, SeasonParkerExitPayload>({
     mutationFn: seasonParkerExit,
     onSuccess: () => options?.onSuccess?.(),
     onError: (error) =>
