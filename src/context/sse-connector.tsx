@@ -6,6 +6,7 @@ import {
 import { useAuthStore } from "@/stores/auth-store"
 import { useSSEStore } from "@/stores/sse-store"
 import type { PrinterStatus } from "@/models/printer-model"
+import { ExitCar, SearchCarData } from "@/models/consult-model"
 
 const SSE_URL = import.meta.env.VITE_SSE_URL
 
@@ -50,10 +51,27 @@ function handlePrinter(data: unknown, envelope: Envelope) {
   })
 }
 
+function handleExitCar(data: unknown) {
+  const d = data as Partial<ExitCar> | null
+  if (!d?.vehicle_info) return
+  useSSEStore.getState().setExitEvent({ type: "exit_car", data: d as ExitCar })
+}
+
+function handleSearchCar(data: unknown) {
+  const d = data as Partial<SearchCarData> | null
+  if (!d?.bucket?.vehicle_info) return
+  useSSEStore
+    .getState()
+    .setExitEvent({ type: "search_car", data: d as SearchCarData })
+}
+
 /** Add a handler here when the backend starts sending a new `type`. */
 const handlers: Record<string, Handler> = {
   status: { handle: handleNatsStatus, allowError: true },
   printer: { handle: handlePrinter, allowError: true },
+  exit_car: { handle: handleExitCar },
+  // "car not found" arrives with error_code 404, so it must allowError
+  search_car: { handle: handleSearchCar, allowError: true },
 }
 
 function dispatch(raw: string) {

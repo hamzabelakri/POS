@@ -12,14 +12,9 @@ export const AUTHORIZE_ENDPOINT = '/articles/authorize'
 export const authorizeEvaluation = async (
   payload: AuthorizeEvaluationPayload
 ): Promise<AuthorizeEvaluationResponse> => {
-  const { data: body } = await axiosApi.post<AuthorizeEvaluationResponse>(
+  const { data } = await axiosApi.post<AuthorizeEvaluationResponse>(
     AUTHORIZE_ENDPOINT,
     payload
   )
-
-  // Only an explicit 200 on both levels counts as authorized.
-  if (body.status !== 200 || body.data?.status !== 200) {
-    throw new Error(body.data?.message ?? body.message ?? 'Authorization failed')
-  }
-  return body
+  return data
 }

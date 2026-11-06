@@ -18,13 +18,21 @@ function toArticle(product: PosProduct, lang: string): Article {
     description: translation?.description,
     iconUrl: product.icon || undefined,
     amount: product.amount,
+    isProduction: product.is_production,
+    isActive: product.is_active,
     isDiscount: product.is_discount,
+    discountType: product.discount_type,
+    discountValue: product.discount_value,
+    checkPms: product.check_pms,
     permissionRequired: product.permission_required,
-    disabled: !product.is_production && !product.is_active,
+    pmsArticleDefinition: product.pms_article_definition,
+    createdAt: product.created_at,
+    updatedAt: product.updated_at,
   }
 }
 
 // Articles come straight from the saved POS config (`pos.products`).
+// No filtering here: visibility/availability rules live in the UI.
 export function usePosArticles() {
   const { i18n } = useTranslation()
   const products = usePosConfigStore((state) => state.config?.pos?.products)
