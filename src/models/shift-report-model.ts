@@ -1,16 +1,15 @@
-import { ApiResponse } from "./api"
+import { PaginatedApiResponse } from '@/models/api'
 
-export type PaymentMethod = 'cash' | 'card' | (string & {})
+export type PaymentMethod = 'cash' | 'card' | '' | (string & {})
 
 export interface ShiftReportMedia {
   lpn?: string
   [key: string]: unknown
 }
 
-
 export interface ShiftReportRow {
   payment_id: number
-  card_type: string
+  card_type: string 
   media: ShiftReportMedia
   total: number
   payment_method: PaymentMethod
@@ -23,16 +22,14 @@ export interface ShiftReportData {
   total_turnover: number
 }
 
-export type ShiftReportResponse = ApiResponse<ShiftReportData>
+export type ShiftReportResponse = PaginatedApiResponse<ShiftReportData>
 
-// Query params are sent to the API as-is (same names as the endpoint)
 export interface ShiftReportQueryParams {
   lpn?: string
   page?: number
   page_size?: number
 }
 
-// Dialogs that can be opened from the shift report page
 export enum ShiftReportDialogEnum {
   EVALUATION = 'evaluation',
 }
