@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios'
 import { useMutation } from '@tanstack/react-query'
 import { AlertEnum } from '@/models/alert-model'
+import { ApiError } from '@/models/api'
 import {
   ConfigurePosVariables,
   PosConfigResponse,
@@ -15,14 +16,15 @@ export function useConfigurePos() {
 
   return useMutation<
     PosConfigResponse,
-    AxiosError<{ error: string }>,
+    AxiosError<ApiError>,
     ConfigurePosVariables
   >({
     mutationFn: configurePos,
-    onSuccess: (data, variables) => {
-      // Only a real save persists the response and marks the terminal configured.
+    onSuccess: (res, variables) => {
+      // Only a real save persists the config and marks the terminal configured.
+      // The store keeps the config itself, not the response envelope.
       if (variables.save) {
-        setConfig(data)
+        setConfig(res.data)
       }
     },
     onError: (error) => {

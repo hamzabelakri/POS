@@ -8,6 +8,7 @@ export const POS_CONFIG_ENDPOINT = `/pos/config`;
 
 // Same endpoint for both buttons: save=false tests the connection,
 // save=true tests it and persists the configuration.
+// Returns ApiResponse<PosConfigData>.
 export const configurePos = async ({
   payload,
   save,

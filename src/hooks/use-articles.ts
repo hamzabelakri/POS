@@ -27,7 +27,7 @@ function toArticle(product: PosProduct, lang: string): Article {
 // Articles come straight from the saved POS config (`pos.products`).
 export function usePosArticles() {
   const { i18n } = useTranslation()
-  const products = usePosConfigStore((state) => state.config?.pos.products)
+  const products = usePosConfigStore((state) => state.config?.pos?.products)
   const lang = i18n.language?.split('-')[0] ?? 'en'
 
   return useMemo(

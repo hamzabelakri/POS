@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { PosConfigResponse } from "@/models/pos-config-model";
+import type { PosConfigData } from "@/models/pos-config-model";
 
 interface PosConfigState {
   isConfigured: boolean;
-  config: PosConfigResponse | null;
-  setConfig: (config: PosConfigResponse) => void;
+  config: PosConfigData | null;
+  setConfig: (config: PosConfigData) => void;
   clearConfig: () => void;
 }
 
