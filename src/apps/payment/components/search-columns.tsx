@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
 
 import { Button } from "@/components/ui/button"
-import { PlateSearchCar } from "@/models/consult-model"
+import { PlateSearchDetail } from "@/models/consult-model"
 
 // "2026-09-01 08:22:04" -> "01/09/2026 08:22:04"
 const formatEntryTime = (value?: string) => {
@@ -14,10 +14,10 @@ export const useSearchColumns = ({
   onProceed,
   isProceeding,
 }: {
-  onProceed: (car: PlateSearchCar) => void
+  onProceed: (car: PlateSearchDetail) => void
   isProceeding: boolean
 }) =>
-  useMemo<ColumnDef<PlateSearchCar>[]>(
+  useMemo<ColumnDef<PlateSearchDetail>[]>(
     () => [
       {
         accessorKey: "license_plate",

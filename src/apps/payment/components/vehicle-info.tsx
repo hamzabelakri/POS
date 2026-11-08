@@ -1,30 +1,35 @@
 import { useState } from 'react'
 import { Camera, Images } from 'lucide-react'
+import { toVehicleView, type ExitVehicleEvent } from '@/models/sse-model'
+import { buildPlateSearchParams } from '@/service/consult'
 import { useSSEStore } from '@/stores/sse-store'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImagesModal } from '../modals/images-modal'
-import { toImageSrc } from '@/models/sse-model'
+import { PlateSearchModal } from '../modals/plate-search-modal'
 
 export function VehicleInfo() {
-  const info = useSSEStore((s) => s.exitCar?.vehicle_info)
+  const event = useSSEStore((s) => s.exitEvent)
+  const view = toVehicleView(event)
+
   const [showImages, setShowImages] = useState(false)
 
-  const exitImage = toImageSrc(info?.image)
-  const entryImage = toImageSrc(info?.entry_image)
+  // Each message is a new object, so a new search_car reopens the modal
+  const [dismissed, setDismissed] = useState<ExitVehicleEvent | null>(null)
+  const showSearch = event?.type === 'search_car' && dismissed !== event
+  const plateChars = [...(view?.plate ?? '')]
 
   return (
     <>
       <Card>
         <CardContent className='grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]'>
           {/* Exit picture */}
-          {/* Exit picture */}
           <div className='relative min-h-56 overflow-hidden rounded-lg border'>
-            {exitImage ? (
+            {view?.image ? (
               <img
-                src={exitImage}
+                src={view.image}
                 alt='Exit'
                 className='absolute inset-0 size-full object-cover'
               />
@@ -47,12 +52,12 @@ export function VehicleInfo() {
                   id='licensePlate'
                   readOnly
                   className='flex-1'
-                  value={info?.media.lpn ?? ''}
+                  value={view?.plate ?? ''}
                 />
                 <Button
                   variant='outline'
                   className='shrink-0'
-                  disabled={!info}
+                  disabled={!view?.hasEntry}
                   onClick={() => setShowImages(true)}
                 >
                   <Images />
@@ -63,15 +68,11 @@ export function VehicleInfo() {
 
             <div className='space-y-2'>
               <Label htmlFor='epan'>EPAN</Label>
-              <Input
-                id='epan'
-                readOnly
-                value={info?.external_unique_id ?? ''}
-              />
+              <Input id='epan' readOnly value={view?.epan ?? ''} />
             </div>
             <div className='space-y-2'>
               <Label htmlFor='cardType'>Card Type</Label>
-              <Input id='cardType' readOnly value={info?.card_type ?? ''} />
+              <Input id='cardType' readOnly value={view?.cardType ?? ''} />
             </div>
 
             <div className='space-y-2'>
@@ -80,7 +81,7 @@ export function VehicleInfo() {
                 id='entryTime'
                 readOnly
                 placeholder='—'
-                value={info?.entry_time ?? ''}
+                value={view?.entryTime ?? ''}
               />
             </div>
             <div className='space-y-2'>
@@ -89,7 +90,7 @@ export function VehicleInfo() {
                 id='parkingDuration'
                 readOnly
                 placeholder='—'
-                value={info?.parking_duration ?? ''}
+                value={view?.parkingDuration ?? ''}
               />
             </div>
           </div>
@@ -99,10 +100,19 @@ export function VehicleInfo() {
       <ImagesModal
         open={showImages}
         onOpenChange={setShowImages}
-        plate={info?.media.lpn}
-        entryImage={entryImage}
-        exitImage={exitImage}
+        plate={view?.plate}
+        entryImage={view?.entryImage ?? null}
+        exitImage={view?.image ?? null}
       />
+
+      {showSearch && (
+        <PlateSearchModal
+          onClose={() => setDismissed(event)}
+          initialPlate={plateChars}
+          initialRange={undefined}
+          initialParams={buildPlateSearchParams(plateChars, undefined, 1)}
+        />
+      )}
     </>
   )
 }

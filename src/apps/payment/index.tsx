@@ -1,5 +1,10 @@
 import { useRef, useState } from 'react'
-import { BillingLine, type Article } from '@/models/articles-model'
+import { useCancelLostTicketPayment } from '@/hooks/use-articles'
+import {
+  LOST_TICKET_CODE,
+  BillingLine,
+  type Article,
+} from '@/models/articles-model'
 import { useSSEStore } from '@/stores/sse-store'
 import { Main } from '@/components/layout/main'
 import { Articles } from './components/articles'
@@ -8,20 +13,34 @@ import { PaymentMethod } from './components/payment-method'
 import { PlateSearch } from './components/plate-search'
 import { QuickActions } from './components/quick-actions'
 import { VehicleInfo } from './components/vehicle-info'
-import { LaneAlertModal } from './modals/lane-alert-modal'
 
 export function Payment() {
   // Billing is the only state shared between cards (articles -> billing)
   const [billing, setBilling] = useState<BillingLine[]>([])
   const lineKey = useRef(0)
   const clearExitEvent = useSSEStore((s) => s.clearExitEvent)
+  const { cancelLostTicket, isPending: isCancelling } =
+    useCancelLostTicketPayment()
 
   const addToBilling = (article: Article) => {
     const key = ++lineKey.current
     setBilling((prev) => [...prev, { key, article }])
   }
-  const removeFromBilling = (key: number) =>
+
+  const removeLine = (key: number) =>
     setBilling((prev) => prev.filter((line) => line.key !== key))
+
+  const removeFromBilling = (key: number) => {
+    const line = billing.find((l) => l.key === key)
+    if (!line || isCancelling) return // isCancelling avoids double cancels
+
+    // A lost ticket is removed only after the cancel API succeeds
+    if (line.article.code === LOST_TICKET_CODE) {
+      cancelLostTicket(line.article, () => removeLine(key))
+      return
+    }
+    removeLine(key)
+  }
 
   const clearAll = () => {
     setBilling([])
@@ -48,7 +67,6 @@ export function Payment() {
           <PaymentMethod />
         </div>
       </div>
-      <LaneAlertModal />
     </Main>
   )
 }

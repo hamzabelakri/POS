@@ -2,14 +2,17 @@ import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { usePosArticles } from "@/hooks/use-articles"
-import { type Article } from "@/models/articles-model"
+import {
+  useCreateLostTicketTransaction,
+  usePosArticles,
+} from "@/hooks/use-articles"
+import { LOST_TICKET_CODE, type Article } from "@/models/articles-model"
 import { SeasonParkerModal } from "@/apps/payment/modals/season-parker-modal"
-import { LostTicketModal } from "@/apps/payment/modals/lost-ticket-modal"
 import { EvaluationModal } from "@/components/shared/modal/evaluation-modal"
+import { LostTicketWithCalculationModal } from "../modals/lost-ticket-with-calculation-modal"
 
 const SEASON_PARKER_CODE = "SEASON_PARKER"
-const LOST_TICKET_CODE = "LOST_TICKET_WITH_CALCULATION"
+const LOST_TICKET_WITH_CALCULATION_CODE = "LOST_TICKET_WITH_CALCULATION"
 const SHORT_TERM_PARKER_CODE = "SHORT_TERM_PARKER"
 
 // An article is disabled (but still shown) when it is not in production.
@@ -21,9 +24,11 @@ const isVisible = (article: Article) =>
 
 function ArticleGroup({
   articles,
+  busy,
   onSelect,
 }: {
   articles: Article[]
+  busy: boolean
   onSelect: (article: Article) => void
 }) {
   // Two articles per column: fills top to bottom, then moves to the next column.
@@ -33,7 +38,7 @@ function ArticleGroup({
         <Button
           key={article.id}
           variant="outline"
-          disabled={isDisabled(article)}
+          disabled={isDisabled(article) || busy}
           title={article.description}
           className="h-auto min-h-28 w-36 flex-col justify-center gap-2 py-4 text-center whitespace-normal"
           onClick={() => onSelect(article)}
@@ -50,8 +55,10 @@ function ArticleGroup({
 
 export function Articles({ onSelect }: { onSelect: (article: Article) => void }) {
   const { articles } = usePosArticles()
+  const { submitLostTicket, isPending } = useCreateLostTicketTransaction()
   const [seasonArticle, setSeasonArticle] = useState<Article | null>(null)
-  const [lostTicketArticle, setLostTicketArticle] = useState<Article | null>(null)
+  const [lostTicketWithCalculationArticle, setLostTicketWithCalculationArticle] =
+    useState<Article | null>(null)
   // Article waiting for the evaluation password before it can proceed.
   const [pendingArticle, setPendingArticle] = useState<Article | null>(null)
 
@@ -63,15 +70,20 @@ export function Articles({ onSelect }: { onSelect: (article: Article) => void })
       setSeasonArticle(article)
       return
     }
+    if (article.code === LOST_TICKET_WITH_CALCULATION_CODE) {
+      setLostTicketWithCalculationArticle(article)
+      return
+    }
     if (article.code === LOST_TICKET_CODE) {
-      setLostTicketArticle(article)
+      // Added to billing only once the POST succeeds
+      submitLostTicket(article, () => onSelect(article))
       return
     }
     onSelect(article)
   }
 
   const handleSelect = (article: Article) => {
-    if (isDisabled(article)) return // defensive; the button is already disabled
+    if (isDisabled(article) || isPending) return // defensive; avoids double POSTs
     if (article.permissionRequired) {
       setPendingArticle(article) // ask for the evaluation password first
       return
@@ -91,7 +103,11 @@ export function Articles({ onSelect }: { onSelect: (article: Article) => void })
               No articles configured
             </p>
           ) : (
-            <ArticleGroup articles={visibleArticles} onSelect={handleSelect} />
+            <ArticleGroup
+              articles={visibleArticles}
+              busy={isPending}
+              onSelect={handleSelect}
+            />
           )}
         </CardContent>
       </Card>
@@ -111,10 +127,10 @@ export function Articles({ onSelect }: { onSelect: (article: Article) => void })
         />
       )}
 
-      {lostTicketArticle && (
-        <LostTicketModal
-          title={lostTicketArticle.title}
-          onClose={() => setLostTicketArticle(null)}
+      {lostTicketWithCalculationArticle && (
+        <LostTicketWithCalculationModal
+          title={lostTicketWithCalculationArticle.title}
+          onClose={() => setLostTicketWithCalculationArticle(null)}
         />
       )}
     </>

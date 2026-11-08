@@ -33,7 +33,7 @@ type Props = {
   onSubmit?: (values: LostTicketValues) => void
 }
 
-export function LostTicketModal({ onClose, title, onSubmit }: Props) {
+export function LostTicketWithCalculationModal({ onClose, title, onSubmit }: Props) {
   const [plate, setPlate] = useState<string[]>(() =>
     Array<string>(PLATE_SLOTS).fill("")
   )
