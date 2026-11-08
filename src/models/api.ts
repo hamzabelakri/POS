@@ -2,20 +2,18 @@ export type ID = undefined | null | number
 
 export interface ApiResponse<T> {
   status: number
-  message: string
+  message?: string
   data: T
 }
 
 export interface PaginationMetadata {
   current_page: number
   page_size: number
-  total_rows: number
   total_pages: number
+  total_rows?: number
 }
 
-export interface PaginatedApiResponse<T> extends ApiResponse<T> {
-  pagination: PaginationMetadata
-}
+export type PaginatedData<T> = T & PaginationMetadata
 
 export interface ApiSearchParams {
   search?: string

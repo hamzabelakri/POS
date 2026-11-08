@@ -8,12 +8,13 @@ import { PaymentMethod } from './components/payment-method'
 import { PlateSearch } from './components/plate-search'
 import { QuickActions } from './components/quick-actions'
 import { VehicleInfo } from './components/vehicle-info'
+import { LaneAlertModal } from './modals/lane-alert-modal'
 
 export function Payment() {
   // Billing is the only state shared between cards (articles -> billing)
   const [billing, setBilling] = useState<BillingLine[]>([])
   const lineKey = useRef(0)
-  const clearExitCar = useSSEStore((s) => s.clearExitCar)
+  const clearExitEvent = useSSEStore((s) => s.clearExitEvent)
 
   const addToBilling = (article: Article) => {
     const key = ++lineKey.current
@@ -24,7 +25,7 @@ export function Payment() {
 
   const clearAll = () => {
     setBilling([])
-    clearExitCar()
+    clearExitEvent()
   }
 
   return (
@@ -47,6 +48,7 @@ export function Payment() {
           <PaymentMethod />
         </div>
       </div>
+      <LaneAlertModal />
     </Main>
   )
 }

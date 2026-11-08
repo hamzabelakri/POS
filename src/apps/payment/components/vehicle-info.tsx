@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { toImageSrc } from '@/models/consult-model'
 import { Camera, Images } from 'lucide-react'
 import { useSSEStore } from '@/stores/sse-store'
 import { Button } from '@/components/ui/button'
@@ -7,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImagesModal } from '../modals/images-modal'
+import { toImageSrc } from '@/models/sse-model'
 
 export function VehicleInfo() {
   const info = useSSEStore((s) => s.exitCar?.vehicle_info)

@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/models/api"
+import { ApiResponse, PaginatedData } from "@/models/api"
 
 export interface SeasonParker {
   participant_id: number
@@ -28,13 +28,9 @@ export interface SeasonParkerExitPayload {
   company_id: number
 }
 
-// Pagination fields live inside `data` for this endpoint (no total_rows).
 export interface SeasonParkerSearchData {
-  current_page: number
-  page_size: number
   season_parkers: SeasonParker[]
-  total_pages: number
 }
 
-// GET /season-parkers/search => { status, message, data: SeasonParkerSearchData }
-export type SeasonParkerSearchResponse = ApiResponse<SeasonParkerSearchData>
+export type SeasonParkerSearchResponse =
+  ApiResponse<PaginatedData<SeasonParkerSearchData>>

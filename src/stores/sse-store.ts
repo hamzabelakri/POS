@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import type { PrinterStatus } from "@/models/printer-model"
-import { ExitVehicleEvent } from "@/models/consult-model"
+import type { ExitVehicleEvent, LaneAlert } from "@/models/sse-model"
 
 export type SSEStatus =
   | "disconnected"
@@ -22,12 +22,16 @@ interface SSEState {
   printer: PrinterState | null
   setPrinter: (p: PrinterState) => void
 
-  /**
-   * Last exit-lane message (or manual capture); a new one replaces the previous.
-   * Null until received, or after Clear All.
-   */
+  /** Last exit_car / search_car message; a new one replaces the previous. */
   exitEvent: ExitVehicleEvent | null
   setExitEvent: (e: ExitVehicleEvent) => void
+
+  /** Last graylist / season parker message; a new one replaces the previous. */
+  laneAlert: LaneAlert | null
+  setLaneAlert: (a: LaneAlert) => void
+  clearLaneAlert: () => void
+
+  /** Clears the vehicle and the alert (used by Clear All). */
   clearExitEvent: () => void
 
   /** Clear live data (used on logout). */
@@ -53,12 +57,22 @@ export const useSSEStore = create<SSEState>((set) => ({
       return { printer: p }
     }),
 
-  // No equality check: messages aren't heartbeats, and a repeat of the same
-  // message must still count as new (it reopens the plate search modal).
+  // No equality check on the two slots below: they aren't heartbeats, and a
+  // repeated message must still count as new (it can reopen a modal).
   exitEvent: null,
   setExitEvent: (e) => set({ exitEvent: e }),
+
+  laneAlert: null,
+  setLaneAlert: (a) => set({ laneAlert: a }),
+  clearLaneAlert: () =>
+    set((s) => (s.laneAlert === null ? s : { laneAlert: null })),
+
   clearExitEvent: () =>
-    set((s) => (s.exitEvent === null ? s : { exitEvent: null })),
+    set((s) =>
+      s.exitEvent === null && s.laneAlert === null
+        ? s
+        : { exitEvent: null, laneAlert: null }
+    ),
 
   reset: () =>
     set({
@@ -66,5 +80,6 @@ export const useSSEStore = create<SSEState>((set) => ({
       natsOnline: null,
       printer: null,
       exitEvent: null,
+      laneAlert: null,
     }),
 }))

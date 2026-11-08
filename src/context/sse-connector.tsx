@@ -1,12 +1,21 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from 'react'
+import type { PrinterStatus } from '@/models/printer-model'
+import type {
+  ExitCar,
+  GraylistExitedZeroPaymentData,
+  SearchCarData,
+} from '@/models/sse-model'
+import type {
+  GraylistResult,
+  GraylistSeasonParkerData,
+  SeasonParkerStatus,
+} from '@/models/sse-model'
 import {
   fetchEventSource,
   EventStreamContentType,
-} from "@microsoft/fetch-event-source"
-import { useAuthStore } from "@/stores/auth-store"
-import { useSSEStore } from "@/stores/sse-store"
-import type { PrinterStatus } from "@/models/printer-model"
-import { ExitCar, SearchCarData } from "@/models/consult-model"
+} from '@microsoft/fetch-event-source'
+import { useAuthStore } from '@/stores/auth-store'
+import { useSSEStore } from '@/stores/sse-store'
 
 const SSE_URL = import.meta.env.VITE_SSE_URL
 
@@ -33,13 +42,13 @@ type Handler = {
 
 function handleNatsStatus(data: unknown) {
   const status = (data as { status?: unknown } | null)?.status
-  if (typeof status !== "boolean") return
+  if (typeof status !== 'boolean') return
   useSSEStore.getState().setNatsOnline(status)
 }
 
 function handlePrinter(data: unknown, envelope: Envelope) {
   const p = data as Partial<PrinterStatus> | null
-  if (typeof p?.online !== "boolean") return
+  if (typeof p?.online !== 'boolean') return
   useSSEStore.getState().setPrinter({
     online: p.online,
     cover_closed: Boolean(p.cover_closed),
@@ -47,14 +56,14 @@ function handlePrinter(data: unknown, envelope: Envelope) {
     paper_low: Boolean(p.paper_low),
     error: Boolean(p.error),
     error_code: Number(p.error_code ?? 0),
-    message: envelope.message ?? "",
+    message: envelope.message ?? '',
   })
 }
 
 function handleExitCar(data: unknown) {
   const d = data as Partial<ExitCar> | null
   if (!d?.vehicle_info) return
-  useSSEStore.getState().setExitEvent({ type: "exit_car", data: d as ExitCar })
+  useSSEStore.getState().setExitEvent({ type: 'exit_car', data: d as ExitCar })
 }
 
 function handleSearchCar(data: unknown) {
@@ -62,7 +71,47 @@ function handleSearchCar(data: unknown) {
   if (!d?.bucket?.vehicle_info) return
   useSSEStore
     .getState()
-    .setExitEvent({ type: "search_car", data: d as SearchCarData })
+    .setExitEvent({ type: 'search_car', data: d as SearchCarData })
+}
+
+function handleGraylistLpn(data: unknown, envelope: Envelope) {
+  const d = data as Partial<GraylistResult> | null
+  if (typeof d?.found !== 'boolean') return
+  useSSEStore.getState().setLaneAlert({
+    type: 'graylist_lpn',
+    data: d as GraylistResult,
+    message: envelope.message ?? '',
+  })
+}
+
+function handleGraylistSeasonParker(data: unknown, envelope: Envelope) {
+  const d = data as Partial<GraylistSeasonParkerData> | null
+  if (!d?.graylist || !d.season_parker) return
+  useSSEStore.getState().setLaneAlert({
+    type: 'graylist_season_parker',
+    data: d as GraylistSeasonParkerData,
+    message: envelope.message ?? '',
+  })
+}
+
+function handleSeasonParkerStatus(data: unknown, envelope: Envelope) {
+  const d = data as Partial<SeasonParkerStatus> | null
+  if (typeof d?.state !== 'string' || !d.season_parker) return
+  useSSEStore.getState().setLaneAlert({
+    type: 'season_parker_status',
+    data: d as SeasonParkerStatus,
+    message: envelope.message ?? '',
+  })
+}
+
+function handleGraylistExitedZeroPayment(data: unknown, envelope: Envelope) {
+  const d = data as Partial<GraylistExitedZeroPaymentData> | null
+  if (!d?.graylist || !d.bucket) return
+  useSSEStore.getState().setLaneAlert({
+    type: 'graylist_exited_with_zero_payment',
+    data: d as GraylistExitedZeroPaymentData,
+    message: envelope.message ?? '',
+  })
 }
 
 /** Add a handler here when the backend starts sending a new `type`. */
@@ -72,13 +121,24 @@ const handlers: Record<string, Handler> = {
   exit_car: { handle: handleExitCar },
   // "car not found" arrives with error_code 404, so it must allowError
   search_car: { handle: handleSearchCar, allowError: true },
+  // These carry state; two of them arrive with error_code 200 (level "info")
+  graylist_lpn: { handle: handleGraylistLpn, allowError: true },
+  graylist_season_parker: {
+    handle: handleGraylistSeasonParker,
+    allowError: true,
+  },
+  graylist_exited_with_zero_payment: {
+    handle: handleGraylistExitedZeroPayment,
+    allowError: true,
+  },
+  season_parker_status: { handle: handleSeasonParkerStatus, allowError: true },
 }
 
 function dispatch(raw: string) {
   const envelope = JSON.parse(raw) as Envelope
   const handler = handlers[envelope.type]
   if (!handler) {
-    console.debug("SSE: unhandled message type", envelope.type)
+    console.debug('SSE: unhandled message type', envelope.type)
     return
   }
   if (envelope.error_code && !handler.allowError) return
@@ -93,8 +153,8 @@ export function SSEConnector() {
 
   useEffect(() => {
     const onOnline = () => setReconnectKey((k) => k + 1)
-    window.addEventListener("online", onOnline)
-    return () => window.removeEventListener("online", onOnline)
+    window.addEventListener('online', onOnline)
+    return () => window.removeEventListener('online', onOnline)
   }, [])
 
   useEffect(() => {
@@ -109,23 +169,23 @@ export function SSEConnector() {
     const ctrl = new AbortController()
     let attempt = 0
 
-    setStatus("connecting")
+    setStatus('connecting')
 
     fetchEventSource(SSE_URL, {
       signal: ctrl.signal,
       openWhenHidden: true,
       headers: {
         Authorization: `Bearer ${token}`,
-        Accept: "text/event-stream",
+        Accept: 'text/event-stream',
       },
 
       async onopen(res) {
         if (
           res.ok &&
-          res.headers.get("content-type")?.startsWith(EventStreamContentType)
+          res.headers.get('content-type')?.startsWith(EventStreamContentType)
         ) {
           attempt = 0
-          setStatus("connected")
+          setStatus('connected')
           return
         }
         if (res.status >= 400 && res.status < 500 && res.status !== 429) {
@@ -140,31 +200,34 @@ export function SSEConnector() {
           dispatch(event.data)
         } catch (err) {
           // One bad message must never kill the stream
-          console.warn("SSE: bad message", err)
+          console.warn('SSE: bad message', err)
         }
       },
 
       onclose() {
         if (ctrl.signal.aborted) return
-        throw new RetriableError("SSE stream closed")
+        throw new RetriableError('SSE stream closed')
       },
 
       onerror(err) {
         if (err instanceof FatalError) throw err
-        setStatus("reconnecting")
+        setStatus('reconnecting')
         const delay = Math.min(BASE_DELAY_MS * 2 ** attempt, MAX_DELAY_MS)
         attempt += 1
         return delay
       },
     }).catch((err) => {
       if (ctrl.signal.aborted) return
-      setStatus("disconnected")
-      console.error(err instanceof FatalError ? err.message : "SSE stopped:", err)
+      setStatus('disconnected')
+      console.error(
+        err instanceof FatalError ? err.message : 'SSE stopped:',
+        err
+      )
     })
 
     return () => {
       ctrl.abort()
-      setStatus("disconnected")
+      setStatus('disconnected')
     }
   }, [token, reconnectKey])
 

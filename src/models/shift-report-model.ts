@@ -1,4 +1,4 @@
-import { PaginatedApiResponse } from '@/models/api'
+import { ApiResponse, PaginatedData } from '@/models/api'
 
 export type PaymentMethod = 'cash' | 'card' | '' | (string & {})
 
@@ -9,7 +9,7 @@ export interface ShiftReportMedia {
 
 export interface ShiftReportRow {
   payment_id: number
-  card_type: string 
+  card_type: string
   media: ShiftReportMedia
   total: number
   payment_method: PaymentMethod
@@ -22,7 +22,7 @@ export interface ShiftReportData {
   total_turnover: number
 }
 
-export type ShiftReportResponse = PaginatedApiResponse<ShiftReportData>
+export type ShiftReportResponse = ApiResponse<PaginatedData<ShiftReportData>>
 
 export interface ShiftReportQueryParams {
   lpn?: string
