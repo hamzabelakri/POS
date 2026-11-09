@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useCancelLostTicketPayment } from '@/hooks/use-articles'
 import {
   LOST_TICKET_CODE,
+  LOST_TICKET_WITH_CALCULATION_CODE,
   BillingLine,
   type Article,
 } from '@/models/articles-model'
@@ -14,6 +15,11 @@ import { PlateSearch } from './components/plate-search'
 import { QuickActions } from './components/quick-actions'
 import { VehicleInfo } from './components/vehicle-info'
 
+// Articles whose removal must be confirmed by the cancel API first
+const needsCancelRequest = (article: Article) =>
+  article.code === LOST_TICKET_CODE ||
+  article.code === LOST_TICKET_WITH_CALCULATION_CODE
+
 export function Payment() {
   // Billing is the only state shared between cards (articles -> billing)
   const [billing, setBilling] = useState<BillingLine[]>([])
@@ -22,9 +28,36 @@ export function Payment() {
   const { cancelLostTicket, isPending: isCancelling } =
     useCancelLostTicketPayment()
 
-  const addToBilling = (article: Article) => {
+  // Ids of articles already billed (used to lock articles in <Articles />)
+  const billedIds = useMemo(
+    () => new Set(billing.map((l) => l.article.id)),
+    [billing]
+  )
+
+  // Removing the last line resets the exit event, like Clear All.
+  // The ref avoids resetting on mount, when the list is empty from the start.
+  const hadLines = useRef(false)
+  useEffect(() => {
+    if (billing.length > 0) {
+      hadLines.current = true
+    } else if (hadLines.current) {
+      hadLines.current = false
+      clearExitEvent()
+    }
+  }, [billing.length, clearExitEvent])
+
+  const addToBilling = (
+    article: Article,
+    extras?: Pick<BillingLine, 'adminId' | 'calculation'>
+  ) => {
     const key = ++lineKey.current
-    setBilling((prev) => [...prev, { key, article }])
+    setBilling((prev) =>
+      // A production article can be added only once; checked against the
+      // latest list so a stale closure can't sneak in a duplicate.
+      article.isProduction && prev.some((l) => l.article.id === article.id)
+        ? prev
+        : [...prev, { key, article, ...extras }]
+    )
   }
 
   const removeLine = (key: number) =>
@@ -34,9 +67,9 @@ export function Payment() {
     const line = billing.find((l) => l.key === key)
     if (!line || isCancelling) return // isCancelling avoids double cancels
 
-    // A lost ticket is removed only after the cancel API succeeds
-    if (line.article.code === LOST_TICKET_CODE) {
-      cancelLostTicket(line.article, () => removeLine(key))
+    // Lost ticket articles are removed only after the cancel API succeeds
+    if (needsCancelRequest(line.article)) {
+      cancelLostTicket(line, () => removeLine(key))
       return
     }
     removeLine(key)
@@ -54,7 +87,7 @@ export function Payment() {
         <div className='flex flex-col gap-4'>
           <VehicleInfo />
           <PlateSearch />
-          <Articles onSelect={addToBilling} />
+          <Articles billedIds={billedIds} onSelect={addToBilling} />
         </div>
 
         <div className='flex flex-col gap-4'>

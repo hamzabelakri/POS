@@ -1,16 +1,10 @@
 import { useState } from "react"
 import { format } from "date-fns"
 import { IconTicket } from "@tabler/icons-react"
-import { CalendarIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -23,36 +17,54 @@ const PLATE_SLOTS = 8
 
 export type LostTicketValues = {
   lpn: string
-  date: Date
+  entryTime: Date // never null: submit is disabled without a valid date
 }
 
 type Props = {
   onClose: () => void
   title?: string
-  // wired to the calculation request later
-  onSubmit?: (values: LostTicketValues) => void
+  isPending?: boolean
+  onSubmit: (values: LostTicketValues) => void
 }
 
-export function LostTicketWithCalculationModal({ onClose, title, onSubmit }: Props) {
+export function LostTicketWithCalculationModal({
+  onClose,
+  title,
+  isPending = false,
+  onSubmit,
+}: Props) {
   const [plate, setPlate] = useState<string[]>(() =>
     Array<string>(PLATE_SLOTS).fill("")
   )
-  const [date, setDate] = useState<Date | undefined>()
-  const [calendarOpen, setCalendarOpen] = useState(false)
+  // datetime-local value, local time: "yyyy-MM-ddTHH:mm"
+  const [entry, setEntry] = useState("")
 
   const lpn = plate.join("").trim()
-  const canSubmit = lpn.length > 0 && !!date
+  const entryDate = entry ? new Date(entry) : null
+
+  // An entry time is required, must be a valid date, and not in the future.
+  const validEntry =
+    !!entryDate &&
+    !Number.isNaN(entryDate.getTime()) &&
+    entryDate <= new Date()
+
+  const canSubmit = validEntry && !isPending
 
   const handlePlateChange = (index: number, value: string) =>
     setPlate((prev) => prev.map((char, i) => (i === index ? value : char)))
 
   const handleSubmit = () => {
-    if (!canSubmit || !date) return
-    onSubmit?.({ lpn, date })
+    if (!canSubmit || !entryDate) return // narrows entryDate to Date
+    onSubmit({ lpn, entryTime: entryDate })
+  }
+
+  // No closing while the request is in flight
+  const handleClose = () => {
+    if (!isPending) onClose()
   }
 
   return (
-    <Dialog open onOpenChange={(next) => !next && onClose()}>
+    <Dialog open onOpenChange={(next) => !next && handleClose()}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader className="border-b pb-3">
           <DialogTitle className="flex items-center gap-2">
@@ -80,42 +92,29 @@ export function LostTicketWithCalculationModal({ onClose, title, onSubmit }: Pro
             </div>
           </div>
 
-          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full justify-start font-normal sm:w-64"
-              >
-                <CalendarIcon />
-                {date ? (
-                  format(date, "PPP")
-                ) : (
-                  <span className="text-muted-foreground">Pick a date</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={(next) => {
-                  setDate(next)
-                  setCalendarOpen(false)
-                }}
-                disabled={(d) => d > new Date()}
-                autoFocus
-              />
-            </PopoverContent>
-          </Popover>
+          <div className="space-y-2 sm:w-64">
+            <Label htmlFor="entryTime">Entry Time</Label>
+            <Input
+              id="entryTime"
+              type="datetime-local"
+              value={entry}
+              max={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
+              onChange={(e) => setEntry(e.target.value)}
+            />
+          </div>
         </div>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClose}
+            disabled={isPending}
+          >
             Close
           </Button>
           <Button type="button" disabled={!canSubmit} onClick={handleSubmit}>
-            Calculate
+            {isPending ? "Calculating..." : "Calculate"}
           </Button>
         </DialogFooter>
       </DialogContent>

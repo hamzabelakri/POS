@@ -18,11 +18,6 @@ export function useAuthorizeEvaluation() {
     AuthorizeEvaluationPayload
   >({
     mutationFn: authorizeEvaluation,
-    onSuccess: (res) => {
-      // outer message: "Authorization successful"
-      // (inner one is res.data.message: "Password validated successfully")
-      showAlert({ message: res.message, type: AlertEnum.SUCCESS })
-    },
     onError: (error) => {
       showAlert({
         message: error.response?.data?.error ?? error.message,

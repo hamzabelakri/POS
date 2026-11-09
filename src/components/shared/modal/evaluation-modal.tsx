@@ -24,6 +24,7 @@ import {
 import { PasswordInput } from "@/components/password-input";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { useAuthorizeEvaluation } from "@/hooks/use-evaluation";
+import type { EvaluationUser } from "@/models/evaluation-model";
 
 const getSchema = (t: any) =>
   z.object({
@@ -37,7 +38,8 @@ type EvaluationForm = z.infer<ReturnType<typeof getSchema>>;
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSuccess?: () => void; // runs after the password is accepted
+  // Runs after the password is accepted, with the admin who approved it.
+  onSuccess?: (user: EvaluationUser) => void;
 }
 
 export function EvaluationModal({ open, onClose, onSuccess }: Props) {
@@ -66,8 +68,9 @@ export function EvaluationModal({ open, onClose, onSuccess }: Props) {
 
   const onSubmit = (values: EvaluationForm) => {
     authorize(values, {
-      onSuccess: () => {
-        onSuccess?.(); // run the main action first...
+      onSuccess: (res) => {
+        // The API nests a second envelope: the user is at res.data.data
+        onSuccess?.(res.data.data); // run the main action first...
         finish(); // ...then close
       },
     });
