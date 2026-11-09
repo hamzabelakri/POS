@@ -26,21 +26,14 @@ export type Article = {
   updatedAt: string
 }
 
-// One row in the billing list.
-// - key: unique per row (the same article can appear on several rows)
-// - adminId: the admin who approved the article through the evaluation;
-//   set for the lost ticket, and reused when cancelling it
-export type BillingLine = {
-  key: number
-  article: Article
-  adminId?: number
-  calculation?: LostTicketCalculation
-}
+// One row in the billing list. `key` is unique per row, so the same
+// article can appear on several rows.
+export type BillingLine = { key: number; article: Article }
 
 // Responses we don't read in the UI: only status and message (no data).
 type MessageResponse = Omit<ApiResponse<unknown>, 'data'>
 
-// ---- Shared by the LOST_TICKET create and cancel payloads ----------------
+// ---- Shared by the lost ticket payloads -----------------------------------
 
 export interface LostTicketAppliedArticle {
   name: string
@@ -64,19 +57,13 @@ export interface LostTicketPaymentSummary {
   tariff_relev_time: string
 }
 
-// ---- POST /transactions ---------------------------------------------------
+// ---- POST /transactions (lost ticket) -------------------------------------
 
 export interface LostTicketTransactionPayload {
   vehicle_info: {
     image: string
     entry_image: string
-    media: {
-      lpn: string
-      barcode: string
-      rfid: string
-      uhf: string
-      oa: string
-    }
+    media: { lpn: string; barcode: string; rfid: string; uhf: string; oa: string }
     external_unique_id: string
     card_type: string
     entry_time: string
@@ -92,7 +79,31 @@ export interface LostTicketTransactionPayload {
 // { status: 200, message: "Transaction added successfully" }
 export type LostTicketTransactionResponse = MessageResponse
 
+// ---- POST /payments/calculate-tariff (lost ticket with calculation) -------
+
+export interface LostTicketWithCalculationPayload {
+  vehicle_info: {
+    image: string
+    entry_image: string
+    media: { lpn: string }
+    card_type: string
+    entry_time: string
+    tariff_time: string
+    parking_duration: string
+    external_unique_id: string
+  }
+  transactions: Record<string, unknown>
+  payment_summary: LostTicketPaymentSummary
+  applied_article: LostTicketAppliedArticle
+  cashier: LostTicketCashier
+  is_untracked: boolean
+}
+
+// { status: 200, message: "Tariff calculated successfully" }
+export type LostTicketWithCalculationResponse = MessageResponse
+
 // ---- POST /payments/cancel?print_receipt=false ----------------------------
+// Built from the latest exit_car message (the backend already computed it).
 
 export interface LostTicketCancelFee {
   code: string
@@ -125,31 +136,3 @@ export interface LostTicketCancelPayload {
 
 // { status: 200, message: "Payment cancelled successfully" }
 export type LostTicketCancelResponse = MessageResponse
-
-// Calculation data kept on the billing line, reused when cancelling
-export type LostTicketCalculation = {
-  entryTime: string // ISO, what the cashier entered
-  calculatedAt: string // ISO, when the tariff was calculated
-}
-
-// ---- POST /payments/calculate-tariff ---------------------------------------
-export interface LostTicketWithCalculationPayload {
-  vehicle_info: {
-    image: string
-    entry_image: string
-    media: { lpn: string }
-    card_type: string
-    entry_time: string
-    tariff_time: string
-    parking_duration: string
-    external_unique_id: string
-  }
-  transactions: Record<string, unknown>
-  payment_summary: LostTicketPaymentSummary
-  applied_article: LostTicketAppliedArticle
-  cashier: LostTicketCashier
-  is_untracked: boolean
-}
-
-// { status: 200, message: "Tariff calculated successfully" }
-export type LostTicketWithCalculationResponse = MessageResponse

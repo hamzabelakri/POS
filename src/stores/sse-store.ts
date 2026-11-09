@@ -26,6 +26,12 @@ interface SSEState {
   exitEvent: ExitVehicleEvent | null
   setExitEvent: (e: ExitVehicleEvent) => void
 
+  /**
+   * Removes one transaction from the last exit_car (after a successful cancel,
+   * since no new exit_car follows). Clears the event when none are left.
+   */
+  removeExitTransaction: (key: string) => void
+
   /** Last graylist / season parker message; a new one replaces the previous. */
   laneAlert: LaneAlert | null
   setLaneAlert: (a: LaneAlert) => void
@@ -61,6 +67,23 @@ export const useSSEStore = create<SSEState>((set) => ({
   // repeated message must still count as new (it can reopen a modal).
   exitEvent: null,
   setExitEvent: (e) => set({ exitEvent: e }),
+
+  removeExitTransaction: (key) =>
+    set((s) => {
+      const e = s.exitEvent
+      if (e?.type !== "exit_car") return s
+
+      const transactions = { ...e.data.transactions }
+      delete transactions[key]
+
+      // Last line removed: same as Clear All
+      if (Object.keys(transactions).length === 0) {
+        return { exitEvent: null, laneAlert: null }
+      }
+      return {
+        exitEvent: { type: "exit_car", data: { ...e.data, transactions } },
+      }
+    }),
 
   laneAlert: null,
   setLaneAlert: (a) => set({ laneAlert: a }),

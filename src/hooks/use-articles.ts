@@ -8,7 +8,6 @@ import {
   Article,
   BillingLine,
   LostTicketAppliedArticle,
-  LostTicketCalculation,
   LostTicketCancelPayload,
   LostTicketCancelResponse,
   LostTicketCashier,
@@ -18,6 +17,7 @@ import {
   LostTicketWithCalculationResponse,
 } from '@/models/articles-model'
 import { PosProduct, PosProductTranslation } from '@/models/pos-config-model'
+import type { ExitCar } from '@/models/sse-model'
 import {
   calculateLostTicketTariff,
   cancelLostTicketPayment,
@@ -26,11 +26,9 @@ import {
 import { useAlertStore } from '@/stores/alert-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { usePosConfigStore } from '@/stores/pos-config-store'
+import { useSSEStore } from '@/stores/sse-store'
 
 const ZERO_DATE = '0001-01-01 00:00:00' // the backend's "no date" value
-
-// ISO ("2026-11-09T12:42:00.000Z") -> the backend's "yyyy-MM-dd HH:mm:ss" (UTC)
-const toBackendDate = (iso: string) => iso.slice(0, 19).replace('T', ' ')
 
 const hasName = (tr: PosProductTranslation) => !!tr.name?.trim()
 
@@ -78,10 +76,35 @@ export function usePosArticles() {
   )
 }
 
+/* ───────── Billed lines (derived from the last exit_car) ───────── */
+
+// Every transaction in the event whose code exists in the POS config becomes a
+// line, filled with the config's data (title, icon, ...). Unknown codes are skipped.
+export function useBilledLines(): BillingLine[] {
+  const { articles } = usePosArticles()
+  const event = useSSEStore((s) => s.exitEvent)
+  const byCode = useMemo(
+    () => new Map(articles.map((a) => [a.code, a])),
+    [articles]
+  )
+
+  return useMemo(() => {
+    if (event?.type !== 'exit_car') return []
+    return Object.entries(event.data.transactions).flatMap(([key, fee]) => {
+      const article = byCode.get(fee.code)
+      if (!article) {
+        console.warn('Billing: unknown article code', fee.code)
+        return []
+      }
+      return [{ key, article }]
+    })
+  }, [event, byCode])
+}
+
 /* ───────── Shared helpers ───────── */
 
-// adminId is the id of the admin who approved the action (evaluation response).
-// 0 when the article has no evaluation (e.g. lost ticket with calculation).
+// adminId: the admin who approved the action (evaluation response),
+// 0 when the article has no evaluation.
 const toAppliedArticle = (
   article: Article,
   adminId: number
@@ -104,9 +127,9 @@ function useShiftCashier(): LostTicketCashier {
   }
 }
 
-/* ───────── LOST_TICKET: POST /transactions ───────── */
+/* ───────── Apply an article: POST /transactions ───────── */
 
-export function buildLostTicketTransactionPayload(
+export function buildTransactionPayload(
   article: Article,
   cashier: LostTicketCashier,
   adminId: number
@@ -121,7 +144,7 @@ export function buildLostTicketTransactionPayload(
       entry_time: '',
       parking_duration: '',
     },
-    transactions: {},
+    transactions: {}, // the backend fills it in (see the exit_car message)
     payment_summary: {
       subtotal: 0,
       discounts: 0,
@@ -137,7 +160,7 @@ export function buildLostTicketTransactionPayload(
   }
 }
 
-export function useCreateLostTicketTransaction() {
+export function useCreateTransaction() {
   const { showAlert } = useAlertStore()
   const cashier = useShiftCashier()
 
@@ -151,24 +174,17 @@ export function useCreateLostTicketTransaction() {
       showAlert({
         message:
           error?.response?.data?.error ||
-          'Unable to create the lost ticket transaction. Please try again.',
+          'Unable to add the article. Please try again.',
         type: AlertEnum.ERROR,
       })
     },
   })
 
-  // `onSuccess` runs only after the POST succeeds (adds the article).
-  const submitLostTicket = (
-    article: Article,
-    adminId: number,
-    onSuccess: () => void
-  ) =>
-    mutation.mutate(
-      buildLostTicketTransactionPayload(article, cashier, adminId),
-      { onSuccess }
-    )
+  // No onSuccess: the line appears when the exit_car message arrives.
+  const submitArticle = (article: Article, adminId = 0) =>
+    mutation.mutate(buildTransactionPayload(article, cashier, adminId))
 
-  return { ...mutation, submitLostTicket }
+  return { ...mutation, submitArticle }
 }
 
 /* ───────── LOST_TICKET_WITH_CALCULATION: POST /payments/calculate-tariff ───────── */
@@ -192,7 +208,7 @@ export function buildLostTicketWithCalculationPayload(
       parking_duration: '',
       external_unique_id: '',
     },
-    transactions: {}, // TODO: the real payload sends a LOST_TICKET fee here
+    transactions: {}, // the backend fills it in (see the exit_car message)
     payment_summary: {
       subtotal: 0,
       discounts: 0,
@@ -228,7 +244,7 @@ export function useCalculateLostTicketTariff() {
     },
   })
 
-  // `onSuccess` runs only after the calculation succeeds (adds the article).
+  // `onSuccess` only closes the modal; the line comes from the SSE message.
   const submitCalculation = (
     article: Article,
     values: CalculationValues,
@@ -242,59 +258,24 @@ export function useCalculateLostTicketTariff() {
   return { ...mutation, submitCalculation }
 }
 
-/* ───────── Cancel (both lost ticket articles): POST /payments/cancel ───────── */
+/* ───────── Cancel any billed line: POST /payments/cancel ───────── */
 
-export function buildLostTicketCancelPayload(
-  article: Article,
-  cashier: LostTicketCashier,
-  adminId: number,
-  calculation?: LostTicketCalculation
+// Resend the last exit_car data, limited to the removed line's transaction,
+// marked as cancelled, with the cashier filled in by the frontend.
+export function buildCancelPayload(
+  event: ExitCar,
+  key: string,
+  cashier: LostTicketCashier
 ): LostTicketCancelPayload {
-  const entryTime = calculation
-    ? toBackendDate(calculation.entryTime)
-    : ZERO_DATE
-
   return {
-    vehicle_info: {
-      image: '',
-      entry_image: '',
-      media: {},
-      card_type: '',
-      entry_time: entryTime,
-      tariff_time: entryTime,
-      parking_duration: calculation ? '0m' : '', // as in the real payloads
-      external_unique_id: '',
-    },
-    transactions: {
-      '1': {
-        code: article.code,
-        type: 'fee', // always a fee
-        value: article.amount, // TODO: calculated tariff for the calculation article
-        is_discount: article.isDiscount,
-        discount_type: article.discountType,
-        discount_value: article.discountValue,
-        permission_required: article.permissionRequired,
-        admin_id: adminId,
-      },
-    },
-    payment_summary: {
-      subtotal: article.amount, // TODO: calculated tariff
-      discounts: 0,
-      tax_rate: 0, // TODO: the real payload sends 20 for the calculation article
-      tax_value: 0, // TODO: no matching data yet
-      total: article.amount, // TODO: calculated tariff
-      is_cancelled: true,
-      tariff_relev_time: calculation
-        ? toBackendDate(calculation.calculatedAt)
-        : ZERO_DATE,
-    },
-    applied_article: toAppliedArticle(article, adminId),
+    ...event,
+    transactions: { [key]: event.transactions[key] },
+    payment_summary: { ...event.payment_summary, is_cancelled: true },
     cashier,
-    is_untracked: false,
   }
 }
 
-export function useCancelLostTicketPayment() {
+export function useCancelArticle() {
   const { showAlert } = useAlertStore()
   const cashier = useShiftCashier()
 
@@ -308,24 +289,30 @@ export function useCancelLostTicketPayment() {
       showAlert({
         message:
           error?.response?.data?.error ||
-          'Unable to cancel the lost ticket. Please try again.',
+          'Unable to cancel the article. Please try again.',
         type: AlertEnum.ERROR,
       })
     },
   })
 
-  // Takes the whole billing line, so the same function serves both articles.
-  // `onSuccess` runs only after the cancel succeeds (removes the line).
-  const cancelLostTicket = (line: BillingLine, onSuccess: () => void) =>
-    mutation.mutate(
-      buildLostTicketCancelPayload(
-        line.article,
-        cashier,
-        line.adminId ?? 0,
-        line.calculation
-      ),
-      { onSuccess }
-    )
+  const cancelArticle = (line: BillingLine) => {
+    // Read the store on click: it is the latest backend state.
+    const event = useSSEStore.getState().exitEvent
+    const data = event?.type === 'exit_car' ? event.data : null
 
-  return { ...mutation, cancelLostTicket }
+    if (!data?.transactions[line.key]) {
+      showAlert({
+        message: 'No matching vehicle data to cancel. Please try again.',
+        type: AlertEnum.ERROR,
+      })
+      return
+    }
+
+    mutation.mutate(buildCancelPayload(data, line.key, cashier), {
+      // No exit_car follows a cancel, so update the stored event ourselves.
+      onSuccess: () => useSSEStore.getState().removeExitTransaction(line.key),
+    })
+  }
+
+  return { ...mutation, cancelArticle }
 }

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   useCalculateLostTicketTariff,
-  useCreateLostTicketTransaction,
+  useCreateTransaction,
   usePosArticles,
 } from "@/hooks/use-articles"
 import {
@@ -13,14 +13,12 @@ import {
   SEASON_PARKER_CODE,
   SHORT_TERM_PARKER_CODE,
   type Article,
-  type BillingLine,
 } from "@/models/articles-model"
 import { useSSEStore } from "@/stores/sse-store"
 import { SeasonParkerModal } from "@/apps/payment/modals/season-parker-modal"
 import { EvaluationModal } from "@/components/shared/modal/evaluation-modal"
 import { LostTicketWithCalculationModal } from "../modals/lost-ticket-with-calculation-modal"
 
-// Shown only when active, and never for the short term parker.
 const isVisible = (article: Article) =>
   article.isActive && article.code !== SHORT_TERM_PARKER_CODE
 
@@ -57,8 +55,6 @@ function ArticleGroup({
     </Button>
   )
 
-  // Production articles on the first row, the rest on the second.
-  // Both rows sit in one scroll container, so they scroll together.
   const production = articles.filter((a) => a.isProduction)
   const others = articles.filter((a) => !a.isProduction)
 
@@ -74,36 +70,23 @@ function ArticleGroup({
   )
 }
 
-type Extras = Pick<BillingLine, "adminId" | "calculation">
-
-export function Articles({
-  billedIds,
-  onSelect,
-}: {
-  billedIds: Set<number>
-  onSelect: (article: Article, extras?: Extras) => void
-}) {
+export function Articles({ billedIds }: { billedIds: Set<number> }) {
   const { articles } = usePosArticles()
-  const { submitLostTicket, isPending: isSubmitting } =
-    useCreateLostTicketTransaction()
+  const { submitArticle, isPending: isSubmitting } = useCreateTransaction()
   const { submitCalculation, isPending: isCalculating } =
     useCalculateLostTicketTariff()
-  // Subscribing to a boolean: re-renders only when it flips, not on every message
   const hasExitCar = useSSEStore((s) => s.exitEvent?.type === "exit_car")
 
   const [seasonArticle, setSeasonArticle] = useState<Article | null>(null)
   const [calculationArticle, setCalculationArticle] = useState<Article | null>(
     null
   )
-  // Article waiting for the evaluation password before it can proceed.
   const [pendingArticle, setPendingArticle] = useState<Article | null>(null)
 
   const busy = isSubmitting || isCalculating
   const visibleArticles = articles.filter(isVisible)
 
   // A billed production article or lost ticket locks every other article.
-  // Lost tickets trigger a second exit_car (new price), which must not
-  // count as "a vehicle arrived".
   const isLocked = articles.some(
     (a) => billedIds.has(a.id) && (a.isProduction || isLostTicketType(a))
   )
@@ -113,29 +96,23 @@ export function Articles({
   const isDisabled = (article: Article) =>
     busy || isLocked || (article.isProduction ? hasExitCar : !hasExitCar)
 
-  // The main action, once any required permission has been granted.
-  const proceed = (article: Article, adminId?: number) => {
+  const proceed = (article: Article, adminId = 0) => {
     if (article.code === SEASON_PARKER_CODE) {
       setSeasonArticle(article)
       return
     }
     if (article.code === LOST_TICKET_WITH_CALCULATION_CODE) {
-      setCalculationArticle(article) // the modal collects plate and entry time
+      setCalculationArticle(article)
       return
     }
-    if (article.code === LOST_TICKET_CODE) {
-      if (adminId === undefined) return // defensive: should never happen
-      // Added to billing only once the POST succeeds
-      submitLostTicket(article, adminId, () => onSelect(article, { adminId }))
-      return
-    }
-    onSelect(article)
+    // Lost ticket and every other article: the line appears with the SSE message
+    submitArticle(article, adminId)
   }
 
   const handleSelect = (article: Article) => {
-    if (isDisabled(article)) return // defensive; avoids double POSTs
+    if (isDisabled(article)) return
     if (needsEvaluation(article)) {
-      setPendingArticle(article) // ask for the evaluation password first
+      setPendingArticle(article)
       return
     }
     proceed(article)
@@ -169,7 +146,7 @@ export function Articles({
           if (!pendingArticle) return
           const article = pendingArticle
           setPendingArticle(null)
-          proceed(article, user.id) // user.id = res.data.data.id
+          proceed(article, user.id)
         }}
       />
 
@@ -186,16 +163,9 @@ export function Articles({
           isPending={isCalculating}
           onClose={() => setCalculationArticle(null)}
           onSubmit={(values) =>
-            submitCalculation(calculationArticle, values, () => {
-              // Added to billing, and the modal closed, only after success
-              onSelect(calculationArticle, {
-                calculation: {
-                  entryTime: values.entryTime.toISOString(),
-                  calculatedAt: new Date().toISOString(),
-                },
-              })
+            submitCalculation(calculationArticle, values, () =>
               setCalculationArticle(null)
-            })
+            )
           }
         />
       )}
