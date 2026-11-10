@@ -24,7 +24,7 @@ export type ExitCar = {
     parking_duration: string
     external_unique_id: string
   }
-  transactions: Record<string, ExitCarTransaction>
+  transactions: Record<string, ExitCarTransaction> | null
   payment_summary: {
     subtotal: number
     discounts: number

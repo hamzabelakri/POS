@@ -3,7 +3,6 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-  useCalculateLostTicketTariff,
   useCreateTransaction,
   usePosArticles,
 } from "@/hooks/use-articles"
@@ -18,6 +17,7 @@ import { useSSEStore } from "@/stores/sse-store"
 import { SeasonParkerModal } from "@/apps/payment/modals/season-parker-modal"
 import { EvaluationModal } from "@/components/shared/modal/evaluation-modal"
 import { LostTicketWithCalculationModal } from "../modals/lost-ticket-with-calculation-modal"
+import { useCalculateLostTicketTariff } from "@/hooks/use-payment"
 
 const isVisible = (article: Article) =>
   article.isActive && article.code !== SHORT_TERM_PARKER_CODE

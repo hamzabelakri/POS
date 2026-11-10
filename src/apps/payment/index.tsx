@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { useBilledLines, useCancelArticle } from '@/hooks/use-articles'
+import { useBilledLines } from '@/hooks/use-articles'
+import { useCancelArticle } from '@/hooks/use-payment'
 import { useSSEStore } from '@/stores/sse-store'
 import { Main } from '@/components/layout/main'
 import { Articles } from './components/articles'
@@ -21,9 +22,8 @@ export function Payment() {
   )
 
   const removeFromBilling = (key: string) => {
-    const line = lines.find((l) => l.key === key)
-    if (!line || isCancelling) return // avoids double cancels
-    cancelArticle(line) // the line disappears after the cancel succeeds
+    if (isCancelling) return // avoids double cancels
+    cancelArticle(key) // the line disappears after the cancel succeeds
   }
 
   return (

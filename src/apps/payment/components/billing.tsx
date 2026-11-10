@@ -52,7 +52,7 @@ export function Billing({
   onClear,
 }: {
   lines: BillingLine[]
-  onRemove: (key: string) => void
+    onRemove: (key: string) => void
   onClear: () => void
 }) {
   return (

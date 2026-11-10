@@ -73,7 +73,7 @@ export const useSSEStore = create<SSEState>((set) => ({
       const e = s.exitEvent
       if (e?.type !== "exit_car") return s
 
-      const transactions = { ...e.data.transactions }
+      const transactions = { ...(e.data.transactions ?? {}) }
       delete transactions[key]
 
       // Last line removed: same as Clear All

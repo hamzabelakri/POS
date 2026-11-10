@@ -3,12 +3,15 @@ import { type DateRange } from 'react-day-picker'
 import axiosApi from '@/lib/axios'
 import {
   PlateSearchQueryParams,
-  PlateSearchResponse,
+  PlateSearchResult,
   ProceedConsultPayload,
+  UntrackedConsultPayload,
 } from '@/models/consult-model'
 
 const PLATE_SEARCH_ENDPOINT = `/search`
 const CONSULT_ENDPOINT = `/consult`
+const CONSULT_UNTRACKED_ENDPOINT = `/consult/untracked`
+
 export const PLATE_SEARCH_PAGE_SIZE = 5
 
 export const buildPlateSearchParams = (
@@ -33,7 +36,7 @@ export const buildPlateSearchParams = (
 // GET /search?license_plate=AZERTY&from=...&to=...&lane_id=101&page=1&page_size=5
 export const getPlateSearch = async (
   params?: PlateSearchQueryParams
-): Promise<PlateSearchResponse> => {
+): Promise<PlateSearchResult> => {
   const response = await axiosApi.get(PLATE_SEARCH_ENDPOINT, { params })
   return response?.data
 }
@@ -43,4 +46,12 @@ export const proceedConsult = async (
   payload: ProceedConsultPayload
 ): Promise<void> => {
   await axiosApi.post(CONSULT_ENDPOINT, payload, { params: { search: true } })
+}
+
+
+// POST /consult/untracked (fire-and-forget, the response is discarded)
+export const proceedUntrackedConsult = async (
+  payload: UntrackedConsultPayload
+): Promise<void> => {
+  await axiosApi.post(CONSULT_UNTRACKED_ENDPOINT, payload)
 }

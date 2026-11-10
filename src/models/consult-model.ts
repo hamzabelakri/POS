@@ -31,3 +31,9 @@ export interface ProceedConsultPayload {
   image_id: string
   entry_time: string
 }
+
+
+// POST /consult/untracked
+export interface UntrackedConsultPayload {
+  lpn: string
+}

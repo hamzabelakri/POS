@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { LongText } from '@/components/long-text'
 import { DataTableColumnHeader } from '@/components/shared/data-table'
-import { PlateSearchCar } from '@/models/consult-model'
+import { PlateSearchDetail } from '@/models/consult-model'
 import { useProceedConsult } from '@/hooks/use-consult'
 
 // "2026-09-01 08:22:04" (drops fractional seconds if the API ever sends them)
@@ -17,7 +17,7 @@ function ProceedButton({
   car,
   onSuccess,
 }: {
-  car: PlateSearchCar
+  car: PlateSearchDetail
   onSuccess: () => void
 }) {
   const { t } = useTranslation()
@@ -43,10 +43,10 @@ function ProceedButton({
 
 export const usePlateSearchColumns = (
   onProceedSuccess: () => void
-): ColumnDef<PlateSearchCar>[] => {
+): ColumnDef<PlateSearchDetail>[] => {
   const { t } = useTranslation()
 
-  return useMemo<ColumnDef<PlateSearchCar>[]>(
+  return useMemo<ColumnDef<PlateSearchDetail>[]>(
     () => [
       {
         accessorKey: 'license_plate',

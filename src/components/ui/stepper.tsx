@@ -1,9 +1,8 @@
-'use client'
-
 import type { HTMLAttributes } from 'react'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 import * as Stepperize from '@stepperize/react'
+import { CheckIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
@@ -96,7 +95,7 @@ function Stepper({
     stepperDefRef.current = Stepperize.defineStepper(...steps)
   }
 
-  const stepper = stepperDefRef.current.useStepper({ initialStep: defaultValue || steps[0]?.id })
+  const stepper = stepperDefRef.current.useStepper({ initialStep: defaultValue || value || steps[0]?.id })
 
   const [triggerNodes, setTriggerNodes] = useState<HTMLButtonElement[]>([])
 
@@ -260,11 +259,15 @@ function StepperItem({
     <StepItemContext.Provider value={{ step, index: stepIndex, state, isDisabled: disabled, isLoading }}>
       <div
         data-slot='stepper-item'
+        // CHANGED: `relative` + vertical overrides so the separator can sit under the indicator
+        // and the title/description can sit beside it.
         className={cn(
-          'group/step flex items-center justify-center not-last:flex-1 group-data-[orientation=horizontal]/stepper-nav:flex-row group-data-[orientation=vertical]/stepper-nav:flex-col',
+          'group/step relative flex items-center justify-center not-last:flex-1 group-data-[orientation=horizontal]/stepper-nav:flex-row group-data-[orientation=vertical]/stepper-nav:flex-col group-data-[orientation=vertical]/stepper-nav:items-stretch group-data-[orientation=vertical]/stepper-nav:justify-start group-data-[orientation=vertical]/stepper-nav:pb-7 group-data-[orientation=vertical]/stepper-nav:last:pb-0',
           className
         )}
         data-state={state}
+        // CHANGED: expose the current step to assistive tech
+        aria-current={state === 'active' ? 'step' : undefined}
         {...(isLoading ? { 'data-loading': true } : {})}
         {...props}
       >
@@ -334,6 +337,7 @@ function StepperTrigger({ asChild = false, className, children, tabIndex, ...pro
     }
   }
 
+  // Non-interactive (display-only) trigger: no button, no tab role
   if (asChild) {
     return (
       <span data-slot='stepper-trigger' data-state={state} className={className}>
@@ -354,8 +358,8 @@ function StepperTrigger({ asChild = false, className, children, tabIndex, ...pro
       data-state={state}
       data-loading={isLoading}
       className={cn(
-        'inline-flex cursor-pointer items-center outline-none disabled:pointer-events-none disabled:opacity-60',
-        'gap-2.5 rounded-full',
+        'focus-visible:ring-brand/40 inline-flex cursor-pointer items-center outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-60',
+        'gap-2.5 rounded-full group-data-[orientation=vertical]/stepper-nav:items-start',
         className
       )}
       onClick={() => stepper.navigation.goTo(step.id)}
@@ -376,11 +380,15 @@ function StepperIndicator({ children, className, variant = 'default' }: StepperI
   const { state, isLoading, step } = useStepItem()
   const { indicators } = useStepper()
 
+  // CHANGED: circular instead of rounded-md
   const base =
-    'relative flex size-8 shrink-0 items-center justify-center overflow-hidden transition-all duration-300 rounded-md text-sm font-medium'
+    'relative flex size-8 shrink-0 items-center justify-center overflow-hidden transition-all duration-300 rounded-full text-sm font-semibold'
 
+  // CHANGED: brand colours, outlined active ring, solid completed fill
   const defaultClasses = cn(
-    'border-background bg-muted data-[state=completed]:bg-primary data-[state=completed]:text-primary-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ring-offset-background group-data-[state=active]/step:ring-primary/30 group-data-[state=active]/step:ring-2 group-data-[state=active]/step:ring-offset-3',
+    'border-2 border-transparent bg-secondary text-muted-foreground',
+    'data-[state=completed]:border-brand data-[state=completed]:bg-brand data-[state=completed]:text-brand-foreground',
+    'data-[state=active]:border-brand data-[state=active]:bg-brand/10 data-[state=active]:text-brand-soft data-[state=active]:ring-4 data-[state=active]:ring-brand/15',
     base
   )
 
@@ -391,12 +399,19 @@ function StepperIndicator({ children, className, variant = 'default' }: StepperI
 
   const classes = variant === 'outline' ? outlineClasses : defaultClasses
 
+  // CHANGED: completed steps show a check by default (custom `indicators.completed` still wins)
+  const fallback =
+    state === 'completed' ? (
+      <CheckIcon className='size-4' strokeWidth={3} />
+    ) : step?.icon ? (
+      <span className='*:[svg]:size-4'>{step.icon}</span>
+    ) : (
+      children
+    )
+
   return (
     <div data-slot='stepper-indicator' data-state={state} className={cn(classes, className)}>
-      <div className='absolute'>
-        {(isLoading ? indicators?.loading : indicators?.[state]) ??
-          (step?.icon ? <span className='*:[svg]:size-4'>{step.icon}</span> : children)}
-      </div>
+      <div className='absolute'>{(isLoading ? indicators?.loading : indicators?.[state]) ?? fallback}</div>
     </div>
   )
 }
@@ -404,12 +419,14 @@ function StepperIndicator({ children, className, variant = 'default' }: StepperI
 function StepperSeparator({ className }: React.ComponentProps<'div'>) {
   const { state } = useStepItem()
 
+  // CHANGED: brand colour; vertical separators are absolutely positioned under the indicator
+  // (indicator is size-8 → centre at left-4) so they work with a side-by-side title.
   return (
     <div
       data-slot='stepper-separator'
       data-state={state}
       className={cn(
-        'bg-muted group-data-[state=completed]/step:bg-primary m-2 rounded-sm transition-colors duration-500 group-data-[orientation=horizontal]/stepper-nav:h-0.5 group-data-[orientation=horizontal]/stepper-nav:flex-1 group-data-[orientation=vertical]/stepper-nav:h-12 group-data-[orientation=vertical]/stepper-nav:w-0.5',
+        'bg-secondary group-data-[state=completed]/step:bg-brand m-2 rounded-sm transition-colors duration-500 group-data-[orientation=horizontal]/stepper-nav:h-0.5 group-data-[orientation=horizontal]/stepper-nav:flex-1 group-data-[orientation=vertical]/stepper-nav:absolute group-data-[orientation=vertical]/stepper-nav:inset-y-auto group-data-[orientation=vertical]/stepper-nav:top-10 group-data-[orientation=vertical]/stepper-nav:bottom-1.5 group-data-[orientation=vertical]/stepper-nav:left-4 group-data-[orientation=vertical]/stepper-nav:m-0 group-data-[orientation=vertical]/stepper-nav:w-0.5 group-data-[orientation=vertical]/stepper-nav:-translate-x-1/2',
         className
       )}
     />
@@ -512,6 +529,7 @@ export {
   StepperPanel,
   StepperContent,
   StepperNav,
+  type StepDefinition,
   type StepperProps,
   type StepperItemProps,
   type StepperTriggerProps,
