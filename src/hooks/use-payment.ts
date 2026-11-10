@@ -58,6 +58,13 @@ const getExitCar = (): ExitCar | null => {
   return event?.type === 'exit_car' ? event.data : null
 }
 
+// The plate of an untracked car (from the plate search), '' otherwise.
+// Read on click, like the other store reads.
+export const getUntrackedLpn = (): string => {
+  const data = getExitCar()
+  return data?.is_untracked ? data.vehicle_info.media.lpn : ''
+}
+
 /* ───────── Payload builders ───────── */
 
 export function buildCalculateTariffPayload(

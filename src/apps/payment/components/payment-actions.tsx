@@ -6,7 +6,7 @@ import { Spinner } from "@/components/ui/shadcn-io/spinner"
 import { useBilledLines } from "@/hooks/use-articles"
 import { usePayment } from "@/hooks/use-payment"
 
-export function PaymentMethod() {
+export function PaymentActions() {
   const hasLines = useBilledLines().length > 0
   const { pay, isPending, variables } = usePayment()
 

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { AxiosError } from 'axios'
 import { useMutation } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { AlertEnum } from '@/models/alert-model'
 import { ApiError } from '@/models/api'
 import {
@@ -12,7 +13,6 @@ import {
 import type { Cashier } from '@/models/payment-model'
 import { PosProduct, PosProductTranslation } from '@/models/pos-config-model'
 import { createLostTicketTransaction } from '@/service/articles'
-import { useTranslation } from 'react-i18next'
 import { useAlertStore } from '@/stores/alert-store'
 import { usePosConfigStore } from '@/stores/pos-config-store'
 import { useSSEStore } from '@/stores/sse-store'
@@ -78,17 +78,14 @@ export function useBilledLines(): BillingLine[] {
 
   return useMemo(() => {
     if (event?.type !== 'exit_car') return []
-
-    return Object.entries(event.data.transactions ?? {}).flatMap(
-      ([key, fee]) => {
-        const article = byCode.get(fee.code)
-        if (!article) {
-          console.warn('Billing: unknown article code', fee.code)
-          return []
-        }
-        return [{ key, article }]
+    return Object.entries(event.data.transactions ?? {}).flatMap(([key, fee]) => {
+      const article = byCode.get(fee.code)
+      if (!article) {
+        console.warn('Billing: unknown article code', fee.code)
+        return []
       }
-    )
+      return [{ key, article }]
+    })
   }, [event, byCode])
 }
 

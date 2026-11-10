@@ -5,7 +5,7 @@ import { useSSEStore } from '@/stores/sse-store'
 import { Main } from '@/components/layout/main'
 import { Articles } from './components/articles'
 import { Billing } from './components/billing'
-import { PaymentMethod } from './components/payment-method'
+import { PaymentActions } from './components/payment-actions'
 import { PlateSearch } from './components/plate-search'
 import { QuickActions } from './components/quick-actions'
 import { VehicleInfo } from './components/vehicle-info'
@@ -42,7 +42,7 @@ export function Payment() {
             onClear={clearExitEvent}
           />
           <QuickActions />
-          <PaymentMethod />
+          <PaymentActions />
         </div>
       </div>
     </Main>
