@@ -58,29 +58,26 @@ const getExitCar = (): ExitCar | null => {
   return event?.type === 'exit_car' ? event.data : null
 }
 
-// The plate of an untracked car (from the plate search), '' otherwise.
-// Read on click, like the other store reads.
-export const getUntrackedLpn = (): string => {
-  const data = getExitCar()
-  return data?.is_untracked ? data.vehicle_info.media.lpn : ''
-}
-
 /* ───────── Payload builders ───────── */
 
-export function buildCalculateTariffPayload(
+// Request that applies an article (POST /transactions, /payments/calculate-tariff).
+// Everything the backend fills in stays empty; only the article, the cashier
+// and, when known, the plate and entry time (ISO string) are set.
+export function buildArticlePayload(
   article: Article,
   cashier: Cashier,
-  values: CalculateTariffValues
-): CalculateTariffPayload {
-  const entryIso = values.entryTime.toISOString() // "2026-11-09T12:42:00.000Z"
+  adminId = 0,
+  vehicle: { lpn?: string; entryTime?: string } = {}
+): PaymentRequestPayload {
+  const entryTime = vehicle.entryTime ?? ''
   return {
     vehicle_info: {
       image: '',
       entry_image: '',
-      media: { lpn: values.lpn },
+      media: { lpn: vehicle.lpn ?? '', barcode: '', rfid: '', uhf: '', oa: '' },
       card_type: '',
-      entry_time: entryIso,
-      tariff_time: entryIso,
+      entry_time: entryTime,
+      tariff_time: entryTime,
       parking_duration: '',
       external_unique_id: '',
     },
@@ -94,7 +91,7 @@ export function buildCalculateTariffPayload(
       is_cancelled: false,
       tariff_relev_time: ZERO_DATE,
     },
-    applied_article: toAppliedArticle(article, 0), // no evaluation: admin_id 0
+    applied_article: toAppliedArticle(article, adminId),
     cashier,
     is_untracked: false,
   }
@@ -113,7 +110,6 @@ function buildRequestPayload(
     transactions: key
       ? { [key]: event.transactions?.[key] as ExitCarTransaction }
       : (event.transactions ?? {}),
-
     payment_summary: { ...event.payment_summary, is_cancelled: isCancelled },
     cashier,
   }
@@ -134,7 +130,7 @@ export const buildPaymentPayload = (
 
 /* ───────── Calculate tariff: POST /payments/calculate-tariff ───────── */
 
-export function useCalculateLostTicketTariff() {
+export function useCalculateTariff() {
   const { showAlert } = useAlertStore()
   const cashier = useShiftCashier()
 
@@ -148,7 +144,7 @@ export function useCalculateLostTicketTariff() {
       showAlert({
         message:
           error?.response?.data?.error ||
-          'Unable to calculate the lost ticket tariff. Please try again.',
+          'Unable to calculate the tariff. Please try again.',
         type: AlertEnum.ERROR,
       })
     },
@@ -160,9 +156,13 @@ export function useCalculateLostTicketTariff() {
     values: CalculateTariffValues,
     onSuccess: () => void
   ) =>
-    mutation.mutate(buildCalculateTariffPayload(article, cashier, values), {
-      onSuccess,
-    })
+    mutation.mutate(
+      buildArticlePayload(article, cashier, 0, {
+        lpn: values.lpn,
+        entryTime: values.entryTime.toISOString(), // "2026-11-09T12:42:00.000Z"
+      }),
+      { onSuccess }
+    )
 
   return { ...mutation, submitCalculation }
 }
@@ -192,15 +192,8 @@ export function useCancelArticle() {
   // `key` is the transaction key of the line (BillingLine.key)
   const cancelArticle = (key: string) => {
     const data = getExitCar()
-
-    // useCancelArticle
-    if (!data?.transactions?.[key]) {
-      showAlert({
-        message: 'No matching vehicle data to cancel. Please try again.',
-        type: AlertEnum.ERROR,
-      })
-      return
-    }
+    // The event may have changed since the click was rendered: nothing to cancel
+    if (!data?.transactions?.[key]) return
 
     mutation.mutate(buildCancelPayload(data, key, cashier), {
       // No exit_car follows a cancel, so update the stored event ourselves.
@@ -243,15 +236,8 @@ export function usePayment() {
 
   const pay = (method: PaymentMethodType) => {
     const data = getExitCar()
-
-    // usePayment
-    if (!data || Object.keys(data.transactions ?? {}).length === 0) {
-      showAlert({
-        message: 'Nothing to pay. Please add an article first.',
-        type: AlertEnum.ERROR,
-      })
-      return
-    }
+    // The event may have been cleared since the click was rendered: nothing to pay
+    if (!data || Object.keys(data.transactions ?? {}).length === 0) return
 
     mutation.mutate({
       method,
@@ -262,4 +248,14 @@ export function usePayment() {
   }
 
   return { ...mutation, pay }
+}
+
+
+// Evaluation is asked only when BOTH the cashier needs approval and the
+// article requires it. A cashier with permission is never asked.
+export function useNeedsEvaluation() {
+  const cashierRequires = useAuthStore(
+    (s) => s.cashier?.permission_required ?? true // no cashier loaded: stay safe
+  )
+  return (article: Article) => cashierRequires && article.permissionRequired
 }

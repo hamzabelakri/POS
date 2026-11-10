@@ -1,33 +1,35 @@
-import { useMemo, useState } from 'react'
-import { PlateSearchQueryParams } from '@/models/consult-model'
-import { buildPlateSearchParams } from '@/service/consult'
-import { IconSearch } from '@tabler/icons-react'
-import { Search } from 'lucide-react'
-import { type DateRange } from 'react-day-picker'
-import { usePosConfigStore } from '@/stores/pos-config-store'
-import { usePlateSearch, useUntrackedConsult } from '@/hooks/use-consult'
-import { Button } from '@/components/ui/button'
-import { DatePickerWithRange } from '@/components/ui/date-range-picker'
+import { useMemo, useState } from "react"
+import { type DateRange } from "react-day-picker"
+import { IconSearch } from "@tabler/icons-react"
+import { Search } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { DatePickerWithRange } from "@/components/ui/date-range-picker"
+import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
+} from "@/components/ui/dialog"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { DataTable } from '@/components/shared/data-table'
-import { usePlateSearchColumns } from '../table/plate-search-columns'
+} from "@/components/ui/select"
+import { DataTable } from "@/components/shared/data-table"
+
+import { usePosConfigStore } from "@/stores/pos-config-store"
+import { usePlateSearchColumns } from "../table/plate-search-columns"
+import { PlateSearchQueryParams } from "@/models/consult-model"
+import { usePlateSearch, useUntrackedConsult } from "@/hooks/use-consult"
+import { buildPlateSearchParams } from "@/service/consult"
 
 // Radix Select forbids value="" on an item, so "All" uses a sentinel
-const ALL_LANES = 'all'
+const ALL_LANES = "all"
 
 type Props = {
   onClose: () => void
@@ -51,23 +53,31 @@ export function PlateSearchModal({
   // `?? []` stays outside the selector so it doesn't return a new array each render
   const cameras = usePosConfigStore((s) => s.config?.cameras) ?? []
 
-  const { data, isLoading, isSuccess } = usePlateSearch(queryParams)
-
-  const untrackedConsult = useUntrackedConsult()
+  const { data, isLoading, isError } = usePlateSearch(queryParams)
+  const untracked = useUntrackedConsult()
 
   // a successful Proceed closes the modal
   const columns = usePlateSearchColumns(onClose)
   const cars = useMemo(() => data?.data.cars ?? [], [data])
 
-  // use the plate of the last executed search, not what is currently typed:
-  // edits in the inputs don't count until Search is clicked
-  const searchedPlate = queryParams.license_plate
-  const noMatch = isSuccess && cars.length === 0
-
   // the API has no `total_rows`, so it is approximated for the table's pagination
   const pagination = data?.data && {
     ...data.data,
     total_rows: data.data.total_pages * data.data.page_size,
+  }
+
+  // A finished search for a plate that found nothing
+  const searchedPlate = queryParams.license_plate
+  const noResults = !!data && !isLoading && !isError && cars.length === 0
+
+  // Closing without a result: register the plate as untracked.
+  // A successful Proceed closes through `onClose` directly (cars is not empty then).
+  const handleClose = () => {
+    if (noResults && searchedPlate) {
+      untracked.mutate({ lpn: searchedPlate })
+
+    }
+    onClose()
   }
 
   const handlePlateChange = (index: number, value: string) =>
@@ -80,38 +90,31 @@ export function PlateSearchModal({
   const handleTableParams = (params: Record<string, any>) =>
     setQueryParams((prev) => ({ ...prev, ...params }))
 
-  const handleClose = () => {
-    if (searchedPlate && noMatch) {
-      untrackedConsult.mutate({ lpn: searchedPlate })
-    }
-    onClose()
-  }
-
   return (
     <Dialog open onOpenChange={(next) => !next && handleClose()}>
-      <DialogContent className='sm:max-w-6xl'>
-        <DialogHeader className='border-b pb-3'>
-          <DialogTitle className='flex items-center gap-2'>
-            <div className='bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg'>
-              <IconSearch className='size-5' />
+      <DialogContent className="sm:max-w-6xl">
+        <DialogHeader className="border-b pb-3">
+          <DialogTitle className="flex items-center gap-2">
+            <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+              <IconSearch className="size-5" />
             </div>
             License Plate
           </DialogTitle>
         </DialogHeader>
 
-        <div className='flex flex-wrap items-center gap-3'>
-          <div className='flex flex-wrap items-center gap-2'>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             {plate.map((char, i) => (
               <Input
                 key={i}
                 value={char}
                 maxLength={1}
-                className='size-9 p-0 text-center'
+                className="size-9 p-0 text-center"
                 aria-label={`Plate character ${i + 1}`}
                 onChange={(e) => handlePlateChange(i, e.target.value)}
               />
             ))}
-            <div className='flex h-9 w-20 items-center justify-center rounded-md border text-sm'>
+            <div className="flex h-9 w-20 items-center justify-center rounded-md border text-sm">
               - - -
             </div>
           </div>
@@ -119,11 +122,11 @@ export function PlateSearchModal({
           <DatePickerWithRange value={range} onChange={setRange} />
 
           <Select
-            value={laneId ?? ''}
+            value={laneId ?? ""}
             onValueChange={(v) => setLaneId(v === ALL_LANES ? undefined : v)}
           >
-            <SelectTrigger className='w-40' aria-label='Lane'>
-              <SelectValue placeholder='All Lanes' />
+            <SelectTrigger className="w-40" aria-label="Lane">
+              <SelectValue placeholder="All Lanes" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL_LANES}>All</SelectItem>
@@ -135,13 +138,13 @@ export function PlateSearchModal({
             </SelectContent>
           </Select>
 
-          <Button className='min-w-24 flex-1' onClick={runSearch}>
+          <Button className="min-w-24 flex-1" onClick={runSearch}>
             <Search />
             Search
           </Button>
         </div>
 
-        <div className='max-h-[50vh] overflow-auto'>
+        <div className="max-h-[50vh] overflow-auto">
           <DataTable
             data={cars}
             columns={columns}
@@ -154,7 +157,7 @@ export function PlateSearchModal({
         </div>
 
         <DialogFooter>
-          <Button type='button' variant='outline' onClick={handleClose}>
+          <Button type="button" variant="outline" onClick={handleClose}>
             Close
           </Button>
         </DialogFooter>

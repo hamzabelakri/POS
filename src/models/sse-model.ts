@@ -17,7 +17,13 @@ export type ExitCar = {
   vehicle_info: {
     image: string
     entry_image: string
-    media: { lpn: string }
+    media: {
+      lpn: string
+      barcode?: string
+      rfid?: string
+      uhf?: string
+      oa?: string
+    }
     card_type: string
     entry_time: string
     tariff_time: string
@@ -52,8 +58,8 @@ export type SearchCarData = {
 }
 
 export type ExitVehicleEvent =
-  | { type: "exit_car"; data: ExitCar }
-  | { type: "search_car"; data: SearchCarData }
+  | { type: 'exit_car'; data: ExitCar }
+  | { type: 'search_car'; data: SearchCarData }
 
 /** Flat shape the vehicle card renders, whatever message produced it. */
 export type VehicleView = {
@@ -109,7 +115,7 @@ export type SeasonParker = {
 }
 
 export type SeasonParkerStatus = {
-  state: "season_parker_valid" | "season_parker_not_valid" | (string & {})
+  state: 'season_parker_valid' | 'season_parker_not_valid' | (string & {})
   season_parker: SeasonParker
   image: string
 }
@@ -129,11 +135,15 @@ export type GraylistExitedZeroPaymentData = {
 
 /** Latest alert from the exit lane; `message` is the backend's human-readable text. */
 export type LaneAlert =
-  | { type: "graylist_lpn"; data: GraylistResult; message: string }
-  | { type: "graylist_season_parker"; data: GraylistSeasonParkerData; message: string }
-  | { type: "season_parker_status"; data: SeasonParkerStatus; message: string }
+  | { type: 'graylist_lpn'; data: GraylistResult; message: string }
   | {
-      type: "graylist_exited_with_zero_payment"
+      type: 'graylist_season_parker'
+      data: GraylistSeasonParkerData
+      message: string
+    }
+  | { type: 'season_parker_status'; data: SeasonParkerStatus; message: string }
+  | {
+      type: 'graylist_exited_with_zero_payment'
       data: GraylistExitedZeroPaymentData
       message: string
     }
@@ -146,7 +156,7 @@ export type LaneAlert =
  */
 export function toImageSrc(src?: string | null): string | null {
   if (!src) return null
-  const marker = "base64,"
+  const marker = 'base64,'
   const i = src.indexOf(marker)
   if (i !== -1 && src.length === i + marker.length) return null
   return src
@@ -154,7 +164,7 @@ export function toImageSrc(src?: string | null): string | null {
 
 export function toVehicleView(e: ExitVehicleEvent | null): VehicleView | null {
   if (!e) return null
-  const car = e.type === "search_car" ? e.data.bucket : e.data
+  const car = e.type === 'search_car' ? e.data.bucket : e.data
   const v = car.vehicle_info
   return {
     plate: v.media.lpn,
@@ -163,7 +173,7 @@ export function toVehicleView(e: ExitVehicleEvent | null): VehicleView | null {
     epan: v.external_unique_id,
     cardType: v.card_type,
     // Go's zero time means "no entry"
-    entryTime: v.entry_time.startsWith("0001-") ? "" : v.entry_time,
+    entryTime: v.entry_time.startsWith('0001-') ? '' : v.entry_time,
     parkingDuration: v.parking_duration,
     hasEntry: !car.is_untracked,
   }

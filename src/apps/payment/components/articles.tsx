@@ -1,34 +1,23 @@
-import { useState } from "react"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from 'react'
 import {
-  useCreateTransaction,
-  usePosArticles,
-} from "@/hooks/use-articles"
-import {
-  LOST_TICKET_CODE,
   LOST_TICKET_WITH_CALCULATION_CODE,
   SEASON_PARKER_CODE,
   SHORT_TERM_PARKER_CODE,
   type Article,
-} from "@/models/articles-model"
-import { useSSEStore } from "@/stores/sse-store"
-import { SeasonParkerModal } from "@/apps/payment/modals/season-parker-modal"
-import { EvaluationModal } from "@/components/shared/modal/evaluation-modal"
-import { LostTicketWithCalculationModal } from "../modals/lost-ticket-with-calculation-modal"
-import { useCalculateLostTicketTariff } from "@/hooks/use-payment"
+} from '@/models/articles-model'
+import { useSSEStore } from '@/stores/sse-store'
+import { useCreateTransaction, usePosArticles } from '@/hooks/use-articles'
+import { useCalculateTariff, useNeedsEvaluation } from '@/hooks/use-payment'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { EvaluationModal } from '@/components/shared/modal/evaluation-modal'
+import { SeasonParkerModal } from '@/apps/payment/modals/season-parker-modal'
+import { LostTicketWithCalculationModal } from '../modals/lost-ticket-with-calculation-modal'
 
 const isVisible = (article: Article) =>
   article.isActive && article.code !== SHORT_TERM_PARKER_CODE
 
-// Lost ticket always needs an evaluation: its admin_id comes from it.
-const needsEvaluation = (article: Article) =>
-  article.permissionRequired || article.code === LOST_TICKET_CODE
-
-const isLostTicketType = (article: Article) =>
-  article.code === LOST_TICKET_CODE ||
-  article.code === LOST_TICKET_WITH_CALCULATION_CODE
+const needsEvaluation = useNeedsEvaluation()
 
 function ArticleGroup({
   articles,
@@ -42,16 +31,18 @@ function ArticleGroup({
   const renderButton = (article: Article) => (
     <Button
       key={article.id}
-      variant="outline"
+      variant='outline'
       disabled={isDisabled(article)}
       title={article.description}
-      className="h-auto min-h-28 w-36 shrink-0 flex-col justify-center gap-2 py-4 text-center whitespace-normal"
+      className='h-auto min-h-28 w-36 shrink-0 flex-col justify-center gap-2 py-4 text-center whitespace-normal'
       onClick={() => onSelect(article)}
     >
       {article.iconUrl && (
-        <img src={article.iconUrl} alt="" className="size-10 object-contain" />
+        <img src={article.iconUrl} alt='' className='size-10 object-contain' />
       )}
-      <span className="line-clamp-2 text-sm leading-tight">{article.title}</span>
+      <span className='line-clamp-2 text-sm leading-tight'>
+        {article.title}
+      </span>
     </Button>
   )
 
@@ -59,11 +50,11 @@ function ArticleGroup({
   const others = articles.filter((a) => !a.isProduction)
 
   return (
-    <div className="overflow-x-auto pb-2">
-      <div className="flex w-max flex-col gap-3">
-        <div className="flex gap-3">{production.map(renderButton)}</div>
+    <div className='overflow-x-auto pb-2'>
+      <div className='flex w-max flex-col gap-3'>
+        <div className='flex gap-3'>{production.map(renderButton)}</div>
         {others.length > 0 && (
-          <div className="flex gap-3">{others.map(renderButton)}</div>
+          <div className='flex gap-3'>{others.map(renderButton)}</div>
         )}
       </div>
     </div>
@@ -73,9 +64,8 @@ function ArticleGroup({
 export function Articles({ billedIds }: { billedIds: Set<number> }) {
   const { articles } = usePosArticles()
   const { submitArticle, isPending: isSubmitting } = useCreateTransaction()
-  const { submitCalculation, isPending: isCalculating } =
-    useCalculateLostTicketTariff()
-  const hasExitCar = useSSEStore((s) => s.exitEvent?.type === "exit_car")
+  const { submitCalculation, isPending: isCalculating } = useCalculateTariff()
+  const hasExitCar = useSSEStore((s) => s.exitEvent?.type === 'exit_car')
 
   const [seasonArticle, setSeasonArticle] = useState<Article | null>(null)
   const [calculationArticle, setCalculationArticle] = useState<Article | null>(
@@ -87,10 +77,7 @@ export function Articles({ billedIds }: { billedIds: Set<number> }) {
   const visibleArticles = articles.filter(isVisible)
 
   // A billed production article or lost ticket locks every other article.
-  const isLocked = articles.some(
-    (a) => billedIds.has(a.id) && (a.isProduction || isLostTicketType(a))
-  )
-
+  const isLocked = articles.some((a) => billedIds.has(a.id) && a.isProduction)
   // exit_car received -> non-production enabled, production disabled
   // no exit_car       -> production enabled, non-production disabled
   const isDisabled = (article: Article) =>
@@ -120,13 +107,13 @@ export function Articles({ billedIds }: { billedIds: Set<number> }) {
 
   return (
     <>
-      <Card className="flex-1">
-        <CardHeader className="border-b">
+      <Card className='flex-1'>
+        <CardHeader className='border-b'>
           <CardTitle>Articles</CardTitle>
         </CardHeader>
         <CardContent>
           {visibleArticles.length === 0 ? (
-            <p className="py-6 text-center text-sm text-muted-foreground">
+            <p className='text-muted-foreground py-6 text-center text-sm'>
               No articles configured
             </p>
           ) : (

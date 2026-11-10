@@ -7,16 +7,15 @@ import { ApiError } from '@/models/api'
 import {
   Article,
   BillingLine,
-  LostTicketTransactionPayload,
-  LostTicketTransactionResponse,
+  CreateTransactionPayload,
+  CreateTransactionResponse,
 } from '@/models/articles-model'
-import type { Cashier } from '@/models/payment-model'
 import { PosProduct, PosProductTranslation } from '@/models/pos-config-model'
-import { createLostTicketTransaction } from '@/service/articles'
+import { createTransaction } from '@/service/articles'
 import { useAlertStore } from '@/stores/alert-store'
 import { usePosConfigStore } from '@/stores/pos-config-store'
 import { useSSEStore } from '@/stores/sse-store'
-import { toAppliedArticle, useShiftCashier } from '@/hooks/use-payment'
+import { buildArticlePayload, useShiftCashier } from '@/hooks/use-payment'
 
 const hasName = (tr: PosProductTranslation) => !!tr.name?.trim()
 
@@ -91,47 +90,16 @@ export function useBilledLines(): BillingLine[] {
 
 /* ───────── Apply an article: POST /transactions ───────── */
 
-export function buildTransactionPayload(
-  article: Article,
-  cashier: Cashier,
-  adminId: number
-): LostTicketTransactionPayload {
-  return {
-    vehicle_info: {
-      image: '',
-      entry_image: '',
-      media: { lpn: '', barcode: '', rfid: '', uhf: '', oa: '' },
-      external_unique_id: '',
-      card_type: '',
-      entry_time: '',
-      parking_duration: '',
-    },
-    transactions: {}, // the backend fills it in (see the exit_car message)
-    payment_summary: {
-      subtotal: 0,
-      discounts: 0,
-      tax_rate: 0,
-      tax_value: 0,
-      total: 0,
-      is_cancelled: false,
-      tariff_relev_time: '',
-    },
-    applied_article: toAppliedArticle(article, adminId),
-    cashier,
-    is_untracked: false,
-  }
-}
-
 export function useCreateTransaction() {
   const { showAlert } = useAlertStore()
   const cashier = useShiftCashier()
 
   const mutation = useMutation<
-    LostTicketTransactionResponse,
+    CreateTransactionResponse,
     AxiosError<ApiError>,
-    LostTicketTransactionPayload
+    CreateTransactionPayload
   >({
-    mutationFn: createLostTicketTransaction,
+    mutationFn: createTransaction,
     onError: (error) => {
       showAlert({
         message:
@@ -144,7 +112,7 @@ export function useCreateTransaction() {
 
   // No onSuccess: the line appears when the exit_car message arrives.
   const submitArticle = (article: Article, adminId = 0) =>
-    mutation.mutate(buildTransactionPayload(article, cashier, adminId))
+    mutation.mutate(buildArticlePayload(article, cashier, adminId))
 
   return { ...mutation, submitArticle }
 }

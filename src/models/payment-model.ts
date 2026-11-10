@@ -12,7 +12,7 @@ export type PaymentMethodType = 'cash' | 'card'
 // Every payment request sends the same body: the exit_car shape.
 export type PaymentRequestPayload = ExitCar
 
-// POST /payments/calculate-tariff (lost ticket with calculation)
+// POST /payments/calculate-tariff
 // { status: 200, message: "Tariff calculated successfully" }
 export type CalculateTariffPayload = PaymentRequestPayload
 export type CalculateTariffResponse = MessageResponse
