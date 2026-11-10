@@ -58,16 +58,22 @@ const getExitCar = (): ExitCar | null => {
   return event?.type === 'exit_car' ? event.data : null
 }
 
+export const getUntrackedLpn = (): string => {
+  const data = getExitCar()
+  return data?.is_untracked ? data.vehicle_info.media.lpn : ''
+}
+
+
 /* ───────── Payload builders ───────── */
 
 // Request that applies an article (POST /transactions, /payments/calculate-tariff).
 // Everything the backend fills in stays empty; only the article, the cashier
-// and, when known, the plate and entry time (ISO string) are set.
+// and, when known, the plate, entry time (ISO string) and untracked flag are set.
 export function buildArticlePayload(
   article: Article,
   cashier: Cashier,
   adminId = 0,
-  vehicle: { lpn?: string; entryTime?: string } = {}
+  vehicle: { lpn?: string; entryTime?: string; isUntracked?: boolean } = {}
 ): PaymentRequestPayload {
   const entryTime = vehicle.entryTime ?? ''
   return {
@@ -93,7 +99,7 @@ export function buildArticlePayload(
     },
     applied_article: toAppliedArticle(article, adminId),
     cashier,
-    is_untracked: false,
+    is_untracked: vehicle.isUntracked ?? false,
   }
 }
 

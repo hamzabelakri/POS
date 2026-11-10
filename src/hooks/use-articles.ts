@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { AxiosError } from 'axios'
 import { useMutation } from '@tanstack/react-query'
-import { useTranslation } from 'react-i18next'
 import { AlertEnum } from '@/models/alert-model'
 import { ApiError } from '@/models/api'
 import {
@@ -12,10 +11,15 @@ import {
 } from '@/models/articles-model'
 import { PosProduct, PosProductTranslation } from '@/models/pos-config-model'
 import { createTransaction } from '@/service/articles'
+import { useTranslation } from 'react-i18next'
 import { useAlertStore } from '@/stores/alert-store'
 import { usePosConfigStore } from '@/stores/pos-config-store'
 import { useSSEStore } from '@/stores/sse-store'
-import { buildArticlePayload, useShiftCashier } from '@/hooks/use-payment'
+import {
+  buildArticlePayload,
+  getUntrackedLpn,
+  useShiftCashier,
+} from '@/hooks/use-payment'
 
 const hasName = (tr: PosProductTranslation) => !!tr.name?.trim()
 
@@ -77,14 +81,16 @@ export function useBilledLines(): BillingLine[] {
 
   return useMemo(() => {
     if (event?.type !== 'exit_car') return []
-    return Object.entries(event.data.transactions ?? {}).flatMap(([key, fee]) => {
-      const article = byCode.get(fee.code)
-      if (!article) {
-        console.warn('Billing: unknown article code', fee.code)
-        return []
+    return Object.entries(event.data.transactions ?? {}).flatMap(
+      ([key, fee]) => {
+        const article = byCode.get(fee.code)
+        if (!article) {
+          console.warn('Billing: unknown article code', fee.code)
+          return []
+        }
+        return [{ key, article }]
       }
-      return [{ key, article }]
-    })
+    )
   }, [event, byCode])
 }
 
@@ -112,7 +118,9 @@ export function useCreateTransaction() {
 
   // No onSuccess: the line appears when the exit_car message arrives.
   const submitArticle = (article: Article, adminId = 0) =>
-    mutation.mutate(buildArticlePayload(article, cashier, adminId))
+    mutation.mutate(
+      buildArticlePayload(article, cashier, adminId, { lpn: getUntrackedLpn() })
+    )
 
   return { ...mutation, submitArticle }
 }

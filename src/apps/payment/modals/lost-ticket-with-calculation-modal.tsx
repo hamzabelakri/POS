@@ -12,19 +12,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { CalculateTariffValues } from "@/models/payment-model"
 
 const PLATE_SLOTS = 8
-
-export type LostTicketValues = {
-  lpn: string
-  entryTime: Date // never null: submit is disabled without a valid date
-}
 
 type Props = {
   onClose: () => void
   title?: string
   isPending?: boolean
-  onSubmit: (values: LostTicketValues) => void
+  onSubmit: (values: CalculateTariffValues) => void
 }
 
 export function LostTicketWithCalculationModal({
