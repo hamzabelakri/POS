@@ -24,7 +24,7 @@ import {
 import { PasswordInput } from "@/components/password-input";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { useAuthorizeEvaluation } from "@/hooks/use-evaluation";
-import type { EvaluationUser } from "@/models/evaluation-model";
+import type { EvaluationType, EvaluationUser } from "@/models/evaluation-model";
 
 const getSchema = (t: any) =>
   z.object({
@@ -36,15 +36,17 @@ const getSchema = (t: any) =>
 type EvaluationForm = z.infer<ReturnType<typeof getSchema>>;
 
 interface Props {
+  // Required: selects the authorize endpoint (see EVALUATION_ENDPOINTS)
+  type: EvaluationType;
   open: boolean;
   onClose: () => void;
   // Runs after the password is accepted, with the admin who approved it.
   onSuccess?: (user: EvaluationUser) => void;
 }
 
-export function EvaluationModal({ open, onClose, onSuccess }: Props) {
+export function EvaluationModal({ type, open, onClose, onSuccess }: Props) {
   const { t } = useTranslation();
-  const { mutate: authorize, isPending } = useAuthorizeEvaluation();
+  const { mutate: authorize, isPending } = useAuthorizeEvaluation(type);
 
   const schema = useMemo(() => getSchema(t), [t]);
 

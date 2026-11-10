@@ -132,7 +132,7 @@ export function QuickActions() {
         </CardContent>
       </Card>
 
-      <EvaluationModal
+      <EvaluationModal type="barcode"
         open={pendingAction !== null}
         onClose={() => setPendingAction(null)}
         onSuccess={() => {

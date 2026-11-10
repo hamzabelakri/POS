@@ -127,6 +127,7 @@ export function Articles({ billedIds }: { billedIds: Set<number> }) {
       </Card>
 
       <EvaluationModal
+        type='article'
         open={!!pendingArticle}
         onClose={() => setPendingArticle(null)}
         onSuccess={(user) => {

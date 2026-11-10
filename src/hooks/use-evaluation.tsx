@@ -5,11 +5,12 @@ import { ApiError } from '@/models/api'
 import {
   AuthorizeEvaluationPayload,
   AuthorizeEvaluationResponse,
+  EvaluationType,
 } from '@/models/evaluation-model'
 import { authorizeEvaluation } from '@/service/evaluation'
 import { useAlertStore } from '@/stores/alert-store'
 
-export function useAuthorizeEvaluation() {
+export function useAuthorizeEvaluation(type: EvaluationType) {
   const { showAlert } = useAlertStore()
 
   return useMutation<
@@ -17,7 +18,7 @@ export function useAuthorizeEvaluation() {
     AxiosError<ApiError>,
     AuthorizeEvaluationPayload
   >({
-    mutationFn: authorizeEvaluation,
+    mutationFn: (payload) => authorizeEvaluation(type, payload),
     onError: (error) => {
       showAlert({
         message: error.response?.data?.error ?? error.message,

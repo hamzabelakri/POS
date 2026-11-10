@@ -28,6 +28,11 @@ export interface EvaluationUser {
   updated_at: string
 }
 
+
+// Which backend check the password is validated against
+export type EvaluationType = 'article' | 'barcode'
+
+
 // POST evaluation authorize => the API nests a second envelope inside `data`:
 // { status, message, data: { status, message, data: EvaluationUser } }
 export type AuthorizeEvaluationResponse = ApiResponse<ApiResponse<EvaluationUser>>

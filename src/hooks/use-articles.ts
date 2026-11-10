@@ -117,10 +117,17 @@ export function useCreateTransaction() {
   })
 
   // No onSuccess: the line appears when the exit_car message arrives.
-  const submitArticle = (article: Article, adminId = 0) =>
+  // The plate is read here (at submit time), so it is the latest untracked car's.
+  // A non-empty plate means the current car is untracked.
+  const submitArticle = (article: Article, adminId = 0) => {
+    const lpn = getUntrackedLpn()
     mutation.mutate(
-      buildArticlePayload(article, cashier, adminId, { lpn: getUntrackedLpn() })
+      buildArticlePayload(article, cashier, adminId, {
+        lpn,
+        isUntracked: lpn !== '',
+      })
     )
+  }
 
   return { ...mutation, submitArticle }
 }
