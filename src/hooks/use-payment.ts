@@ -263,5 +263,5 @@ export function useNeedsEvaluation() {
   const cashierRequires = useAuthStore(
     (s) => s.cashier?.permission_required ?? true // no cashier loaded: stay safe
   )
-  return (article: Article) => cashierRequires && article.permissionRequired
+  return (article: Article) => cashierRequires || article.permissionRequired
 }

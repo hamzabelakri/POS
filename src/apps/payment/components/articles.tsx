@@ -17,8 +17,6 @@ import { LostTicketWithCalculationModal } from '../modals/lost-ticket-with-calcu
 const isVisible = (article: Article) =>
   article.isActive && article.code !== SHORT_TERM_PARKER_CODE
 
-const needsEvaluation = useNeedsEvaluation()
-
 function ArticleGroup({
   articles,
   isDisabled,
@@ -65,7 +63,13 @@ export function Articles({ billedIds }: { billedIds: Set<number> }) {
   const { articles } = usePosArticles()
   const { submitArticle, isPending: isSubmitting } = useCreateTransaction()
   const { submitCalculation, isPending: isCalculating } = useCalculateTariff()
-  const hasExitCar = useSSEStore((s) => s.exitEvent?.type === 'exit_car')
+
+  // A tracked car (it has an entry and a bill): production off, the others on.
+  // An untracked car (plate only) is treated like "no car": production on, the others off.
+  const hasTrackedCar = useSSEStore(
+    (s) => s.exitEvent?.type === 'exit_car' && !s.exitEvent.data.is_untracked
+  )
+  const needsEvaluation = useNeedsEvaluation()
 
   const [seasonArticle, setSeasonArticle] = useState<Article | null>(null)
   const [calculationArticle, setCalculationArticle] = useState<Article | null>(
@@ -78,10 +82,11 @@ export function Articles({ billedIds }: { billedIds: Set<number> }) {
 
   // A billed production article or lost ticket locks every other article.
   const isLocked = articles.some((a) => billedIds.has(a.id) && a.isProduction)
-  // exit_car received -> non-production enabled, production disabled
-  // no exit_car       -> production enabled, non-production disabled
+
+  // exit_car, tracked   -> non-production enabled, production disabled
+  // no exit_car, or untracked -> production enabled, non-production disabled
   const isDisabled = (article: Article) =>
-    busy || isLocked || (article.isProduction ? hasExitCar : !hasExitCar)
+    busy || isLocked || (article.isProduction ? hasTrackedCar : !hasTrackedCar)
 
   const proceed = (article: Article, adminId = 0) => {
     if (article.code === SEASON_PARKER_CODE) {

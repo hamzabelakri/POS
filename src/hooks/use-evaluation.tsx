@@ -7,7 +7,7 @@ import {
   AuthorizeEvaluationResponse,
   EvaluationType,
 } from '@/models/evaluation-model'
-import { authorizeEvaluation } from '@/service/evaluation'
+import { authorizeEvaluation, openBarcode } from '@/service/evaluation'
 import { useAlertStore } from '@/stores/alert-store'
 
 export function useAuthorizeEvaluation(type: EvaluationType) {
@@ -25,5 +25,13 @@ export function useAuthorizeEvaluation(type: EvaluationType) {
         type: AlertEnum.ERROR,
       })
     },
+  })
+}
+
+
+
+export function useOpenBarcode() {
+  return useMutation<void, AxiosError<ApiError>>({
+    mutationFn: openBarcode,
   })
 }

@@ -11,7 +11,7 @@ export function ShiftReportModals() {
 
   return (
     <EvaluationModal
-      type='barcode'
+      type='shift'
       open={open === ShiftReportDialogEnum.EVALUATION}
       onClose={handleCloseModal}
       onSuccess={() => setEvaluated(true)}

@@ -29,8 +29,8 @@ export interface EvaluationUser {
 }
 
 
-// Which backend check the password is validated against
-export type EvaluationType = 'article' | 'barcode'
+// Which flow the evaluation approves; selects the authorize endpoint
+export type EvaluationType = 'article' | 'barrier' | 'shift'
 
 
 // POST evaluation authorize => the API nests a second envelope inside `data`:
