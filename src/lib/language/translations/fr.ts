@@ -84,6 +84,18 @@ export const fr = {
   'enter_registered_email_reset': 'Entrez votre email enregistré et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
   'name_example_placeholder': 'nom@exemple.com',
   'password_placeholder': '********',
+  'username_required': 'Le nom d\'utilisateur est requis',
+  'enter_username': 'Entrez votre nom d\'utilisateur',
+  'sign_in_description': 'Entrez vos identifiants pour continuer.',
+  'shift_already_open': 'Une permanence est déjà ouverte',
+  'shift_already_open_description': 'Continuez-la, ou fermez-la et commencez-en une nouvelle.',
+  'continue_shift': 'Continuer la permanence',
+  'close_and_start_new': 'Fermer et recommencer',
+  'start_shift': 'Démarrer la permanence',
+  'start_shift_description': 'Entrez le montant de départ pour cette permanence.',
+  'starting_amount': 'Montant de départ',
+  'starting_amount_required': 'Le montant de départ est requis',
+  'starting_amount_invalid': 'Entrez un montant valide (0 ou plus)',
 
   // ==========================================
   // VALIDATION MESSAGES
@@ -100,10 +112,14 @@ export const fr = {
   'first_name_required': 'Le prénom est obligatoire.',
   'first_name_min': 'Le prénom doit contenir au moins 3 caractères.',
   'last_name_required': 'Le nom de famille est obligatoire.',
-  'last_name_min': "Le nom d'utilisateur doit contenir au moins 3 caractères.", 
+  'last_name_min': "Le nom d'utilisateur doit contenir au moins 3 caractères.",
   'email_required': 'L’adresse e-mail est obligatoire.',
   'role_required': 'Le rôle est obligatoire.',
   'password_required': 'Le mot de passe est obligatoire.',
+  'token_required': 'Le jeton est requis',
+  'pos_token_required': 'Le jeton POS est requis',
+  'enter_valid_url': 'Entrez une URL valide',
+  'enter_valid_url_example': 'Entrez une URL valide, par ex. http://192.168.1.10:8008',
 
   // ==========================================
   // NAVIGATION, SIDEBAR & LAYOUT
@@ -181,6 +197,7 @@ export const fr = {
   'enabling': 'Activation ...',
   'confirm_user_status_change': 'Êtes-vous sûr de vouloir {{action}} cet utilisateur ?',
   'confirm_delete': 'Êtes-vous sûr de vouloir supprimer cet utilisateur ?',
+  'select_options': 'Sélectionner des options...',
 
   // ==========================================
   // ROLE MANAGEMENT
@@ -215,7 +232,7 @@ export const fr = {
   'select_target_role': 'Sélectionnez un rôle cible',
   'role_name_required': 'Le nom du rôle est obligatoire.',
   'role_name_min': 'Le rôle doit contenir au moins 3 caractères.',
-  
+
   // ==========================================
   // DATATABLES & CONTROLS
   // ==========================================
@@ -245,7 +262,6 @@ export const fr = {
   'go_to_previous_page': 'Page précédente',
   'go_to_next_page': 'Page suivante',
   'go_to_last_page': 'Aller à la dernière page',
-  'select_options': 'Sélectionner des options...',
 
   // ==========================================
   // AUDIT LOGS
@@ -435,8 +451,143 @@ export const fr = {
   'last_day': 'Dernier jour',
   'last_week': 'Dernière semaine',
   'last_year': 'Dernière année',
-  
   'customers': 'Clients',
   'name': 'Nom',
-  'username': "Nom d'utilisateur"
+  'username': "Nom d'utilisateur",
+
+  // ==========================================
+  // APP LAYOUT (HEADER & FOOTER)
+  // ==========================================
+  'app_name': 'Smart Parking',
+  'main_navigation': 'Navigation principale',
+  'system_online': 'Système en ligne',
+  'system_offline': 'Système hors ligne',
+  'pause_shift': 'Mettre en pause la permanence',
+  'close_shift': 'Clôturer la permanence',
+  'shift_unavailable': 'Détails de la permanence indisponibles',
+  'shift_unavailable_hint': "L'identifiant de la permanence est manquant, il est donc impossible de la clôturer ici.",
+  'back_to_payment': 'Retour au paiement',
+  'payment': 'Paiement',
+  'connected': 'Connecté',
+  'disconnected': 'Déconnecté',
+  'configurations': 'Configurations',
+  'pos': 'POS',
+
+  // ==========================================
+  // CONFIGURATION
+  // ==========================================
+  'refresh': 'Actualiser',
+  'no_preview': 'Aucun aperçu disponible.',
+  'receipt_body_preview': 'Aperçu du corps du reçu',
+  'config_saved': 'Configuration enregistrée',
+  'no_config': 'Aucune configuration enregistrée trouvée.',
+  'saving': 'Enregistrement…',
+  'connection': 'Connexion',
+  'carpark': 'Parking',
+  'carpark_settings': 'Paramètres du parking',
+  'receipt': 'Reçu',
+  'receipt_settings': 'Paramètres du reçu',
+  'extra_settings': 'Paramètres supplémentaires',
+  'cameras': 'Caméras',
+  'exit_camera': 'Caméra de sortie',
+  'camera_named': 'Caméra : {{name}}',
+  'base_url': 'URL de base',
+  'pos_token': 'Jeton POS',
+  'configuration_sections': 'Sections de configuration',
+
+  // ==========================================
+  // POS SETUP
+  // ==========================================
+  'configuration': 'Configuration',
+  'confirmation': 'Confirmation',
+  'pos_setup_welcome_description': 'Configurez votre POS pour le connecter au système backoffice en quelques étapes.',
+  'backoffice_url': 'URL du backoffice',
+  'enter_pos_token': 'Entrez le jeton POS',
+  'connection_successful': 'Connexion réussie.',
+  'test_connection': 'Tester la connexion',
+  'validate_and_save': 'Valider et enregistrer',
+  'pos_configured_successfully': 'POS configuré avec succès',
+  'pos_configured_description': "Votre terminal est connecté et prêt à l'emploi.",
+  'go_to_login': 'Aller à la connexion',
+
+  // ==========================================
+  // SHIFT REPORT
+  // ==========================================
+  'shift_report': 'Rapport de permanence',
+  'total_turnover': "Chiffre d'affaires total",
+  'total_turnover_tooltip': 'Chiffre d\'affaires total généré pendant cette permanence',
+  'total_cash': 'Total espèces',
+  'total_cash_tooltip': 'Total des espèces encaissées pendant cette permanence',
+  'total_payments': 'Total des paiements',
+  'total_payments_tooltip': 'Nombre total de transactions de paiement',
+  'payment_id': 'ID de paiement',
+  'lpn': 'LPN',
+
+  // ==========================================
+  // PAYMENT
+  // ==========================================
+  'proceed': 'Continuer',
+  'license_plate': "Plaque d'immatriculation",
+  'epan': 'EPAN',
+  'card_type': 'Type de carte',
+  'entry_time': "Heure d'entrée",
+  'participant': 'Participant',
+  'card_number': 'Numéro de carte',
+  'validity': 'Validité',
+  'blocked': 'Bloqué',
+  'label_picture': 'Image {{label}}',
+  'no_image_available': 'Aucune image disponible',
+  'entry_exit_pictures': "Photos d'entrée et de sortie",
+  'entry': 'Entrée',
+  'exit': 'Sortie',
+  'allowed': 'Autorisé',
+  'graylisted_vehicle': 'Véhicule sur liste grise',
+  'person': 'Personne',
+  'car_model': 'Modèle de voiture',
+  'reason': 'Raison',
+  'last_seen': 'Dernière vue',
+  'not_in_graylist': 'Absent de la liste grise.',
+  'graylisted_plate': 'Plaque sur liste grise',
+  'graylisted_season_parker': 'Abonné saisonnier sur liste grise',
+  'graylist': 'Liste grise',
+  'season_parker': 'Abonné saisonnier',
+  'season_parker_valid': 'Abonné saisonnier valide',
+  'season_parker_not_valid': 'Abonné saisonnier non valide',
+  'exited_with_zero_payment': 'Sortie sans paiement',
+  'valid_from': 'Valide à partir du',
+  'valid_until': "Valide jusqu'au",
+  'lost_ticket': 'Ticket perdu',
+  'calculating': 'Calcul en cours...',
+  'calculate': 'Calculer',
+  'plate_character': 'Caractère {{index}} de la plaque',
+  'lane': 'Voie',
+  'all_lanes': 'Toutes les voies',
+  'card': 'Carte',
+  'articles': 'Articles',
+  'no_articles_configured': 'Aucun article configuré',
+  'clear_all': 'Tout effacer',
+  'no_articles_added': 'Aucun article ajouté',
+  'total': 'Total',
+  'remove_article': 'Supprimer {{title}}',
+  'payment_method': 'Méthode de paiement',
+  'cash': 'Espèces',
+  'open_barrier': 'Ouvrir la barrière',
+  'close_barrier': 'Fermer la barrière',
+  'lock_barrier': 'Verrouiller la barrière',
+  'unlock_barrier': 'Déverrouiller la barrière',
+  'barrier': 'Barrière',
+  'auto_print': 'Impression automatique',
+  'entry_lane': "Voie d'entrée",
+  'capture_picture': 'Capturer une image',
+  'exit_picture': 'Image de sortie',
+  'update_image': "Mettre à jour l'image",
+  'show_entry': "Afficher l'entrée",
+  'parking_duration': 'Durée de stationnement',
+
+  // ==========================================
+  // DATE RANGE PICKER
+  // ==========================================
+  'date_range': 'Plage de dates',
+  'from_time': 'Heure de début',
+  'to_time': 'Heure de fin',
 } as const;

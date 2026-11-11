@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import {
   Select,
@@ -27,6 +28,8 @@ export function SidebarNav({
   onValueChange,
   className,
 }: SidebarNavProps) {
+  const { t } = useTranslation()
+
   return (
     <>
       {/* Mobile: dropdown */}
@@ -51,7 +54,7 @@ export function SidebarNav({
       {/* Desktop: vertical list */}
       <nav
         className={cn('hidden w-56 shrink-0 flex-col gap-1 md:flex', className)}
-        aria-label='Configuration sections'
+        aria-label={t('configuration_sections')}
       >
         {items.map((item) => {
           const active = item.value === value

@@ -34,16 +34,8 @@ import { PasswordInput } from '@/components/password-input'
 import { SidebarNav } from './components/sidebar-nav'
 import { useConfigReceiptPreview, useConfigReceiptPreviewImage } from '@/hooks/use-printer'
 
-const schema = z.object({
-  base_url: z.string().trim().url('Enter a valid URL'),
-  pos_token: z.string().trim().min(1, 'Token is required'),
-})
-type Values = z.infer<typeof schema>
-
 const SENSITIVE = /(password|api_key|token)/i
 const humanize = (key: string) => key.replace(/_/g, ' ')
-
-
 
 const toImageSrc = (b64: string) =>
   b64.startsWith('data:') ? b64 : `data:image/png;base64,${b64}`
@@ -64,9 +56,7 @@ function ReceiptPreview({
   return (
     <section className='space-y-3 rounded-lg border p-4'>
       <div className='flex items-center justify-between'>
-        <h3 className='font-semibold'>
-          {t('receipt_body_preview', 'Receipt body preview')}
-        </h3>
+        <h3 className='font-semibold'>{t('receipt_body_preview')}</h3>
         <Button
           type='button'
           variant='outline'
@@ -84,35 +74,33 @@ function ReceiptPreview({
             className={isPending ? 'size-4 animate-spin' : 'size-4'}
             aria-hidden='true'
           />
-          {t('refresh', 'Refresh')}
+          {t('refresh')}
         </Button>
       </div>
 
       {image ? (
         <img
           src={toImageSrc(image)}
-          alt={t('receipt_body_preview', 'Receipt body preview')}
+          alt={t('receipt_body_preview')}
           className='mx-auto max-w-full rounded border bg-white'
         />
       ) : (
         <p className='text-sm text-muted-foreground'>
-          {isPending
-            ? t('loading', 'Loading…')
-            : t('no_preview', 'No preview available.')}
+          {isPending ? t('loading') : t('no_preview')}
         </p>
       )}
     </section>
   )
 }
 
-
 function ReadOnlyField({ name, value }: { name: string; value: unknown }) {
+  const { t } = useTranslation()
   const text = value === null || value === undefined ? '' : String(value)
 
   return (
     <div className='space-y-1.5'>
       <Label className='text-muted-foreground text-xs capitalize'>
-        {humanize(name)}
+        {t(name, humanize(name))}
       </Label>
       {SENSITIVE.test(name) ? (
         <PasswordInput value={text} readOnly />
@@ -164,6 +152,13 @@ export function Configuration() {
   const { mutate, isPending } = useConfigurePos()
   const [section, setSection] = useState('connection')
 
+  // Schema built inside the component so validation messages are translated.
+  const schema = z.object({
+    base_url: z.string().trim().url(t('enter_valid_url')),
+    pos_token: z.string().trim().min(1, t('token_required')),
+  })
+  type Values = z.infer<typeof schema>
+
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { base_url: '', pos_token: '' },
@@ -185,7 +180,7 @@ export function Configuration() {
       {
         onSuccess: () =>
           showAlert({
-            message: t('config_saved', 'Configuration saved'),
+            message: t('config_saved'),
             type: AlertEnum.SUCCESS,
           }),
       }
@@ -195,9 +190,7 @@ export function Configuration() {
   if (!config) {
     return (
       <Main>
-        <p className='text-muted-foreground text-sm'>
-          {t('no_config', 'No saved configuration found.')}
-        </p>
+        <p className='text-muted-foreground text-sm'>{t('no_config')}</p>
       </Main>
     )
   }
@@ -213,37 +206,37 @@ export function Configuration() {
   const items = [
     {
       value: 'connection',
-      title: t('connection', 'Connection'),
+      title: t('connection'),
       icon: <Plug className={icon} aria-hidden='true' />,
     },
     {
       value: 'pos',
-      title: 'POS',
+      title: t('pos'),
       icon: <CreditCard className={icon} aria-hidden='true' />,
     },
     {
       value: 'carpark',
-      title: 'Carpark',
+      title: t('carpark'),
       icon: <ParkingSquare className={icon} aria-hidden='true' />,
     },
     {
       value: 'carpark-settings',
-      title: 'Carpark settings',
+      title: t('carpark_settings'),
       icon: <SlidersHorizontal className={icon} aria-hidden='true' />,
     },
     {
       value: 'receipt',
-      title: 'Receipt',
+      title: t('receipt'),
       icon: <Receipt className={icon} aria-hidden='true' />,
     },
     {
       value: 'extra',
-      title: 'Extra settings',
+      title: t('extra_settings'),
       icon: <Database className={icon} aria-hidden='true' />,
     },
     {
       value: 'cameras',
-      title: 'Cameras',
+      title: t('cameras'),
       icon: <Camera className={icon} aria-hidden='true' />,
     },
   ]
@@ -260,16 +253,14 @@ export function Configuration() {
                 onSubmit={onSubmit}
                 className='space-y-4 rounded-lg border p-4'
               >
-                <h3 className='font-semibold'>
-                  {t('connection', 'Connection')}
-                </h3>
+                <h3 className='font-semibold'>{t('connection')}</h3>
                 <div className='grid gap-4 sm:grid-cols-2'>
                   <FormField
                     control={form.control}
                     name='base_url'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('base_url', 'Base URL')}</FormLabel>
+                        <FormLabel>{t('base_url')}</FormLabel>
                         <FormControl>
                           <Input {...field} autoComplete='off' />
                         </FormControl>
@@ -282,7 +273,7 @@ export function Configuration() {
                     name='pos_token'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('pos_token', 'POS Token')}</FormLabel>
+                        <FormLabel>{t('pos_token')}</FormLabel>
                         <FormControl>
                           <Input {...field} autoComplete='off' />
                         </FormControl>
@@ -293,7 +284,7 @@ export function Configuration() {
                 </div>
                 <div className='flex justify-end'>
                   <Button type='submit' disabled={isPending}>
-                    {isPending ? t('saving', 'Saving…') : t('submit', 'Submit')}
+                    {isPending ? t('saving') : t('submit')}
                   </Button>
                 </div>
               </form>
@@ -302,21 +293,26 @@ export function Configuration() {
 
           {section === 'pos' && (
             <Section
-              title='POS'
+              title={t('pos')}
               data={pos}
               omit={['pos_token', 'backoffice_base_url']}
             />
           )}
 
-          {section === 'carpark' && <Section title='Carpark' data={carpark} />}
+          {section === 'carpark' && (
+            <Section title={t('carpark')} data={carpark} />
+          )}
 
           {section === 'carpark-settings' && (
-            <Section title='Carpark settings' data={carpark_settings} />
+            <Section
+              title={t('carpark_settings')}
+              data={carpark_settings}
+            />
           )}
 
           {section === 'receipt' && (
             <>
-              <Section title='Receipt settings' data={receipt} />
+              <Section title={t('receipt_settings')} data={receipt} />
               <ReceiptPreview
                 header={receipt.receipt_header}
                 body={receipt.receipt_body}
@@ -327,18 +323,18 @@ export function Configuration() {
 
           {section === 'extra' && (
             <Section
-              title='Extra settings'
+              title={t('extra_settings')}
               data={config.carpark_extra_settings}
             />
           )}
 
           {section === 'cameras' && (
             <>
-              <Section title='Exit camera' data={config.camera} />
+              <Section title={t('exit_camera')} data={config.camera} />
               {config.cameras?.map((cam) => (
                 <Section
                   key={cam.id}
-                  title={`Camera: ${cam.name}`}
+                  title={t('camera_named', { name: cam.name })}
                   data={cam}
                 />
               ))}

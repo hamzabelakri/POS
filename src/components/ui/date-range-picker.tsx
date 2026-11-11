@@ -2,6 +2,7 @@ import * as React from "react"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { type DateRange } from "react-day-picker"
+import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -40,6 +41,7 @@ export function DatePickerWithRange({
   label,
   className,
 }: DatePickerWithRangeProps) {
+  const { t } = useTranslation()
   const id = React.useId()
 
   // Times currently applied (defaults cover the whole day)
@@ -54,7 +56,7 @@ export function DatePickerWithRange({
           <Button
             variant="outline"
             id={id}
-            aria-label={label ?? "Date range"}
+            aria-label={label ?? t('date_range')}
             className="justify-start px-2.5 font-normal tabular-nums"
           >
             <CalendarIcon data-icon="inline-start" />
@@ -68,7 +70,7 @@ export function DatePickerWithRange({
                 format(value.from, DATE_TIME_FORMAT)
               )
             ) : (
-              <span>Pick a date</span>
+              <span>{t('pick_a_date')}</span>
             )}
           </Button>
         </PopoverTrigger>
@@ -94,7 +96,7 @@ export function DatePickerWithRange({
           {/* Time inputs (with seconds) */}
           <div className="grid grid-cols-2 gap-3 border-t p-3">
             <div className="space-y-1.5">
-              <Label htmlFor={`${id}-from-time`}>From time</Label>
+              <Label htmlFor={`${id}-from-time`}>{t('from_time')}</Label>
               <Input
                 id={`${id}-from-time`}
                 type="time"
@@ -112,7 +114,7 @@ export function DatePickerWithRange({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor={`${id}-to-time`}>To time</Label>
+              <Label htmlFor={`${id}-to-time`}>{t('to_time')}</Label>
               <Input
                 id={`${id}-to-time`}
                 type="time"

@@ -43,7 +43,7 @@ export function Footer() {
           <div className='flex items-center gap-3'>
             <div className='flex items-center gap-1.5'>
               <Terminal className='size-3.5' aria-hidden='true' />
-              <span>{t('pos', 'POS')}</span>
+              <span>{t('pos')}</span>
               <span className='font-semibold text-foreground'>
                 {pos.number}
               </span>
@@ -69,9 +69,7 @@ export function Footer() {
                 }`}
                 aria-hidden='true'
               />
-              {isConnected
-                ? t('connected', 'Connected')
-                : t('disconnected', 'Disconnected')}
+              {isConnected ? t('connected') : t('disconnected')}
             </Badge>
           </div>
 
@@ -88,7 +86,7 @@ export function Footer() {
               onClick={() => setConfigOpen(true)}
             >
               <SlidersHorizontal className='size-3.5' aria-hidden='true' />
-              {t('configurations', 'Configurations')}
+              {t('configurations')}
             </Button>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useCallback, useState } from "react"
 import { endOfDay, startOfDay } from "date-fns"
 import { type DateRange } from "react-day-picker"
 import { Search } from "lucide-react"
+import { useTranslation } from 'react-i18next'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -16,6 +17,7 @@ const PLATE_SLOTS = 8
 const emptyPlate = () => Array<string>(PLATE_SLOTS).fill("")
 
 export function PlateSearch() {
+  const { t } = useTranslation()
   const [range, setRange] = useState<DateRange | undefined>(() => ({
     from: startOfDay(new Date()),
     to: endOfDay(new Date()),
@@ -44,7 +46,7 @@ export function PlateSearch() {
     <>
       <Card className="gap-3 py-4">
         <CardHeader>
-          <CardTitle>License Plate</CardTitle>
+          <CardTitle>{t('license_plate')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap items-center gap-3">
@@ -55,7 +57,7 @@ export function PlateSearch() {
                   value={char}
                   maxLength={1}
                   className="size-9 p-0 text-center"
-                  aria-label={`Plate character ${i + 1}`}
+                  aria-label={t('plate_character', { index: i + 1 })}
                   onChange={(e) => handlePlateChange(i, e.target.value)}
                 />
               ))}
@@ -68,7 +70,7 @@ export function PlateSearch() {
 
             <Button className="min-w-24 flex-1" onClick={handleSearch}>
               <Search />
-              Search
+              {t('search')}
             </Button>
           </div>
         </CardContent>

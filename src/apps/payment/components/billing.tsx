@@ -1,4 +1,5 @@
 import { X } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -19,6 +20,7 @@ function BillingArticle({
   article: Article
   onRemove: () => void
 }) {
+  const { t } = useTranslation()
   return (
     <Card className="gap-0 py-0">
       <CardContent className="flex items-center gap-3 p-3">
@@ -36,7 +38,7 @@ function BillingArticle({
           variant="ghost"
           size="icon"
           className="size-7 shrink-0"
-          aria-label={`Remove ${article.title}`}
+          aria-label={t('remove_article', { title: article.title })}
           onClick={onRemove}
         >
           <X />
@@ -52,14 +54,15 @@ export function Billing({
   onClear,
 }: {
   lines: BillingLine[]
-    onRemove: (key: string) => void
+  onRemove: (key: string) => void
   onClear: () => void
 }) {
+  const { t } = useTranslation()
   return (
     // Stretches; the list scrolls, the total stays at the bottom
     <Card className="flex-1">
       <CardHeader className="border-b">
-        <CardTitle>Billing</CardTitle>
+        <CardTitle>{t('billing')}</CardTitle>
         <CardAction>
           <Button
             variant="link"
@@ -67,7 +70,7 @@ export function Billing({
             className="h-auto p-0"
             onClick={onClear}
           >
-            Clear All
+            {t('clear_all')}
           </Button>
         </CardAction>
       </CardHeader>
@@ -78,7 +81,7 @@ export function Billing({
         <div className="absolute inset-0 space-y-2 overflow-y-auto p-4">
           {lines.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              No articles added
+              {t('no_articles_added')}
             </p>
           ) : (
             lines.map(({ key, article }) => (
@@ -93,7 +96,7 @@ export function Billing({
       </CardContent>
 
       <CardFooter className="flex-col gap-1 border-t">
-        <span className="text-2xl font-bold tracking-widest">Total</span>
+        <span className="text-2xl font-bold tracking-widest">{t('total')}</span>
         {/* TODO: compute from the billed articles */}
         <span className="text-5xl font-bold">0 EGP</span>
       </CardFooter>

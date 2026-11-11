@@ -84,6 +84,18 @@ export const en = {
   'enter_registered_email_reset': 'Enter your registered email and we will send you a link to reset your password.',
   'name_example_placeholder': 'name@example.com',
   'password_placeholder': '********',
+  'username_required': 'Username is required',
+  'enter_username': 'Enter your username',
+  'sign_in_description': 'Enter your credentials to continue.',
+  'shift_already_open': 'A shift is already open',
+  'shift_already_open_description': 'Continue it, or close it and start a new one.',
+  'continue_shift': 'Continue Shift',
+  'close_and_start_new': 'Close & Start New',
+  'start_shift': 'Start shift',
+  'start_shift_description': 'Enter the starting amount for this shift.',
+  'starting_amount': 'Starting Amount',
+  'starting_amount_required': 'Starting amount is required',
+  'starting_amount_invalid': 'Enter a valid amount (0 or more)',
 
   // ==========================================
   // VALIDATION MESSAGES
@@ -104,6 +116,10 @@ export const en = {
   'email_required': 'Email is required.',
   'role_required': 'Role is required.',
   'password_required': 'Password is required.',
+  'token_required': 'Token is required',
+  'pos_token_required': 'POS token is required',
+  'enter_valid_url': 'Enter a valid URL',
+  'enter_valid_url_example': 'Enter a valid URL, e.g. http://192.168.1.10:8008',
 
   // ==========================================
   // NAVIGATION, SIDEBAR & LAYOUT
@@ -183,7 +199,6 @@ export const en = {
   'confirm_delete': 'Are you sure you want to delete this user?',
   'select_options': 'Select options...',
 
-  
   // ==========================================
   // ROLE MANAGEMENT
   // ==========================================
@@ -297,7 +312,7 @@ export const en = {
   'about': 'About',
   'preferences': 'Preferences',
   'no_settings': 'There are no settings to configure yet',
-  
+
   // Settings Forms Detail
   'username_description': 'This is your public display name. It can be your real name or a pseudonym. You can only change this once every 30 days.',
   'select_email_placeholder': 'Select a verified email to display',
@@ -435,5 +450,144 @@ export const en = {
   'last_hour': 'Last hour',
   'last_day': 'Last day',
   'last_week': 'Last week',
-  'last_year': 'Last year'
+  'last_year': 'Last year',
+  'customers': 'Customers',
+  'name': 'Name',
+  'username': 'Username',
+
+  // ==========================================
+  // APP LAYOUT (HEADER & FOOTER)
+  // ==========================================
+  'app_name': 'Smart Parking',
+  'main_navigation': 'Main navigation',
+  'system_online': 'System online',
+  'system_offline': 'System offline',
+  'pause_shift': 'Pause shift',
+  'close_shift': 'Close shift',
+  'shift_unavailable': 'Shift details unavailable',
+  'shift_unavailable_hint': 'The shift id is missing, so the shift cannot be closed from here.',
+  'back_to_payment': 'Back to payment',
+  'payment': 'Payment',
+  'connected': 'Connected',
+  'disconnected': 'Disconnected',
+  'configurations': 'Configurations',
+  'pos': 'POS',
+
+  // ==========================================
+  // CONFIGURATION
+  // ==========================================
+  'refresh': 'Refresh',
+  'no_preview': 'No preview available.',
+  'receipt_body_preview': 'Receipt body preview',
+  'config_saved': 'Configuration saved',
+  'no_config': 'No saved configuration found.',
+  'saving': 'Saving…',
+  'connection': 'Connection',
+  'carpark': 'Carpark',
+  'carpark_settings': 'Carpark settings',
+  'receipt': 'Receipt',
+  'receipt_settings': 'Receipt settings',
+  'extra_settings': 'Extra settings',
+  'cameras': 'Cameras',
+  'exit_camera': 'Exit camera',
+  'camera_named': 'Camera: {{name}}',
+  'base_url': 'Base URL',
+  'pos_token': 'POS Token',
+  'configuration_sections': 'Configuration sections',
+
+  // ==========================================
+  // POS SETUP
+  // ==========================================
+  'configuration': 'Configuration',
+  'confirmation': 'Confirmation',
+  'pos_setup_welcome_description': 'Configure your POS to connect with the backoffice system in just a few steps.',
+  'backoffice_url': 'Backoffice URL',
+  'enter_pos_token': 'Enter the POS token',
+  'connection_successful': 'Connection successful.',
+  'test_connection': 'Test Connection',
+  'validate_and_save': 'Validate & Save',
+  'pos_configured_successfully': 'POS Configured Successfully',
+  'pos_configured_description': 'Your terminal is connected and ready to use.',
+  'go_to_login': 'Go to Login',
+
+  // ==========================================
+  // SHIFT REPORT
+  // ==========================================
+  'shift_report': 'Shift Report',
+  'total_turnover': 'Total Turnover',
+  'total_turnover_tooltip': 'Total revenue generated during this shift',
+  'total_cash': 'Total Cash',
+  'total_cash_tooltip': 'Total cash collected during this shift',
+  'total_payments': 'Total Payments',
+  'total_payments_tooltip': 'Total number of payment transactions',
+  'payment_id': 'Payment ID',
+  'lpn': 'LPN',
+
+  // ==========================================
+  // PAYMENT
+  // ==========================================
+  'proceed': 'Proceed',
+  'license_plate': 'License Plate',
+  'epan': 'EPAN',
+  'card_type': 'Card Type',
+  'entry_time': 'Entry Time',
+  'participant': 'Participant',
+  'card_number': 'Card Number',
+  'validity': 'Validity',
+  'blocked': 'Blocked',
+  'label_picture': '{{label}} picture',
+  'no_image_available': 'No image available',
+  'entry_exit_pictures': 'Entry & Exit Pictures',
+  'entry': 'Entry',
+  'exit': 'Exit',
+  'allowed': 'Allowed',
+  'graylisted_vehicle': 'Graylisted vehicle',
+  'person': 'Person',
+  'car_model': 'Car Model',
+  'reason': 'Reason',
+  'last_seen': 'Last Seen',
+  'not_in_graylist': 'Not in the graylist.',
+  'graylisted_plate': 'Graylisted Plate',
+  'graylisted_season_parker': 'Graylisted Season Parker',
+  'graylist': 'Graylist',
+  'season_parker': 'Season Parker',
+  'season_parker_valid': 'Season Parker Valid',
+  'season_parker_not_valid': 'Season Parker Not Valid',
+  'exited_with_zero_payment': 'Exited With Zero Payment',
+  'valid_from': 'Valid From',
+  'valid_until': 'Valid Until',
+  'lost_ticket': 'Lost Ticket',
+  'calculating': 'Calculating...',
+  'calculate': 'Calculate',
+  'plate_character': 'Plate character {{index}}',
+  'lane': 'Lane',
+  'all_lanes': 'All Lanes',
+  'card': 'Card',
+  'articles': 'Articles',
+  'no_articles_configured': 'No articles configured',
+  'clear_all': 'Clear All',
+  'no_articles_added': 'No articles added',
+  'total': 'Total',
+  'remove_article': 'Remove {{title}}',
+  'payment_method': 'Payment Method',
+  'cash': 'Cash',
+  'open_barrier': 'Open Barrier',
+  'close_barrier': 'Close Barrier',
+  'lock_barrier': 'Lock Barrier',
+  'unlock_barrier': 'Unlock Barrier',
+  'barrier': 'Barrier',
+  'auto_print': 'Auto Print',
+  'entry_lane': 'Entry Lane',
+  'capture_picture': 'Capture Picture',
+  'exit_picture': 'Exit Picture',
+  'update_image': 'Update Image',
+  'show_entry': 'Show Entry',
+  'parking_duration': 'Parking Duration',
+
+  // ==========================================
+  // DATE RANGE PICKER
+  // ==========================================
+  'date_range': 'Date range',
+  'from_time': 'From time',
+  'to_time': 'To time',
 } as const;

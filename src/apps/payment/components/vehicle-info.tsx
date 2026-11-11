@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Camera, Images, RefreshCw } from 'lucide-react'
 import type { CaptureResponse } from '@/models/bridge-model'
 import { toImageSrc, toVehicleView, type ExitVehicleEvent } from '@/models/sse-model'
@@ -14,6 +15,7 @@ import { ImagesModal } from '../modals/images-modal'
 import { PlateSearchModal } from '../modals/plate-search-modal'
 
 export function VehicleInfo() {
+  const { t } = useTranslation()
   const event = useSSEStore((s) => s.exitEvent)
   const view = toVehicleView(event)
 
@@ -48,7 +50,7 @@ export function VehicleInfo() {
             {image ? (
               <img
                 src={image}
-                alt='Exit'
+                alt={t('exit')}
                 className='absolute inset-0 size-full object-cover'
               />
             ) : canCapture ? (
@@ -61,14 +63,14 @@ export function VehicleInfo() {
                 <div className='flex size-16 items-center justify-center rounded-full border'>
                   {isCapturing ? <Spinner variant='circle' /> : <Camera className='size-7' />}
                 </div>
-                <span className='text-sm font-medium'>Capture Picture</span>
+                <span className='text-sm font-medium'>{t('capture_picture')}</span>
               </button>
             ) : (
               <div className='flex size-full min-h-56 flex-col items-center justify-center gap-3'>
                 <div className='flex size-16 items-center justify-center rounded-full border'>
                   <Camera className='size-7' />
                 </div>
-                <span className='text-sm font-medium'>Exit Picture</span>
+                <span className='text-sm font-medium'>{t('exit_picture')}</span>
               </div>
             )}
 
@@ -81,7 +83,7 @@ export function VehicleInfo() {
                 onClick={updateVehicleImage}
               >
                 {isUpdatingImage ? <Spinner variant='circle' /> : <RefreshCw />}
-                Update Image
+                {t('update_image')}
               </Button>
             )}
           </div>
@@ -89,7 +91,7 @@ export function VehicleInfo() {
           {/* Fields */}
           <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
             <div className='col-span-2 space-y-2'>
-              <Label htmlFor='licensePlate'>License Plate</Label>
+              <Label htmlFor='licensePlate'>{t('license_plate')}</Label>
               <div className='flex items-center gap-2'>
                 <Input
                   id='licensePlate'
@@ -104,22 +106,22 @@ export function VehicleInfo() {
                   onClick={() => setShowImages(true)}
                 >
                   <Images />
-                  Show Entry
+                  {t('show_entry')}
                 </Button>
               </div>
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='epan'>EPAN</Label>
+              <Label htmlFor='epan'>{t('epan')}</Label>
               <Input id='epan' readOnly value={view?.epan ?? ''} />
             </div>
             <div className='space-y-2'>
-              <Label htmlFor='cardType'>Card Type</Label>
+              <Label htmlFor='cardType'>{t('card_type')}</Label>
               <Input id='cardType' readOnly value={view?.cardType ?? ''} />
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='entryTime'>Entry Time</Label>
+              <Label htmlFor='entryTime'>{t('entry_time')}</Label>
               <Input
                 id='entryTime'
                 readOnly
@@ -128,7 +130,7 @@ export function VehicleInfo() {
               />
             </div>
             <div className='space-y-2'>
-              <Label htmlFor='parkingDuration'>Parking Duration</Label>
+              <Label htmlFor='parkingDuration'>{t('parking_duration')}</Label>
               <Input
                 id='parkingDuration'
                 readOnly

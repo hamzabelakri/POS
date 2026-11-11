@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   toImageSrc,
   type GraylistResult,
@@ -17,6 +18,7 @@ import {
 /* ───────── Shared pieces ───────── */
 
 function AlertImage({ src, label }: { src: string; label: string }) {
+  const { t } = useTranslation()
   const url = toImageSrc(src)
   return (
     <div className='bg-muted/30 flex aspect-video items-center justify-center overflow-hidden rounded-lg border'>
@@ -24,7 +26,7 @@ function AlertImage({ src, label }: { src: string; label: string }) {
         <img src={url} alt={label} className='size-full object-cover' />
       ) : (
         <span className='text-muted-foreground text-sm'>
-          No image available
+          {t('no_image_available')}
         </span>
       )}
     </div>
@@ -41,6 +43,7 @@ function Row({ label, value }: { label: string; value?: ReactNode }) {
 }
 
 function Flag({ label, on }: { label: string; on: boolean }) {
+  const { t } = useTranslation()
   return (
     <span
       className={
@@ -49,7 +52,7 @@ function Flag({ label, on }: { label: string; on: boolean }) {
           : 'bg-muted text-muted-foreground rounded-md px-2 py-0.5 text-xs'
       }
     >
-      {label}: {on ? 'Blocked' : 'Allowed'}
+      {label}: {on ? t('blocked') : t('allowed')}
     </span>
   )
 }
@@ -88,25 +91,28 @@ function Shell({
 /* ───────── Sections ───────── */
 
 function GraylistSection({ g }: { g: GraylistResult }) {
+  const { t } = useTranslation()
   const e = g.entry
   return (
     <div className='grid gap-4 md:grid-cols-2'>
-      <AlertImage src={g.image} label='Graylisted vehicle' />
+      <AlertImage src={g.image} label={t('graylisted_vehicle')} />
       <div className='space-y-2'>
         {e ? (
           <>
-            <Row label='License Plate' value={e.lpn} />
-            <Row label='Person' value={e.person_name} />
-            <Row label='Car Model' value={e.car_model} />
-            <Row label='Reason' value={e.reason} />
-            <Row label='Last Seen' value={e.last_seen} />
+            <Row label={t('license_plate')} value={e.lpn} />
+            <Row label={t('person')} value={e.person_name} />
+            <Row label={t('car_model')} value={e.car_model} />
+            <Row label={t('reason')} value={e.reason} />
+            <Row label={t('last_seen')} value={e.last_seen} />
           </>
         ) : (
-          <p className='text-muted-foreground text-sm'>Not in the graylist.</p>
+          <p className='text-muted-foreground text-sm'>
+            {t('not_in_graylist')}
+          </p>
         )}
         <div className='flex flex-wrap gap-2 pt-2'>
-          <Flag label='Entry' on={g.block_entry} />
-          <Flag label='Exit' on={g.block_exit} />
+          <Flag label={t('entry')} on={g.block_entry} />
+          <Flag label={t('exit')} on={g.block_exit} />
         </div>
       </div>
     </div>
@@ -114,22 +120,23 @@ function GraylistSection({ g }: { g: GraylistResult }) {
 }
 
 function SeasonParkerSection({ s }: { s: SeasonParkerStatus }) {
+  const { t } = useTranslation()
   const p = s.season_parker
   return (
     <div className='grid gap-4 md:grid-cols-2'>
-      <AlertImage src={s.image} label='Season parker' />
+      <AlertImage src={s.image} label={t('season_parker')} />
       <div className='space-y-2'>
         <Row
-          label='Name'
+          label={t('name')}
           value={`${p.participant_first_name} ${p.participant_last_name}`}
         />
-        <Row label='Card Number' value={p.card_number} />
-        <Row label='License Plate' value={p.lpn.join(', ')} />
-        <Row label='EPAN' value={p.epan} />
-        <Row label='Valid From' value={p.validity_start} />
-        <Row label='Valid Until' value={p.validity_end} />
+        <Row label={t('card_number')} value={p.card_number} />
+        <Row label={t('license_plate')} value={p.lpn.join(', ')} />
+        <Row label={t('epan')} value={p.epan} />
+        <Row label={t('valid_from')} value={p.validity_start} />
+        <Row label={t('valid_until')} value={p.validity_end} />
         <div className='flex flex-wrap gap-2 pt-2'>
-          <Flag label='Card' on={p.blocked} />
+          <Flag label={t('card')} on={p.blocked} />
         </div>
       </div>
     </div>
@@ -141,6 +148,7 @@ const isValid = (s: SeasonParkerStatus) => s.state === 'season_parker_valid'
 /* ───────── Entry point ───────── */
 
 export function LaneAlertModal() {
+  const { t } = useTranslation()
   const alert = useSSEStore((s) => s.laneAlert)
   const close = useSSEStore((s) => s.clearLaneAlert)
 
@@ -151,7 +159,7 @@ export function LaneAlertModal() {
       return (
         <Shell
           icon={<ShieldAlert className='text-destructive size-5' />}
-          title='Graylisted Plate'
+          title={t('graylisted_plate')}
           message={alert.message}
           onClose={close}
         >
@@ -164,17 +172,17 @@ export function LaneAlertModal() {
         <Shell
           wide
           icon={<ShieldAlert className='text-destructive size-5' />}
-          title='Graylisted Season Parker'
+          title={t('graylisted_season_parker')}
           message={alert.message}
           onClose={close}
         >
           <div className='space-y-6'>
             <div className='space-y-2'>
-              <h3 className='text-sm font-semibold'>Graylist</h3>
+              <h3 className='text-sm font-semibold'>{t('graylist')}</h3>
               <GraylistSection g={alert.data.graylist} />
             </div>
             <div className='space-y-2 border-t pt-4'>
-              <h3 className='text-sm font-semibold'>Season Parker</h3>
+              <h3 className='text-sm font-semibold'>{t('season_parker')}</h3>
               <SeasonParkerSection s={alert.data.season_parker} />
             </div>
           </div>
@@ -192,7 +200,7 @@ export function LaneAlertModal() {
               <BadgeX className='text-destructive size-5' />
             )
           }
-          title={valid ? 'Season Parker Valid' : 'Season Parker Not Valid'}
+          title={valid ? t('season_parker_valid') : t('season_parker_not_valid')}
           message={alert.message}
           onClose={close}
         >
@@ -204,7 +212,7 @@ export function LaneAlertModal() {
       return (
         <Shell
           icon={<ShieldAlert className='size-5 text-amber-500' />}
-          title='Exited With Zero Payment'
+          title={t('exited_with_zero_payment')}
           message={alert.message}
           onClose={close}
         >
@@ -212,7 +220,7 @@ export function LaneAlertModal() {
             <GraylistSection g={alert.data.graylist} />
             <div className='border-t pt-4'>
               <Row
-                label='Reason'
+                label={t('reason')}
                 value={alert.data.reason.replace(/_/g, ' ')}
               />
             </div>

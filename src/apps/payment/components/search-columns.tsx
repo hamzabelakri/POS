@@ -1,5 +1,6 @@
 import { useMemo } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
+import { useTranslation } from 'react-i18next'
 
 import { Button } from "@/components/ui/button"
 import { PlateSearchDetail } from "@/models/consult-model"
@@ -16,12 +17,13 @@ export const useSearchColumns = ({
 }: {
   onProceed: (car: PlateSearchDetail) => void
   isProceeding: boolean
-}) =>
-  useMemo<ColumnDef<PlateSearchDetail>[]>(
+}) => {
+  const { t } = useTranslation()
+  return useMemo<ColumnDef<PlateSearchDetail>[]>(
     () => [
       {
         accessorKey: "license_plate",
-        header: "License Plate",
+        header: t('license_plate'),
         cell: ({ row }) => (
           <span className="font-medium">{row.original.license_plate || "-"}</span>
         ),
@@ -29,24 +31,24 @@ export const useSearchColumns = ({
       },
       {
         accessorKey: "external_unique_id",
-        header: "EPAN",
+        header: t('epan'),
         cell: ({ row }) => row.original.external_unique_id || "-",
         enableSorting: false,
       },
       {
         accessorKey: "card_type",
-        header: "Card Type",
+        header: t('card_type'),
         cell: ({ row }) => row.original.card_type || "-",
         enableSorting: false,
       },
       {
         accessorKey: "entry_unit",
-        header: "Entry Lane",
+        header: t('entry_lane'),
         enableSorting: false,
       },
       {
         accessorKey: "entry_time",
-        header: "Entry Time",
+        header: t('entry_time'),
         cell: ({ row }) => formatEntryTime(row.original.entry_time),
         enableSorting: false,
       },
@@ -59,12 +61,13 @@ export const useSearchColumns = ({
             disabled={isProceeding}
             onClick={() => onProceed(row.original)}
           >
-            Proceed
+            {t('proceed')}
           </Button>
         ),
         enableSorting: false,
         enableHiding: false,
       },
     ],
-    [onProceed, isProceeding]
+    [t, onProceed, isProceeding]
   )
+}

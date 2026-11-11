@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import { IconId } from "@tabler/icons-react"
 import { Search } from "lucide-react"
+import { useTranslation } from 'react-i18next'
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,6 +27,7 @@ type Props = {
 }
 
 export function SeasonParkerModal({ onClose, title }: Props) {
+  const { t } = useTranslation()
   const [plate, setPlate] = useState<string[]>(() =>
     Array<string>(PLATE_SLOTS).fill("")
   )
@@ -68,7 +70,7 @@ export function SeasonParkerModal({ onClose, title }: Props) {
             <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
               <IconId className="size-5" />
             </div>
-            {title ?? "Season Parker"}
+            {title ?? t('season_parker')}
           </DialogTitle>
         </DialogHeader>
 
@@ -80,7 +82,7 @@ export function SeasonParkerModal({ onClose, title }: Props) {
                 value={char}
                 maxLength={1}
                 className="size-9 p-0 text-center"
-                aria-label={`Plate character ${i + 1}`}
+                aria-label={t('plate_character', { index: i + 1 })}
                 onChange={(e) => handlePlateChange(i, e.target.value)}
               />
             ))}
@@ -92,14 +94,14 @@ export function SeasonParkerModal({ onClose, title }: Props) {
           <Input
             value={cardNumber}
             className="w-44"
-            placeholder="Card number"
-            aria-label="Card number"
+            placeholder={t('card_number')}
+            aria-label={t('card_number')}
             onChange={(e) => setCardNumber(e.target.value)}
           />
 
           <Button className="min-w-24 flex-1" onClick={runSearch}>
             <Search />
-            Search
+            {t('search')}
           </Button>
         </div>
 
@@ -117,7 +119,7 @@ export function SeasonParkerModal({ onClose, title }: Props) {
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>
-            Close
+            {t('close')}
           </Button>
         </DialogFooter>
       </DialogContent>

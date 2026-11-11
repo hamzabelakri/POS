@@ -17,9 +17,10 @@ type HeaderProps = Omit<React.HTMLAttributes<HTMLElement>, 'children'> & {
   ref?: React.Ref<HTMLElement>
 }
 
+// `label` is a translation key, translated at render time so it follows the active language.
 const navItems = [
   { to: '/', label: 'payment', icon: CreditCard },
-  { to: '/shift-report', label: 'shift', icon: Clock },
+  { to: '/shift-report', label: 'shift_report', icon: Clock },
 ] as const
 
 // Must be a stable reference for useSyncExternalStore, so it lives at module level.
@@ -78,11 +79,8 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
     if (!shift) {
       showAlert({
         type: AlertEnum.ERROR,
-        message: t('shift_unavailable', 'Shift details unavailable'),
-        description: t(
-          'shift_unavailable_hint',
-          'The shift id is missing, so the shift cannot be closed from here.'
-        ),
+        message: t('shift_unavailable'),
+        description: t('shift_unavailable_hint'),
       })
       return
     }
@@ -153,7 +151,7 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
             <Button asChild variant='outline' size='sm'>
               <Link to='/'>
                 <ArrowLeft className='rtl:rotate-180' aria-hidden='true' />
-                <span>{t('back_to_payment', 'Back to payment')}</span>
+                <span>{t('back_to_payment')}</span>
               </Link>
             </Button>
           ) : (

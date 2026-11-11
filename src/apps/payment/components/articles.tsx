@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   LOST_TICKET_WITH_CALCULATION_CODE,
   SEASON_PARKER_CODE,
@@ -60,6 +61,7 @@ function ArticleGroup({
 }
 
 export function Articles({ billedIds }: { billedIds: Set<number> }) {
+  const { t } = useTranslation()
   const { articles } = usePosArticles()
   const { submitArticle, isPending: isSubmitting } = useCreateTransaction()
   const { submitCalculation, isPending: isCalculating } = useCalculateTariff()
@@ -114,12 +116,12 @@ export function Articles({ billedIds }: { billedIds: Set<number> }) {
     <>
       <Card className='flex-1'>
         <CardHeader className='border-b'>
-          <CardTitle>Articles</CardTitle>
+          <CardTitle>{t('articles')}</CardTitle>
         </CardHeader>
         <CardContent>
           {visibleArticles.length === 0 ? (
             <p className='text-muted-foreground py-6 text-center text-sm'>
-              No articles configured
+              {t('no_articles_configured')}
             </p>
           ) : (
             <ArticleGroup

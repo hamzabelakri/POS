@@ -48,7 +48,7 @@ export const ar = {
   'sign_in': 'تسجيل الدخول',
   'sign_up': 'إنشاء حساب',
   'logout': 'تسجيل الخروج',
-  'log_out': 'تسجيل الخروج', // Shared logic fallback using raw data translation context
+  'log_out': 'تسجيل الخروج',
   'create_account': 'إنشاء حساب',
   'forgot_password': 'نسيت كلمة المرور',
   'forgot_your_password': 'نسيت كلمة المرور؟',
@@ -84,6 +84,18 @@ export const ar = {
   'enter_registered_email_reset': 'أدخل بريدك الإلكتروني المسجل وسنرسل لك رابطاً لإعادة تعيين كلمة المرور.',
   'name_example_placeholder': 'الاسم@مثال.com',
   'password_placeholder': '********',
+  'username_required': 'اسم المستخدم مطلوب',
+  'enter_username': 'أدخل اسم المستخدم',
+  'sign_in_description': 'أدخل بيانات الاعتماد الخاصة بك للمتابعة.',
+  'shift_already_open': 'هناك وردية مفتوحة بالفعل',
+  'shift_already_open_description': 'تابعها، أو أغلقها وابدأ وردية جديدة.',
+  'continue_shift': 'متابعة الوردية',
+  'close_and_start_new': 'إغلاق وبدء جديدة',
+  'start_shift': 'بدء الوردية',
+  'start_shift_description': 'أدخل المبلغ الابتدائي لهذه الوردية.',
+  'starting_amount': 'المبلغ الابتدائي',
+  'starting_amount_required': 'المبلغ الابتدائي مطلوب',
+  'starting_amount_invalid': 'أدخل مبلغاً صالحاً (0 أو أكثر)',
 
   // ==========================================
   // VALIDATION MESSAGES
@@ -104,6 +116,10 @@ export const ar = {
   'email_required': 'البريد الإلكتروني مطلوب.',
   'role_required': 'الدور مطلوب.',
   'password_required': 'كلمة المرور مطلوبة.',
+  'token_required': 'الرمز مطلوب',
+  'pos_token_required': 'رمز نقاط البيع مطلوب',
+  'enter_valid_url': 'أدخل رابطاً صالحاً',
+  'enter_valid_url_example': 'أدخل رابطاً صالحاً، مثال: http://192.168.1.10:8008',
 
   // ==========================================
   // NAVIGATION, SIDEBAR & LAYOUT
@@ -181,6 +197,7 @@ export const ar = {
   'enabling': 'جاري التفعيل ...',
   'confirm_user_status_change': 'هل أنت متأكد أنك تريد {{action}} هذا المستخدم؟',
   'confirm_delete': 'هل أنت متأكد أنك تريد حذف هذا المستخدم؟',
+  'select_options': 'اختر الخيارات...',
 
   // ==========================================
   // ROLE MANAGEMENT
@@ -209,13 +226,13 @@ export const ar = {
   'admin': 'مشرف',
   'manager': 'مدير',
   'cashier': 'أمين صندوق',
-  'cashiers': 'أمين صندوق', // Set contextually from the raw code base fallback
+  'cashiers': 'أمين صندوق',
   'delete_role_confirmation': 'هل أنت متأكد أنك تريد حذف هذا الدور؟',
   'role_has_users_message': 'يحتوي هذا الدور حالياً على {{count}} مستخدمين. يجب إعادة تعيينهم إلى دور آخر قبل الحذف:',
   'select_target_role': 'اختر دوراً مستهدفاً',
   'role_name_required': 'اسم الدور مطلوب.',
   'role_name_min': 'يجب أن يكون اسم الدور 3 أحرف على الأقل.',
-  
+
   // ==========================================
   // DATATABLES & CONTROLS
   // ==========================================
@@ -245,7 +262,6 @@ export const ar = {
   'go_to_previous_page': 'الصفحة السابقة',
   'go_to_next_page': 'الصفحة التالية',
   'go_to_last_page': 'الذهاب إلى الصفحة الأخيرة',
-  'select_options': 'اختر الخيارات...',
 
   // ==========================================
   // AUDIT LOGS
@@ -435,8 +451,143 @@ export const ar = {
   'last_day': 'اليوم الماضي',
   'last_week': 'الأسبوع الماضي',
   'last_year': 'العام الماضي',
-
   'customers': 'العملاء',
   'name': 'الاسم',
-  'username': 'اسم المستخدم'
+  'username': 'اسم المستخدم',
+
+  // ==========================================
+  // APP LAYOUT (HEADER & FOOTER)
+  // ==========================================
+  'app_name': 'سمارت باركنج',
+  'main_navigation': 'التنقل الرئيسي',
+  'system_online': 'النظام متصل',
+  'system_offline': 'النظام غير متصل',
+  'pause_shift': 'إيقاف الوردية مؤقتاً',
+  'close_shift': 'إغلاق الوردية',
+  'shift_unavailable': 'تفاصيل الوردية غير متاحة',
+  'shift_unavailable_hint': 'معرف الوردية مفقود، لذا لا يمكن إغلاقها من هنا.',
+  'back_to_payment': 'العودة إلى الدفع',
+  'payment': 'الدفع',
+  'connected': 'متصل',
+  'disconnected': 'غير متصل',
+  'configurations': 'الإعدادات',
+  'pos': 'نقاط البيع',
+
+  // ==========================================
+  // CONFIGURATION
+  // ==========================================
+  'refresh': 'تحديث',
+  'no_preview': 'لا تتوفر معاينة.',
+  'receipt_body_preview': 'معاينة نص الإيصال',
+  'config_saved': 'تم حفظ الإعدادات',
+  'no_config': 'لا توجد إعدادات محفوظة.',
+  'saving': 'جارٍ الحفظ...',
+  'connection': 'الاتصال',
+  'carpark': 'موقف السيارات',
+  'carpark_settings': 'إعدادات موقف السيارات',
+  'receipt': 'الإيصال',
+  'receipt_settings': 'إعدادات الإيصال',
+  'extra_settings': 'إعدادات إضافية',
+  'cameras': 'الكاميرات',
+  'exit_camera': 'كاميرا الخروج',
+  'camera_named': 'كاميرا: {{name}}',
+  'base_url': 'عنوان URL الأساسي',
+  'pos_token': 'رمز نقاط البيع',
+  'configuration_sections': 'أقسام الإعدادات',
+
+  // ==========================================
+  // POS SETUP
+  // ==========================================
+  'configuration': 'الإعدادات',
+  'confirmation': 'التأكيد',
+  'pos_setup_welcome_description': 'قم بتهيئة نقاط البيع للاتصال بنظام المكتب الخلفي في خطوات قليلة.',
+  'backoffice_url': 'عنوان URL للمكتب الخلفي',
+  'enter_pos_token': 'أدخل رمز نقاط البيع',
+  'connection_successful': 'تم الاتصال بنجاح.',
+  'test_connection': 'اختبار الاتصال',
+  'validate_and_save': 'التحقق والحفظ',
+  'pos_configured_successfully': 'تمت تهيئة نقاط البيع بنجاح',
+  'pos_configured_description': 'تم توصيل جهازك وهو جاهز للاستخدام.',
+  'go_to_login': 'الانتقال إلى تسجيل الدخول',
+
+  // ==========================================
+  // SHIFT REPORT
+  // ==========================================
+  'shift_report': 'تقرير الوردية',
+  'total_turnover': 'إجمالي المبيعات',
+  'total_turnover_tooltip': 'إجمالي الإيرادات المحققة خلال هذه الوردية',
+  'total_cash': 'إجمالي النقد',
+  'total_cash_tooltip': 'إجمالي النقد المحصل خلال هذه الوردية',
+  'total_payments': 'إجمالي المدفوعات',
+  'total_payments_tooltip': 'إجمالي عدد معاملات الدفع',
+  'payment_id': 'معرف الدفع',
+  'lpn': 'رقم اللوحة',
+
+  // ==========================================
+  // PAYMENT
+  // ==========================================
+  'proceed': 'متابعة',
+  'license_plate': 'لوحة الترخيص',
+  'epan': 'EPAN',
+  'card_type': 'نوع البطاقة',
+  'entry_time': 'وقت الدخول',
+  'participant': 'المشارك',
+  'card_number': 'رقم البطاقة',
+  'validity': 'الصلاحية',
+  'blocked': 'محظور',
+  'label_picture': 'صورة {{label}}',
+  'no_image_available': 'لا توجد صورة متاحة',
+  'entry_exit_pictures': 'صور الدخول والخروج',
+  'entry': 'دخول',
+  'exit': 'خروج',
+  'allowed': 'مسموح',
+  'graylisted_vehicle': 'مركبة في القائمة الرمادية',
+  'person': 'الشخص',
+  'car_model': 'طراز السيارة',
+  'reason': 'السبب',
+  'last_seen': 'آخر ظهور',
+  'not_in_graylist': 'غير موجود في القائمة الرمادية.',
+  'graylisted_plate': 'لوحة في القائمة الرمادية',
+  'graylisted_season_parker': 'مشترك موسمي في القائمة الرمادية',
+  'graylist': 'القائمة الرمادية',
+  'season_parker': 'مشترك موسمي',
+  'season_parker_valid': 'مشترك موسمي صالح',
+  'season_parker_not_valid': 'مشترك موسمي غير صالح',
+  'exited_with_zero_payment': 'خرج بدون دفع',
+  'valid_from': 'صالح من',
+  'valid_until': 'صالح حتى',
+  'lost_ticket': 'تذكرة مفقودة',
+  'calculating': 'جارٍ الحساب...',
+  'calculate': 'حساب',
+  'plate_character': 'حرف اللوحة {{index}}',
+  'lane': 'المسار',
+  'all_lanes': 'جميع المسارات',
+  'card': 'بطاقة',
+  'articles': 'العناصر',
+  'no_articles_configured': 'لم يتم تكوين أي عناصر',
+  'clear_all': 'مسح الكل',
+  'no_articles_added': 'لم تتم إضافة أي عناصر',
+  'total': 'الإجمالي',
+  'remove_article': 'إزالة {{title}}',
+  'payment_method': 'طريقة الدفع',
+  'cash': 'نقداً',
+  'open_barrier': 'فتح الحاجز',
+  'close_barrier': 'إغلاق الحاجز',
+  'lock_barrier': 'قفل الحاجز',
+  'unlock_barrier': 'إلغاء قفل الحاجز',
+  'barrier': 'الحاجز',
+  'auto_print': 'الطباعة التلقائية',
+  'entry_lane': 'مسار الدخول',
+  'capture_picture': 'التقاط صورة',
+  'exit_picture': 'صورة الخروج',
+  'update_image': 'تحديث الصورة',
+  'show_entry': 'عرض الدخول',
+  'parking_duration': 'مدة الوقوف',
+
+  // ==========================================
+  // DATE RANGE PICKER
+  // ==========================================
+  'date_range': 'نطاق التاريخ',
+  'from_time': 'من وقت',
+  'to_time': 'إلى وقت',
 } as const;

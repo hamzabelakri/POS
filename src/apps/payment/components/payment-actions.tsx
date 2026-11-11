@@ -1,4 +1,5 @@
 import { CreditCard, Wallet } from "lucide-react"
+import { useTranslation } from 'react-i18next'
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -7,6 +8,7 @@ import { useBilledLines } from "@/hooks/use-articles"
 import { usePayment } from "@/hooks/use-payment"
 
 export function PaymentActions() {
+  const { t } = useTranslation()
   const hasLines = useBilledLines().length > 0
   const { pay, isPending, variables } = usePayment()
 
@@ -16,7 +18,7 @@ export function PaymentActions() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Payment Method</CardTitle>
+        <CardTitle>{t('payment_method')}</CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-3">
         <Button
@@ -30,7 +32,7 @@ export function PaymentActions() {
           ) : (
             <Wallet />
           )}
-          Cash
+          {t('cash')}
         </Button>
         <Button
           variant="outline"
@@ -43,7 +45,7 @@ export function PaymentActions() {
           ) : (
             <CreditCard />
           )}
-          Card
+          {t('card')}
         </Button>
       </CardContent>
     </Card>

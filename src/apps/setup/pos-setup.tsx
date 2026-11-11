@@ -5,6 +5,7 @@ import { useRouter } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { ArrowRightIcon, CheckCircle2Icon, Loader2Icon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -23,41 +24,39 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useConfigurePos } from '@/hooks/use-pos-config'
 
-const steps = [
-  { id: 'welcome', title: 'Welcome' },
-  { id: 'configuration', title: 'Configuration' },
-  { id: 'confirmation', title: 'Confirmation' }
-]
-
-// Validation (field names match the API payload)
-const configSchema = z.object({
-  base_url: z.string().trim().url('Enter a valid URL, e.g. http://192.168.1.10:8008'),
-  pos_token: z.string().trim().min(1, 'POS token is required')
-})
-
-type ConfigValues = z.infer<typeof configSchema>
-
 // Step 1: Welcome
-const WelcomeStep = ({ onNext }: { onNext: () => void }) => (
-  <div className='space-y-6'>
-    <p className='text-foreground text-base'>
-      Configure your POS to connect with the backoffice system in just a few steps.
-    </p>
-    <div className='flex justify-end'>
-      <Button type='button' onClick={onNext}>
-        Next <ArrowRightIcon className='size-4' />
-      </Button>
+const WelcomeStep = ({ onNext }: { onNext: () => void }) => {
+  const { t } = useTranslation()
+  return (
+    <div className='space-y-6'>
+      <p className='text-foreground text-base'>
+        {t('pos_setup_welcome_description')}
+      </p>
+      <div className='flex justify-end'>
+        <Button type='button' onClick={onNext}>
+          {t('next')} <ArrowRightIcon className='size-4' />
+        </Button>
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 // Step 2: Configuration form
 const ConfigurationStep = ({ onSaved }: { onSaved: () => void }) => {
+  const { t } = useTranslation()
   const [testPassed, setTestPassed] = useState(false)
   const { mutate, isPending, variables } = useConfigurePos()
 
   const isTesting = isPending && variables?.save === false
   const isSaving = isPending && variables?.save === true
+
+  // Validation (field names match the API payload)
+  const configSchema = z.object({
+    base_url: z.string().trim().url(t('enter_valid_url_example')),
+    pos_token: z.string().trim().min(1, t('pos_token_required'))
+  })
+
+  type ConfigValues = z.infer<typeof configSchema>
 
   const form = useForm<ConfigValues>({
     resolver: zodResolver(configSchema),
@@ -88,7 +87,7 @@ const ConfigurationStep = ({ onSaved }: { onSaved: () => void }) => {
           name='base_url'
           render={({ field }) => (
             <FormItem className='text-start'>
-              <FormLabel>Backoffice URL</FormLabel>
+              <FormLabel>{t('backoffice_url')}</FormLabel>
               <FormControl>
                 <Input type='url' placeholder='http://192.168.1.10:8008' {...field} />
               </FormControl>
@@ -102,9 +101,9 @@ const ConfigurationStep = ({ onSaved }: { onSaved: () => void }) => {
           name='pos_token'
           render={({ field }) => (
             <FormItem className='text-start'>
-              <FormLabel>POS Token</FormLabel>
+              <FormLabel>{t('pos_token')}</FormLabel>
               <FormControl>
-                <Input placeholder='Enter the POS token' autoComplete='off' {...field} />
+                <Input placeholder={t('enter_pos_token')} autoComplete='off' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -117,18 +116,18 @@ const ConfigurationStep = ({ onSaved }: { onSaved: () => void }) => {
             className='flex items-center gap-2 text-start text-sm text-green-600 dark:text-green-400'
           >
             <CheckCircle2Icon className='size-4 shrink-0' />
-            Connection successful.
+            {t('connection_successful')}
           </div>
         )}
 
         <div className='flex justify-end gap-4'>
           <Button type='button' variant='outline' onClick={onTest} disabled={isPending}>
             {isTesting && <Loader2Icon className='size-4 animate-spin' />}
-            Test Connection
+            {t('test_connection')}
           </Button>
           <Button type='submit' disabled={isPending}>
             {isSaving && <Loader2Icon className='size-4 animate-spin' />}
-            Validate &amp; Save
+            {t('validate_and_save')}
           </Button>
         </div>
       </form>
@@ -137,23 +136,37 @@ const ConfigurationStep = ({ onSaved }: { onSaved: () => void }) => {
 }
 
 // Step 3: Confirmation
-const ConfirmationStep = ({ onGoToLogin }: { onGoToLogin: () => void }) => (
-  <div className='flex flex-col items-center gap-6'>
-    <CheckCircle2Icon className='size-12 text-green-600 dark:text-green-400' />
-    <div className='space-y-1'>
-      <h2 className='text-foreground text-lg font-semibold'>POS Configured Successfully</h2>
-      <p className='text-muted-foreground'>Your terminal is connected and ready to use.</p>
+const ConfirmationStep = ({ onGoToLogin }: { onGoToLogin: () => void }) => {
+  const { t } = useTranslation()
+  return (
+    <div className='flex flex-col items-center gap-6'>
+      <CheckCircle2Icon className='size-12 text-green-600 dark:text-green-400' />
+      <div className='space-y-1'>
+        <h2 className='text-foreground text-lg font-semibold'>
+          {t('pos_configured_successfully')}
+        </h2>
+        <p className='text-muted-foreground'>
+          {t('pos_configured_description')}
+        </p>
+      </div>
+      <Button type='button' onClick={onGoToLogin}>
+        {t('go_to_login')} <ArrowRightIcon className='size-4' />
+      </Button>
     </div>
-    <Button type='button' onClick={onGoToLogin}>
-      Go to Login <ArrowRightIcon className='size-4' />
-    </Button>
-  </div>
-)
+  )
+}
 
 // Stepper
 const PosSetup = () => {
+  const { t } = useTranslation()
   const router = useRouter()
-  const [current, setCurrent] = useState(steps[0].id)
+  const [current, setCurrent] = useState('welcome')
+
+  const steps = [
+    { id: 'welcome', title: t('welcome') },
+    { id: 'configuration', title: t('configuration') },
+    { id: 'confirmation', title: t('confirmation') }
+  ]
 
   const currentIndex = steps.findIndex(s => s.id === current)
   const goNext = () => setCurrent(steps[Math.min(currentIndex + 1, steps.length - 1)].id)

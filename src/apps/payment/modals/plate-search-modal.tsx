@@ -2,6 +2,7 @@ import { useMemo, useState } from "react"
 import { type DateRange } from "react-day-picker"
 import { IconSearch } from "@tabler/icons-react"
 import { Search } from "lucide-react"
+import { useTranslation } from 'react-i18next'
 
 import { Button } from "@/components/ui/button"
 import { DatePickerWithRange } from "@/components/ui/date-range-picker"
@@ -44,6 +45,7 @@ export function PlateSearchModal({
   initialRange,
   initialParams,
 }: Props) {
+  const { t } = useTranslation()
   const [plate, setPlate] = useState(initialPlate)
   const [range, setRange] = useState(initialRange)
   const [laneId, setLaneId] = useState<string | undefined>()
@@ -98,7 +100,7 @@ export function PlateSearchModal({
             <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
               <IconSearch className="size-5" />
             </div>
-            License Plate
+            {t('license_plate')}
           </DialogTitle>
         </DialogHeader>
 
@@ -110,7 +112,7 @@ export function PlateSearchModal({
                 value={char}
                 maxLength={1}
                 className="size-9 p-0 text-center"
-                aria-label={`Plate character ${i + 1}`}
+                aria-label={t('plate_character', { index: i + 1 })}
                 onChange={(e) => handlePlateChange(i, e.target.value)}
               />
             ))}
@@ -125,11 +127,11 @@ export function PlateSearchModal({
             value={laneId ?? ""}
             onValueChange={(v) => setLaneId(v === ALL_LANES ? undefined : v)}
           >
-            <SelectTrigger className="w-40" aria-label="Lane">
-              <SelectValue placeholder="All Lanes" />
+            <SelectTrigger className="w-40" aria-label={t('lane')}>
+              <SelectValue placeholder={t('all_lanes')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL_LANES}>All</SelectItem>
+              <SelectItem value={ALL_LANES}>{t('all')}</SelectItem>
               {cameras.map((camera) => (
                 <SelectItem key={camera.id} value={String(camera.lane_id)}>
                   {camera.name}
@@ -140,7 +142,7 @@ export function PlateSearchModal({
 
           <Button className="min-w-24 flex-1" onClick={runSearch}>
             <Search />
-            Search
+            {t('search')}
           </Button>
         </div>
 
@@ -158,7 +160,7 @@ export function PlateSearchModal({
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={handleClose}>
-            Close
+            {t('close')}
           </Button>
         </DialogFooter>
       </DialogContent>

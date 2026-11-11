@@ -3,6 +3,7 @@ import { useRouter, useSearch } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { ArrowRightIcon, Loader2Icon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -14,14 +15,8 @@ import { useAlertStore } from '@/stores/alert-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { AuthCard } from './auth-card'
 
-const loginSchema = z.object({
-  username: z.string().trim().min(1, 'Username is required'),
-  password: z.string().min(1, 'Password is required')
-})
-
-type LoginValues = z.infer<typeof loginSchema>
-
 export const SignIn = () => {
+  const { t } = useTranslation()
   const router = useRouter()
   const search = useSearch({ from: '/(auth)/sign-in' })
   const clearAuth = useAuthStore(state => state.clearAuth)
@@ -32,6 +27,14 @@ export const SignIn = () => {
   const { showAlert } = useAlertStore()
 
   const isBusy = isLoggingIn || isFetchingShift || isClosingShift
+
+  // Schema built inside the component so validation messages are translated.
+  const loginSchema = z.object({
+    username: z.string().trim().min(1, t('username_required')),
+    password: z.string().min(1, t('password_required'))
+  })
+
+  type LoginValues = z.infer<typeof loginSchema>
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -52,11 +55,11 @@ export const SignIn = () => {
   const showExistingShiftAlert = () =>
     showAlert({
       type: AlertEnum.WARNING,
-      message: 'A shift is already open',
-      description: 'Continue it, or close it and start a new one.',
-      confirmText: 'Continue Shift',
+      message: t('shift_already_open'),
+      description: t('shift_already_open_description'),
+      confirmText: t('continue_shift'),
       onConfirm: goToApp,
-      cancelText: 'Close & Start New',
+      cancelText: t('close_and_start_new'),
       onCancel: () => closeCurrentShift(undefined, { onSuccess: goToStartShift })
     })
 
@@ -88,7 +91,7 @@ export const SignIn = () => {
   })
 
   return (
-    <AuthCard title='Sign in' description='Enter your credentials to continue.'>
+    <AuthCard title={t('sign_in')} description={t('sign_in_description')}>
       <Form {...form}>
         <form onSubmit={onSubmit} className='space-y-4'>
           <FormField
@@ -96,9 +99,9 @@ export const SignIn = () => {
             name='username'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>{t('username')}</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter your username' autoComplete='username' {...field} />
+                  <Input placeholder={t('enter_username')} autoComplete='username' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -110,9 +113,9 @@ export const SignIn = () => {
             name='password'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>{t('password')}</FormLabel>
                 <FormControl>
-                  <Input type='password' placeholder='Enter your password' autoComplete='current-password' {...field} />
+                  <Input type='password' placeholder={t('enter_password')} autoComplete='current-password' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -121,7 +124,7 @@ export const SignIn = () => {
 
           <Button type='submit' className='w-full' disabled={isBusy}>
             {isBusy && <Loader2Icon className='size-4 animate-spin' />}
-            Sign In <ArrowRightIcon className='size-4' />
+            {t('sign_in')} <ArrowRightIcon className='size-4' />
           </Button>
         </form>
       </Form>

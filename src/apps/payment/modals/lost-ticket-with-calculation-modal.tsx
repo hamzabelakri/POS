@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { format } from "date-fns"
 import { IconTicket } from "@tabler/icons-react"
+import { useTranslation } from 'react-i18next'
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,6 +30,7 @@ export function LostTicketWithCalculationModal({
   isPending = false,
   onSubmit,
 }: Props) {
+  const { t } = useTranslation()
   const [plate, setPlate] = useState<string[]>(() =>
     Array<string>(PLATE_SLOTS).fill("")
   )
@@ -67,7 +69,7 @@ export function LostTicketWithCalculationModal({
             <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
               <IconTicket className="size-5" />
             </div>
-            {title ?? "Lost Ticket"}
+            {title ?? t('lost_ticket')}
           </DialogTitle>
         </DialogHeader>
 
@@ -79,7 +81,7 @@ export function LostTicketWithCalculationModal({
                 value={char}
                 maxLength={1}
                 className="size-9 p-0 text-center"
-                aria-label={`Plate character ${i + 1}`}
+                aria-label={t('plate_character', { index: i + 1 })}
                 onChange={(e) => handlePlateChange(i, e.target.value)}
               />
             ))}
@@ -89,7 +91,7 @@ export function LostTicketWithCalculationModal({
           </div>
 
           <div className="space-y-2 sm:w-64">
-            <Label htmlFor="entryTime">Entry Time</Label>
+            <Label htmlFor="entryTime">{t('entry_time')}</Label>
             <Input
               id="entryTime"
               type="datetime-local"
@@ -107,10 +109,10 @@ export function LostTicketWithCalculationModal({
             onClick={handleClose}
             disabled={isPending}
           >
-            Close
+            {t('close')}
           </Button>
           <Button type="button" disabled={!canSubmit} onClick={handleSubmit}>
-            {isPending ? "Calculating..." : "Calculate"}
+            {isPending ? t('calculating') : t('calculate')}
           </Button>
         </DialogFooter>
       </DialogContent>
