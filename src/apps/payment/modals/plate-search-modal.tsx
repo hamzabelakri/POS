@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from "@/components/ui/button"
 import { DatePickerWithRange } from "@/components/ui/date-range-picker"
-import { Input } from "@/components/ui/input"
+import { LpnInput } from "@/components/ui/input-otp"
 import {
   Dialog,
   DialogContent,
@@ -27,14 +27,16 @@ import { usePosConfigStore } from "@/stores/pos-config-store"
 import { usePlateSearchColumns } from "../table/plate-search-columns"
 import { PlateSearchQueryParams } from "@/models/consult-model"
 import { usePlateSearch, useUntrackedConsult } from "@/hooks/use-consult"
-import { buildPlateSearchParams } from "@/service/consult"
+import { buildPlateSearchParams, normalizePlate } from "@/service/consult"
 
 // Radix Select forbids value="" on an item, so "All" uses a sentinel
 const ALL_LANES = "all"
 
+const toUpper = (s: string) => s.toUpperCase()
+
 type Props = {
   onClose: () => void
-  initialPlate: string[]
+  initialPlate: string
   initialRange: DateRange | undefined
   initialParams: PlateSearchQueryParams
 }
@@ -82,8 +84,6 @@ export function PlateSearchModal({
     onClose()
   }
 
-  const handlePlateChange = (index: number, value: string) =>
-    setPlate((prev) => prev.map((char, i) => (i === index ? value : char)))
 
   const runSearch = () =>
     setQueryParams(buildPlateSearchParams(plate, range, 1, laneId))
@@ -106,18 +106,14 @@ export function PlateSearchModal({
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            {plate.map((char, i) => (
-              <Input
-                key={i}
-                value={char}
-                maxLength={1}
-                className="size-9 p-0 text-center"
-                aria-label={t('plate_character', { index: i + 1 })}
-                onChange={(e) => handlePlateChange(i, e.target.value)}
-              />
-            ))}
-            <div className="flex h-9 w-20 items-center justify-center rounded-md border text-sm">
-              - - -
+            <LpnInput
+              value={plate}
+              onChange={setPlate}
+              
+              sanitize={toUpper}
+            />
+            <div className="flex h-9 min-w-20 items-center justify-center rounded-md border px-2 font-mono text-sm tracking-widest">
+              {normalizePlate(plate) || '- - -'}
             </div>
           </div>
 

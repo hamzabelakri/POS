@@ -14,17 +14,19 @@ const CONSULT_UNTRACKED_ENDPOINT = `/consult/untracked`
 
 export const PLATE_SEARCH_PAGE_SIZE = 5
 
+export const normalizePlate = (plate: string) =>
+  plate.replace(/\s/g, '').toUpperCase()
+
 export const buildPlateSearchParams = (
-  plate: string[],
+  plate: string,
   range: DateRange | undefined,
   page = 1,
   laneId?: string
 ): PlateSearchQueryParams => {
   const from = range?.from
-  // a single-day pick has no `to`: fall back to the end of that day
   const to = range?.to ?? (from ? endOfDay(from) : undefined)
   return {
-    license_plate: plate.join('').trim().toUpperCase() || undefined,
+    license_plate: normalizePlate(plate) || undefined,
     from: from?.toISOString(),
     to: to?.toISOString(),
     lane_id: laneId ? Number(laneId) : undefined,

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Camera, Images, RefreshCw } from 'lucide-react'
 import type { CaptureResponse } from '@/models/bridge-model'
 import { toImageSrc, toVehicleView, type ExitVehicleEvent } from '@/models/sse-model'
@@ -15,7 +14,6 @@ import { ImagesModal } from '../modals/images-modal'
 import { PlateSearchModal } from '../modals/plate-search-modal'
 
 export function VehicleInfo() {
-  const { t } = useTranslation()
   const event = useSSEStore((s) => s.exitEvent)
   const view = toVehicleView(event)
 
@@ -30,7 +28,6 @@ export function VehicleInfo() {
 
   const image = view?.image ?? toImageSrc(captured?.image)
   const plate = view?.plate ?? captured?.media.lpn ?? ''
-  const plateChars = [...plate]
 
   const canCapture = !event && !captured
   const canUpdateImage = event?.type === 'exit_car' && !!view?.image
@@ -50,7 +47,7 @@ export function VehicleInfo() {
             {image ? (
               <img
                 src={image}
-                alt={t('exit')}
+                alt='Exit'
                 className='absolute inset-0 size-full object-cover'
               />
             ) : canCapture ? (
@@ -63,14 +60,14 @@ export function VehicleInfo() {
                 <div className='flex size-16 items-center justify-center rounded-full border'>
                   {isCapturing ? <Spinner variant='circle' /> : <Camera className='size-7' />}
                 </div>
-                <span className='text-sm font-medium'>{t('capture_picture')}</span>
+                <span className='text-sm font-medium'>Capture Picture</span>
               </button>
             ) : (
               <div className='flex size-full min-h-56 flex-col items-center justify-center gap-3'>
                 <div className='flex size-16 items-center justify-center rounded-full border'>
                   <Camera className='size-7' />
                 </div>
-                <span className='text-sm font-medium'>{t('exit_picture')}</span>
+                <span className='text-sm font-medium'>Exit Picture</span>
               </div>
             )}
 
@@ -83,7 +80,7 @@ export function VehicleInfo() {
                 onClick={updateVehicleImage}
               >
                 {isUpdatingImage ? <Spinner variant='circle' /> : <RefreshCw />}
-                {t('update_image')}
+                Update Image
               </Button>
             )}
           </div>
@@ -91,7 +88,7 @@ export function VehicleInfo() {
           {/* Fields */}
           <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
             <div className='col-span-2 space-y-2'>
-              <Label htmlFor='licensePlate'>{t('license_plate')}</Label>
+              <Label htmlFor='licensePlate'>License Plate</Label>
               <div className='flex items-center gap-2'>
                 <Input
                   id='licensePlate'
@@ -106,22 +103,22 @@ export function VehicleInfo() {
                   onClick={() => setShowImages(true)}
                 >
                   <Images />
-                  {t('show_entry')}
+                  Show Entry
                 </Button>
               </div>
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='epan'>{t('epan')}</Label>
+              <Label htmlFor='epan'>EPAN</Label>
               <Input id='epan' readOnly value={view?.epan ?? ''} />
             </div>
             <div className='space-y-2'>
-              <Label htmlFor='cardType'>{t('card_type')}</Label>
+              <Label htmlFor='cardType'>Card Type</Label>
               <Input id='cardType' readOnly value={view?.cardType ?? ''} />
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='entryTime'>{t('entry_time')}</Label>
+              <Label htmlFor='entryTime'>Entry Time</Label>
               <Input
                 id='entryTime'
                 readOnly
@@ -130,7 +127,7 @@ export function VehicleInfo() {
               />
             </div>
             <div className='space-y-2'>
-              <Label htmlFor='parkingDuration'>{t('parking_duration')}</Label>
+              <Label htmlFor='parkingDuration'>Parking Duration</Label>
               <Input
                 id='parkingDuration'
                 readOnly
@@ -153,9 +150,9 @@ export function VehicleInfo() {
       {showSearch && (
         <PlateSearchModal
           onClose={() => setDismissed(event)}
-          initialPlate={plateChars}
+          initialPlate={plate}
           initialRange={undefined}
-          initialParams={buildPlateSearchParams(plateChars, undefined, 1)}
+          initialParams={buildPlateSearchParams(plate, undefined, 1)}
         />
       )}
     </>
