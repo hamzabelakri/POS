@@ -1,12 +1,15 @@
-import { useState } from 'react'
-import { Camera, Images } from 'lucide-react'
-import { toVehicleView, type ExitVehicleEvent } from '@/models/sse-model'
+import { useEffect, useState } from 'react'
+import { Camera, Images, RefreshCw } from 'lucide-react'
+import type { CaptureResponse } from '@/models/bridge-model'
+import { toImageSrc, toVehicleView, type ExitVehicleEvent } from '@/models/sse-model'
 import { buildPlateSearchParams } from '@/service/consult'
+import { useCaptureImage, useUpdateImage } from '@/hooks/use-bridge'
 import { useSSEStore } from '@/stores/sse-store'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/shadcn-io/spinner'
 import { ImagesModal } from '../modals/images-modal'
 import { PlateSearchModal } from '../modals/plate-search-modal'
 
@@ -14,12 +17,27 @@ export function VehicleInfo() {
   const event = useSSEStore((s) => s.exitEvent)
   const view = toVehicleView(event)
 
+  const { updateVehicleImage, isPending: isUpdatingImage } = useUpdateImage()
+  const { mutate: capture, isPending: isCapturing } = useCaptureImage()
+
+  // Result of the manual capture; only shown while no SSE event is displayed
+  const [captured, setCaptured] = useState<CaptureResponse | null>(null)
+  useEffect(() => {
+    if (event) setCaptured(null) // the SSE data takes over
+  }, [event])
+
+  const image = view?.image ?? toImageSrc(captured?.image)
+  const plate = view?.plate ?? captured?.media.lpn ?? ''
+  const plateChars = [...plate]
+
+  const canCapture = !event && !captured
+  const canUpdateImage = event?.type === 'exit_car' && !!view?.image
+
   const [showImages, setShowImages] = useState(false)
 
   // Each message is a new object, so a new search_car reopens the modal
   const [dismissed, setDismissed] = useState<ExitVehicleEvent | null>(null)
   const showSearch = event?.type === 'search_car' && dismissed !== event
-  const plateChars = [...(view?.plate ?? '')]
 
   return (
     <>
@@ -27,12 +45,24 @@ export function VehicleInfo() {
         <CardContent className='grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]'>
           {/* Exit picture */}
           <div className='relative min-h-56 overflow-hidden rounded-lg border'>
-            {view?.image ? (
+            {image ? (
               <img
-                src={view.image}
+                src={image}
                 alt='Exit'
                 className='absolute inset-0 size-full object-cover'
               />
+            ) : canCapture ? (
+              <button
+                type='button'
+                disabled={isCapturing}
+                onClick={() => capture(undefined, { onSuccess: setCaptured })}
+                className='hover:bg-muted/50 flex size-full min-h-56 flex-col items-center justify-center gap-3 disabled:opacity-60'
+              >
+                <div className='flex size-16 items-center justify-center rounded-full border'>
+                  {isCapturing ? <Spinner variant='circle' /> : <Camera className='size-7' />}
+                </div>
+                <span className='text-sm font-medium'>Capture Picture</span>
+              </button>
             ) : (
               <div className='flex size-full min-h-56 flex-col items-center justify-center gap-3'>
                 <div className='flex size-16 items-center justify-center rounded-full border'>
@@ -40,6 +70,19 @@ export function VehicleInfo() {
                 </div>
                 <span className='text-sm font-medium'>Exit Picture</span>
               </div>
+            )}
+
+            {canUpdateImage && (
+              <Button
+                size='sm'
+                variant='secondary'
+                className='absolute right-2 bottom-2'
+                disabled={isUpdatingImage}
+                onClick={updateVehicleImage}
+              >
+                {isUpdatingImage ? <Spinner variant='circle' /> : <RefreshCw />}
+                Update Image
+              </Button>
             )}
           </div>
 
@@ -52,7 +95,7 @@ export function VehicleInfo() {
                   id='licensePlate'
                   readOnly
                   className='flex-1'
-                  value={view?.plate ?? ''}
+                  value={plate}
                 />
                 <Button
                   variant='outline'

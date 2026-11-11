@@ -53,7 +53,7 @@ export const toAppliedArticle = (
 })
 
 // The latest exit_car data, or null. Read on click: it is the latest backend state.
-const getExitCar = (): ExitCar | null => {
+export const getExitCar = (): ExitCar | null => {
   const event = useSSEStore.getState().exitEvent
   return event?.type === 'exit_car' ? event.data : null
 }
@@ -265,3 +265,6 @@ export function useNeedsEvaluation() {
   )
   return (article: Article) => cashierRequires || article.permissionRequired
 }
+
+
+
