@@ -58,48 +58,60 @@ export const getExitCar = (): ExitCar | null => {
   return event?.type === 'exit_car' ? event.data : null
 }
 
-export const getUntrackedLpn = (): string => {
-  const data = getExitCar()
-  return data?.is_untracked ? data.vehicle_info.media.lpn : ''
-}
-
+// What the payload looks like when no exit_car exists yet.
+// Everything the backend fills in stays empty.
+const emptyExitCar = (): ExitCar => ({
+  vehicle_info: {
+    image: '',
+    entry_image: '',
+    media: { lpn: '', barcode: '', rfid: '', uhf: '', oa: '' },
+    card_type: '',
+    entry_time: '',
+    tariff_time: '',
+    parking_duration: '',
+    external_unique_id: '',
+  },
+  transactions: {},
+  payment_summary: {
+    subtotal: 0,
+    discounts: 0,
+    tax_rate: 0,
+    tax_value: 0,
+    total: 0,
+    is_cancelled: false,
+    tariff_relev_time: ZERO_DATE,
+  },
+  applied_article: { name: '', description: '', code: '', admin_id: 0 },
+  cashier: { name: '', shift_id: 0 },
+  is_untracked: false,
+})
 
 /* ───────── Payload builders ───────── */
 
 // Request that applies an article (POST /transactions, /payments/calculate-tariff).
-// Everything the backend fills in stays empty; only the article, the cashier
-// and, when known, the plate, entry time (ISO string) and untracked flag are set.
+// Same rule for every case: start from the latest exit_car when it exists
+// (empty ExitCar otherwise), then set only what the frontend owns:
+// the article, the cashier and, when the user typed them, the plate / entry time.
 export function buildArticlePayload(
   article: Article,
   cashier: Cashier,
   adminId = 0,
-  vehicle: { lpn?: string; entryTime?: string; isUntracked?: boolean } = {}
+  current: ExitCar | null = null,
+  override: { lpn?: string; entryTime?: string } = {}
 ): PaymentRequestPayload {
-  const entryTime = vehicle.entryTime ?? ''
+  const base = current ?? emptyExitCar()
+  const v = base.vehicle_info
   return {
+    ...base,
     vehicle_info: {
-      image: '',
-      entry_image: '',
-      media: { lpn: vehicle.lpn ?? '', barcode: '', rfid: '', uhf: '', oa: '' },
-      card_type: '',
-      entry_time: entryTime,
-      tariff_time: entryTime,
-      parking_duration: '',
-      external_unique_id: '',
+      ...v,
+      media: { ...v.media, lpn: override.lpn ?? v.media.lpn },
+      entry_time: override.entryTime ?? v.entry_time,
+      tariff_time: override.entryTime ?? v.tariff_time,
     },
-    transactions: {}, // the backend fills it in (see the exit_car message)
-    payment_summary: {
-      subtotal: 0,
-      discounts: 0,
-      tax_rate: 0,
-      tax_value: 0,
-      total: 0,
-      is_cancelled: false,
-      tariff_relev_time: ZERO_DATE,
-    },
+    payment_summary: { ...base.payment_summary, is_cancelled: false },
     applied_article: toAppliedArticle(article, adminId),
     cashier,
-    is_untracked: vehicle.isUntracked ?? false,
   }
 }
 
@@ -157,13 +169,14 @@ export function useCalculateTariff() {
   })
 
   // `onSuccess` only closes the modal; the line comes from the SSE message.
+  // Same payload as any article; the typed plate and entry time override the event's.
   const submitCalculation = (
     article: Article,
     values: CalculateTariffValues,
     onSuccess: () => void
   ) =>
     mutation.mutate(
-      buildArticlePayload(article, cashier, 0, {
+      buildArticlePayload(article, cashier, 0, getExitCar(), {
         lpn: values.lpn,
         entryTime: values.entryTime.toISOString(), // "2026-11-09T12:42:00.000Z"
       }),
@@ -256,7 +269,6 @@ export function usePayment() {
   return { ...mutation, pay }
 }
 
-
 // Evaluation is asked only when BOTH the cashier needs approval and the
 // article requires it. A cashier with permission is never asked.
 export function useNeedsEvaluation() {
@@ -265,6 +277,3 @@ export function useNeedsEvaluation() {
   )
   return (article: Article) => cashierRequires || article.permissionRequired
 }
-
-
-

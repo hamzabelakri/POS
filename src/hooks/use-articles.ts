@@ -17,7 +17,7 @@ import { usePosConfigStore } from '@/stores/pos-config-store'
 import { useSSEStore } from '@/stores/sse-store'
 import {
   buildArticlePayload,
-  getUntrackedLpn,
+  getExitCar,
   useShiftCashier,
 } from '@/hooks/use-payment'
 
@@ -117,17 +117,12 @@ export function useCreateTransaction() {
   })
 
   // No onSuccess: the line appears when the exit_car message arrives.
-  // The plate is read here (at submit time), so it is the latest untracked car's.
-  // A non-empty plate means the current car is untracked.
-  const submitArticle = (article: Article, adminId = 0) => {
-    const lpn = getUntrackedLpn()
+  // The exit_car is read here (at submit time), so it is the latest backend state;
+  // the payload is built from it when it exists, empty otherwise.
+  const submitArticle = (article: Article, adminId = 0) =>
     mutation.mutate(
-      buildArticlePayload(article, cashier, adminId, {
-        lpn,
-        isUntracked: lpn !== '',
-      })
+      buildArticlePayload(article, cashier, adminId, getExitCar())
     )
-  }
 
   return { ...mutation, submitArticle }
 }
