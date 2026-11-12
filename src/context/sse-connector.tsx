@@ -16,6 +16,9 @@ import {
 } from '@microsoft/fetch-event-source'
 import { useAuthStore } from '@/stores/auth-store'
 import { useSSEStore } from '@/stores/sse-store'
+import { useAlertStore } from '@/stores/alert-store'
+import { AlertEnum } from '@/models/alert-model'
+import i18n from '@/lib/language/i18n/i18n'
 
 const SSE_URL = import.meta.env.VITE_SSE_URL
 
@@ -114,6 +117,35 @@ function handleGraylistExitedZeroPayment(data: unknown, envelope: Envelope) {
   })
 }
 
+function handleCarExitedInUnpaidGraceTime(data: unknown, envelope: Envelope) {
+  const d = data as Partial<ExitCar> | null
+  if (!d?.vehicle_info) return
+  useSSEStore.getState().setLaneAlert({
+    type: 'car_exited_in_unpaid_grace_time',
+    data: d as ExitCar,
+    message: envelope.message ?? '',
+  })
+}
+
+/** Backend failures go to the app-wide error dialog, not to the lane alert slot. */
+function showErrorAlert(key: string, envelope: Envelope) {
+  useAlertStore.getState().showAlert({
+    type: AlertEnum.ERROR,
+    // Translated title; the backend's English message is the fallback
+    message: i18n.t(key, { defaultValue: envelope.message ?? '' }),
+  })
+}
+
+function handleTariffError(data: unknown, envelope: Envelope) {
+  // Technical cause (IP, port...): console only, the operator doesn't need it
+  if (typeof data === 'string' && data) console.error('SSE tariff_error:', data)
+  showErrorAlert('tariff_error', envelope)
+}
+
+function handleOpenBarrierTryAgain(_data: unknown, envelope: Envelope) {
+  showErrorAlert('open_barrier_try_again', envelope)
+}
+
 /** Add a handler here when the backend starts sending a new `type`. */
 const handlers: Record<string, Handler> = {
   status: { handle: handleNatsStatus, allowError: true },
@@ -132,6 +164,17 @@ const handlers: Record<string, Handler> = {
     allowError: true,
   },
   season_parker_status: { handle: handleSeasonParkerStatus, allowError: true },
+  // error_code 200: car left for free during the unpaid grace time
+  car_exited_in_unpaid_grace_time: {
+    handle: handleCarExitedInUnpaidGraceTime,
+    allowError: true,
+  },
+  // These are errors (error_code 500), so allowError is required or they are dropped
+  tariff_error: { handle: handleTariffError, allowError: true },
+  open_barrier_try_again: {
+    handle: handleOpenBarrierTryAgain,
+    allowError: true,
+  },
 }
 
 function dispatch(raw: string) {

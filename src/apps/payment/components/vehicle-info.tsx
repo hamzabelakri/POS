@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Camera, Images, RefreshCw } from 'lucide-react'
 import type { CaptureResponse } from '@/models/bridge-model'
-import { toImageSrc, toVehicleView, type ExitVehicleEvent } from '@/models/sse-model'
-import { buildPlateSearchParams } from '@/service/consult'
+import { toImageSrc, toVehicleView } from '@/models/sse-model'
 import { useCaptureImage, useUpdateImage } from '@/hooks/use-bridge'
 import { useSSEStore } from '@/stores/sse-store'
 import { Button } from '@/components/ui/button'
@@ -12,7 +11,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/shadcn-io/spinner'
 import { ImagesModal } from '../modals/images-modal'
-import { PlateSearchModal } from '../modals/plate-search-modal'
 
 export function VehicleInfo() {
   const { t } = useTranslation()
@@ -35,10 +33,6 @@ export function VehicleInfo() {
   const canUpdateImage = event?.type === 'exit_car' && !!view?.image
 
   const [showImages, setShowImages] = useState(false)
-
-  // Each message is a new object, so a new search_car reopens the modal
-  const [dismissed, setDismissed] = useState<ExitVehicleEvent | null>(null)
-  const showSearch = event?.type === 'search_car' && dismissed !== event
 
   return (
     <>
@@ -148,15 +142,6 @@ export function VehicleInfo() {
         entryImage={view?.entryImage ?? null}
         exitImage={view?.image ?? null}
       />
-
-      {showSearch && (
-        <PlateSearchModal
-          onClose={() => setDismissed(event)}
-          initialPlate={plate}
-          initialRange={undefined}
-          initialParams={buildPlateSearchParams(plate, undefined, 1)}
-        />
-      )}
     </>
   )
 }

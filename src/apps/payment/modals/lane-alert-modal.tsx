@@ -2,10 +2,12 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   toImageSrc,
+  toVehicleView,
+  type ExitCar,
   type GraylistResult,
   type SeasonParkerStatus,
 } from '@/models/sse-model'
-import { BadgeCheck, BadgeX, ShieldAlert } from 'lucide-react'
+import { BadgeAlert, BadgeCheck, BadgeX, Clock, ShieldAlert } from 'lucide-react'
 import { useSSEStore } from '@/stores/sse-store'
 import {
   Dialog,
@@ -143,7 +145,46 @@ function SeasonParkerSection({ s }: { s: SeasonParkerStatus }) {
   )
 }
 
-const isValid = (s: SeasonParkerStatus) => s.state === 'season_parker_valid'
+function VehicleSection({ car }: { car: ExitCar }) {
+  const { t } = useTranslation()
+  const v = toVehicleView({ type: 'exit_car', data: car })
+  if (!v) return null
+  return (
+    <div className='grid gap-4 md:grid-cols-2'>
+      <AlertImage src={car.vehicle_info.image} label={t('exit')} />
+      <div className='space-y-2'>
+        <Row label={t('license_plate')} value={v.plate} />
+        <Row label={t('epan')} value={v.epan} />
+        <Row label={t('card_type')} value={v.cardType} />
+        <Row label={t('entry_time')} value={v.entryTime} />
+        <Row label={t('parking_duration')} value={v.parkingDuration} />
+      </div>
+    </div>
+  )
+}
+
+const SEASON_PARKER_STATES: Record<
+  string,
+  { Icon: typeof BadgeCheck; color: string; titleKey: string }
+> = {
+  season_parker_valid: {
+    Icon: BadgeCheck,
+    color: 'text-green-600',
+    titleKey: 'season_parker_valid',
+  },
+  season_parker_not_present_in_facility: {
+    Icon: BadgeAlert,
+    color: 'text-amber-500',
+    titleKey: 'season_parker_not_present_in_facility',
+  },
+}
+
+// Any other state is treated as not valid
+const SEASON_PARKER_FALLBACK = {
+  Icon: BadgeX,
+  color: 'text-destructive',
+  titleKey: 'season_parker_not_valid',
+}
 
 /* ───────── Entry point ───────── */
 
@@ -189,18 +230,13 @@ export function LaneAlertModal() {
         </Shell>
       )
 
-    case 'season_parker_status': {
-      const valid = isValid(alert.data)
+       case 'season_parker_status': {
+      const { Icon, color, titleKey } =
+        SEASON_PARKER_STATES[alert.data.state] ?? SEASON_PARKER_FALLBACK
       return (
         <Shell
-          icon={
-            valid ? (
-              <BadgeCheck className='size-5 text-green-600' />
-            ) : (
-              <BadgeX className='text-destructive size-5' />
-            )
-          }
-          title={valid ? t('season_parker_valid') : t('season_parker_not_valid')}
+          icon={<Icon className={`size-5 ${color}`} />}
+          title={t(titleKey)}
           message={alert.message}
           onClose={close}
         >
@@ -208,6 +244,7 @@ export function LaneAlertModal() {
         </Shell>
       )
     }
+
     case 'graylist_exited_with_zero_payment':
       return (
         <Shell
@@ -227,5 +264,18 @@ export function LaneAlertModal() {
           </div>
         </Shell>
       )
+
+    case 'car_exited_in_unpaid_grace_time':
+      return (
+        <Shell
+          icon={<Clock className='size-5 text-amber-500' />}
+          title={t('exited_in_unpaid_grace_time')}
+          message={alert.message}
+          onClose={close}
+        >
+          <VehicleSection car={alert.data} />
+        </Shell>
+      )
   }
+  
 }

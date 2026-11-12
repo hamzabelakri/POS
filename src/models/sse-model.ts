@@ -115,7 +115,11 @@ export type SeasonParker = {
 }
 
 export type SeasonParkerStatus = {
-  state: 'season_parker_valid' | 'season_parker_not_valid' | (string & {})
+  state:
+    | 'season_parker_valid'
+    | 'season_parker_not_valid'
+    | 'season_parker_not_present_in_facility'
+    | (string & {})
   season_parker: SeasonParker
   image: string
 }
@@ -147,6 +151,9 @@ export type LaneAlert =
       data: GraylistExitedZeroPaymentData
       message: string
     }
+  /** Car left during the unpaid grace time; same payload as exit_car. */
+  | { type: 'car_exited_in_unpaid_grace_time'; data: ExitCar; message: string }
+
 
 /* ───────── Helpers ───────── */
 
