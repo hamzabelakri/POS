@@ -8,12 +8,12 @@ type Tone = 'default' | 'inverse'
 
 const tones = {
   default: {
-    done: 'border-brand bg-brand text-brand-foreground',
-    active: 'border-brand bg-brand/10 text-brand-soft ring-4 ring-brand/15',
+    done: 'border-primary bg-primary text-primary-foreground',
+    active: 'border-primary bg-primary/10 text-primary ring-4 ring-primary/15',
     todo: 'border-transparent bg-secondary text-muted-foreground',
-    lineDone: 'bg-brand',
+    lineDone: 'bg-primary',
     lineTodo: 'bg-secondary',
-    labelActive: 'text-brand-soft',
+    labelActive: 'text-primary',
     labelDone: 'text-muted-foreground',
     labelTodo: 'text-muted-foreground/60',
     description: 'text-muted-foreground'

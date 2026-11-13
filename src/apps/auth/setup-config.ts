@@ -19,4 +19,4 @@ export const maskToken = (token: string) => token.slice(0, 2) + '•'.repeat(Mat
 
 /** Shared primary-action styling for the setup flow */
 export const brandButtonClass =
-  'h-11 bg-brand text-brand-foreground font-semibold shadow-lg shadow-brand/25 hover:bg-brand/90 focus-visible:ring-brand/40'
+  'h-11 bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary/90 focus-visible:ring-ring/50'

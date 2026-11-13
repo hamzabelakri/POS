@@ -41,15 +41,15 @@ import { SetupBrand } from '../auth/setup-shell'
 const PANEL = 'bg-[oklch(0.24_0.07_263)]'
 
 const steps: SetupStep[] = [
-  { id: 'welcome', title: 'Welcome', description: 'What you need to get started' },
-  { id: 'configuration', title: 'Connection', description: 'Server address and token' },
-  { id: 'confirmation', title: 'Ready', description: 'Sign in to this terminal' }
+  { id: 'welcome', title: 'Welcome' },
+  { id: 'configuration', title: 'Connection' },
+  { id: 'confirmation', title: 'Ready' }
 ]
 
-const Heading = ({ title, description }: { title: string; description: string }) => (
+const Heading = ({ title, description }: { title: string; description?: string }) => (
   <div className='space-y-2'>
     <h2 className='text-foreground text-2xl font-semibold tracking-tight'>{title}</h2>
-    <p className='text-muted-foreground text-[15px] leading-relaxed'>{description}</p>
+    {description && <p className='text-muted-foreground text-[15px] leading-relaxed'>{description}</p>}
   </div>
 )
 
@@ -76,7 +76,7 @@ const WelcomeStep = ({ onNext }: { onNext: () => void }) => (
     <ul className='divide-border border-border divide-y rounded-xl border'>
       {requirements.map(({ icon: Icon, title, text }) => (
         <li key={title} className='flex gap-4 p-4'>
-          <span className='bg-brand/10 text-brand-soft flex size-10 shrink-0 items-center justify-center rounded-lg'>
+          <span className='bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg'>
             <Icon className='size-5' />
           </span>
           <div>
@@ -112,10 +112,7 @@ const ConfigurationStep = ({ form, testPassed, isTesting, isSaving, isPending, o
 
   return (
     <div className='space-y-8'>
-      <Heading
-        title='Connect to your backoffice'
-        description='Enter the server address and token, then test the connection before saving.'
-      />
+      <Heading title='Backoffice Configuration' description='You can test the connection before saving.' />
 
       <Form {...form}>
         <form
@@ -172,7 +169,7 @@ const ConfigurationStep = ({ form, testPassed, isTesting, isSaving, isPending, o
                     type='button'
                     onClick={() => setShowToken(v => !v)}
                     aria-label={showToken ? 'Hide token' : 'Show token'}
-                    className='text-muted-foreground hover:text-foreground focus-visible:ring-brand/40 absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md outline-none focus-visible:ring-2'
+                    className='text-muted-foreground hover:text-foreground focus-visible:ring-primary/40 absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md outline-none focus-visible:ring-2'
                   >
                     {showToken ? <EyeOffIcon className='size-4' /> : <EyeIcon className='size-4' />}
                   </button>
@@ -202,7 +199,7 @@ const ConfigurationStep = ({ form, testPassed, isTesting, isSaving, isPending, o
             </Button>
             <Button type='submit' disabled={isPending} className={brandButtonClass}>
               {isSaving && <Loader2Icon className='size-4 animate-spin' />}
-              Save and continue
+              Validate &amp; Save
             </Button>
           </div>
         </form>
@@ -214,11 +211,11 @@ const ConfigurationStep = ({ form, testPassed, isTesting, isSaving, isPending, o
 // ─── Step 3 ─────────────────────────────────────────────────────────────────
 const ConfirmationStep = ({ values, onGoToLogin }: { values: ConfigValues; onGoToLogin: () => void }) => (
   <div className='space-y-8'>
-    <div className='space-y-5'>
-      <span className='bg-success/15 text-success ring-success/20 flex size-14 items-center justify-center rounded-full ring-8'>
+    <div className='space-y-5 text-center'>
+      <span className='bg-success/15 text-success ring-success/20 mx-auto flex size-14 items-center justify-center rounded-full ring-8'>
         <CheckIcon className='size-7' strokeWidth={2.5} />
       </span>
-      <Heading title='This terminal is connected' description='Your POS is configured and verified. Sign in to start using it.' />
+      <Heading title='POS Configured Successfully' />
     </div>
 
     <dl className='divide-border border-border divide-y rounded-xl border text-sm'>
