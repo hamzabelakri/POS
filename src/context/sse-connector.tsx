@@ -16,9 +16,6 @@ import {
 } from '@microsoft/fetch-event-source'
 import { useAuthStore } from '@/stores/auth-store'
 import { useSSEStore } from '@/stores/sse-store'
-import { useAlertStore } from '@/stores/alert-store'
-import { AlertEnum } from '@/models/alert-model'
-import i18n from '@/lib/language/i18n/i18n'
 
 const SSE_URL = import.meta.env.VITE_SSE_URL
 
@@ -127,23 +124,23 @@ function handleCarExitedInUnpaidGraceTime(data: unknown, envelope: Envelope) {
   })
 }
 
-/** Backend failures go to the app-wide error dialog, not to the lane alert slot. */
-function showErrorAlert(key: string, envelope: Envelope) {
-  useAlertStore.getState().showAlert({
-    type: AlertEnum.ERROR,
-    // Translated title; the backend's English message is the fallback
-    message: i18n.t(key, { defaultValue: envelope.message ?? '' }),
+function handleTariffError(data: unknown, envelope: Envelope) {
+  const detail = typeof data === 'string' && data ? data : null
+  // Technical cause (IP, port...): console only
+  if (detail) console.error('SSE tariff_error:', detail)
+  useSSEStore.getState().setLaneError({
+    type: 'tariff_error',
+    message: envelope.message ?? '',
+    detail,
   })
 }
 
-function handleTariffError(data: unknown, envelope: Envelope) {
-  // Technical cause (IP, port...): console only, the operator doesn't need it
-  if (typeof data === 'string' && data) console.error('SSE tariff_error:', data)
-  showErrorAlert('tariff_error', envelope)
-}
-
 function handleOpenBarrierTryAgain(_data: unknown, envelope: Envelope) {
-  showErrorAlert('open_barrier_try_again', envelope)
+  useSSEStore.getState().setLaneError({
+    type: 'open_barrier_try_again',
+    message: envelope.message ?? '',
+    detail: null,
+  })
 }
 
 /** Add a handler here when the backend starts sending a new `type`. */

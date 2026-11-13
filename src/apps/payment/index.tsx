@@ -13,6 +13,7 @@ import { QuickActions } from './components/quick-actions'
 import { VehicleInfo } from './components/vehicle-info'
 import { LaneAlertModal } from './modals/lane-alert-modal'
 import { PlateSearchModal } from './modals/plate-search-modal'
+import { LaneErrorAlert } from './modals/lane-error-alert'
 
 export function Payment() {
   // Billing comes from the last exit_car message, not from local state
@@ -61,6 +62,7 @@ export function Payment() {
       </div>
 
       <LaneAlertModal />
+            <LaneErrorAlert />
       {searchEvent && (
         <PlateSearchModal
           onClose={() => setDismissedSearch(searchEvent)}

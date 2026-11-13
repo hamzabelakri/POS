@@ -154,6 +154,18 @@ export type LaneAlert =
   /** Car left during the unpaid grace time; same payload as exit_car. */
   | { type: 'car_exited_in_unpaid_grace_time'; data: ExitCar; message: string }
 
+/* ───────── Lane errors (tariff / barrier) ───────── */
+
+export type LaneErrorType = 'tariff_error' | 'open_barrier_try_again'
+
+/** Failure reported by the lane, kept apart from LaneAlert (not tied to a vehicle). */
+export type LaneError = {
+  type: LaneErrorType
+  /** Backend's human-readable text, e.g. "failed to calculate tariff" */
+  message: string
+  /** Technical cause (tariff_error only): logged, never shown to the operator */
+  detail: string | null
+}
 
 /* ───────── Helpers ───────── */
 
