@@ -20,8 +20,7 @@
   --warning: oklch(79.5% 0.184 86.047);
   --border: oklch(0.929 0.013 255.508);
   --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-
+  --ring: var(--primary);
   --haze-primary-darker: #005e44;
   --banner-from: #0a2f5a;
   --banner-via: #071f3d;

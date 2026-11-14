@@ -119,7 +119,7 @@ export const fr = {
   'token_required': 'Le jeton est requis',
   'pos_token_required': 'Le jeton POS est requis',
   'enter_valid_url': 'Entrez une URL valide',
-  'enter_valid_url_example': 'Entrez une URL valide, par ex. http://192.168.1.10:8008',
+  'enter_valid_url_example': 'URL invalide',
 
   // ==========================================
   // NAVIGATION, SIDEBAR & LAYOUT
@@ -590,4 +590,26 @@ export const fr = {
   'date_range': 'Plage de dates',
   'from_time': 'Heure de début',
   'to_time': 'Heure de fin',
+
+  // ==========================================
+  // POS SETUP
+  // ==========================================
+  'ready': 'Prêt',
+  'pos_setup_title': 'Configuration du POS',
+  'pos_setup_requirements': 'Ayez ces deux éléments à portée de main :',
+  'backoffice_address': 'Adresse du backoffice',
+  'backoffice_address_description': 'L\'URL de votre serveur backoffice, par exemple http://192.168.1.10:8008.',
+  'pos_token_description': 'Le code de {{length}} caractères généré par votre administrateur pour ce terminal.',
+  'start_setup': 'Commencer la configuration',
+  'backoffice_configuration': 'Configuration du backoffice',
+  'configuration_intro': 'Vous pouvez tester la connexion avant d\'enregistrer.',
+  'token_length_hint': 'Le jeton POS contient {{length}} caractères',
+  'show_token': 'Afficher le jeton',
+  'hide_token': 'Masquer le jeton',
+  'connection_successful_save': 'Connexion réussie. Vous pouvez enregistrer cette configuration.',
+  'connected_and_verified': 'Connecté et vérifié',
+  'setup_banner_title': 'Connectez-vous au backoffice en quelques étapes',
+  'setup_banner_description': 'Vous ne devez le faire qu\'une seule fois par terminal.',
+  'setup_progress': 'Progression de la configuration',
+
 } as const;

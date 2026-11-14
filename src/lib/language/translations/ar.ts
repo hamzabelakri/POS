@@ -119,7 +119,8 @@ export const ar = {
   'token_required': 'الرمز مطلوب',
   'pos_token_required': 'رمز نقاط البيع مطلوب',
   'enter_valid_url': 'أدخل رابطاً صالحاً',
-  'enter_valid_url_example': 'أدخل رابطاً صالحاً، مثال: http://192.168.1.10:8008',
+  'enter_valid_url_example': 'رابط غير صالح',
+
 
   // ==========================================
   // NAVIGATION, SIDEBAR & LAYOUT
@@ -590,4 +591,27 @@ export const ar = {
   'date_range': 'نطاق التاريخ',
   'from_time': 'من وقت',
   'to_time': 'إلى وقت',
+
+
+  // ==========================================
+  // POS SETUP
+  // ==========================================
+  'ready': 'جاهز',
+  'pos_setup_title': 'تهيئة نقاط البيع',
+  'pos_setup_requirements': 'جهّز هذين العنصرين:',
+  'backoffice_address': 'عنوان المكتب الخلفي',
+  'backoffice_address_description': 'عنوان URL لخادم المكتب الخلفي، على سبيل المثال http://192.168.1.10:8008.',
+  'pos_token_description': 'الرمز المكوّن من {{length}} أحرف الذي أنشأه المسؤول لهذا الجهاز.',
+  'start_setup': 'بدء التهيئة',
+  'backoffice_configuration': 'تهيئة المكتب الخلفي',
+  'configuration_intro': 'يمكنك اختبار الاتصال قبل الحفظ.',
+  'token_length_hint': 'رمز نقاط البيع يتكوّن من {{length}} أحرف',
+  'show_token': 'إظهار الرمز',
+  'hide_token': 'إخفاء الرمز',
+  'connection_successful_save': 'تم الاتصال بنجاح. يمكنك حفظ هذا الإعداد.',
+  'connected_and_verified': 'متصل وتم التحقق منه',
+  'setup_banner_title': 'اتصل بالمكتب الخلفي في بضع خطوات',
+  'setup_banner_description': 'تحتاج إلى القيام بذلك مرة واحدة فقط لكل جهاز.',
+  'setup_progress': 'تقدم التهيئة',
+
 } as const;

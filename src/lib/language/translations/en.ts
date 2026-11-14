@@ -119,7 +119,7 @@ export const en = {
   'token_required': 'Token is required',
   'pos_token_required': 'POS token is required',
   'enter_valid_url': 'Enter a valid URL',
-  'enter_valid_url_example': 'Enter a valid URL, e.g. http://192.168.1.10:8008',
+  'enter_valid_url_example': 'Invalid URL',
 
   // ==========================================
   // NAVIGATION, SIDEBAR & LAYOUT
@@ -590,4 +590,28 @@ export const en = {
   'date_range': 'Date range',
   'from_time': 'From time',
   'to_time': 'To time',
+
+
+  // ==========================================
+  // POS SETUP
+  // ==========================================
+  'ready': 'Ready',
+  'pos_setup_title': 'POS Setup',
+  'pos_setup_requirements': 'Have these two things ready:',
+  'backoffice_address': 'Backoffice address',
+  'backoffice_address_description': 'The URL of your backoffice server, for example http://192.168.1.10:8008.',
+  'pos_token_description': 'The {{length}}-character code your administrator generated for this terminal.',
+  'start_setup': 'Start setup',
+  'backoffice_configuration': 'Backoffice Configuration',
+  'configuration_intro': 'You can test the connection before saving.',
+  'token_length_hint': 'The POS token is {{length}} characters long',
+  'show_token': 'Show token',
+  'hide_token': 'Hide token',
+  'connection_successful_save': 'Connection successful. You can save this configuration.',
+  'connected_and_verified': 'Connected and verified',
+  'setup_banner_title': 'Connect to backoffice in a few steps',
+  'setup_banner_description': 'You only need to do this once per terminal.',
+  'setup_progress': 'Setup progress',
+
+
 } as const;
