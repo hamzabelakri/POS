@@ -44,6 +44,8 @@ import {
 import { SetupBrand } from './setup-shell'
 import { SetupStep, SetupStepper } from './setup-stepper'
 import { Badge } from '@/components/ui/badge'
+import { LanguageSwitch } from '@/components/language-switch'
+import { ThemeSwitch } from '@/components/theme-switch'
 
 const PANEL = 'bg-[oklch(0.24_0.07_263)]'
 
@@ -421,7 +423,8 @@ const PosSetup = () => {
         <header className='flex items-center justify-between px-6 py-5'>
           <SetupBrand className='lg:invisible' />
           <div className='flex items-center gap-2'>
-            {/* <LanguageSwitcher /> <ThemeToggle /> */}
+            <LanguageSwitch />
+            <ThemeSwitch />
           </div>
         </header>
 
