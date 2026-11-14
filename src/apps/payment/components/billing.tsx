@@ -59,8 +59,9 @@ export function Billing({
 }) {
   const { t } = useTranslation()
   return (
-    // Stretches; the list scrolls, the total stays at the bottom
-    <Card className="flex-1">
+    // Stretches; the list scrolls, the total stays at the bottom.
+    // gap-0 / pb-0 / overflow-hidden let the total panel run edge to edge.
+    <Card className="flex-1 gap-0 overflow-hidden pb-0">
       <CardHeader className="border-b">
         <CardTitle>{t('billing')}</CardTitle>
         <CardAction>
@@ -95,10 +96,12 @@ export function Billing({
         </div>
       </CardContent>
 
-      <CardFooter className="flex-col gap-1 border-t">
+      {/* Solid brand-colored total, edge to edge (no border-t, so the
+          card's built-in footer padding doesn't kick in) */}
+      <CardFooter className="bg-green-500 text-primary-foreground flex-col gap-1 py-8">
         <span className="text-2xl font-bold tracking-widest">{t('total')}</span>
         {/* TODO: compute from the billed articles */}
-        <span className="text-5xl font-bold">0 EGP</span>
+        <span className="text-5xl font-bold tabular-nums">0 EGP</span>
       </CardFooter>
     </Card>
   )

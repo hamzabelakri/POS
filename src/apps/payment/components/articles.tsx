@@ -33,7 +33,7 @@ function ArticleGroup({
       variant='outline'
       disabled={isDisabled(article)}
       title={article.description}
-      className='h-auto min-h-28 w-36 shrink-0 flex-col justify-center gap-2 py-4 text-center whitespace-normal'
+className='hover:border-primary hover:bg-primary/5 h-auto min-h-28 w-36 shrink-0 flex-col justify-center gap-2 py-4 text-center whitespace-normal transition-colors'
       onClick={() => onSelect(article)}
     >
       {article.iconUrl && (

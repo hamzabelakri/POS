@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { type BarrierAction } from '@/models/barrier-model'
 import {
   ArrowDown,
@@ -10,6 +9,7 @@ import {
   Printer,
   type LucideIcon,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/auth-store'
 import { useAutoPrintStore, usePrinterUi } from '@/stores/printer-store'
 import { cn } from '@/lib/utils'
@@ -97,7 +97,7 @@ export function QuickActions() {
                 'h-20 flex-col gap-2'
               )}
             >
-              <ArrowUp />
+              <ArrowUp className="size-5"/>
               {t('barrier')}
             </DropdownMenuTrigger>
             <DropdownMenuContent side='top' align='start' className='w-48'>
@@ -114,28 +114,37 @@ export function QuickActions() {
           </DropdownMenu>
 
           <Button
-            variant={printerUi.blocked ? 'destructive' : 'outline'}
-            className='h-20 flex-col gap-2'
+            variant={printerUi.blocked ? 'ghost' : 'outline'}
+            className={cn(
+              'h-20 flex-col gap-2',
+              printerUi.blocked &&
+                'border border-red-500/30 bg-red-500/10 text-red-700 hover:bg-red-500/20 hover:text-red-700 disabled:opacity-100 dark:text-red-400 dark:hover:bg-red-500/20 dark:hover:text-red-400'
+            )}
             disabled={!shift || printerUi.blocked || printLast.isPending}
             onClick={handlePrintLastReceipt}
           >
-            <Printer />
+           <Printer className="size-5" />
             {printerUi.label}
           </Button>
 
           <Button
-            variant={autoPrint ? 'default' : 'outline'}
+            variant={autoPrint ? 'ghost' : 'outline'}
             aria-pressed={autoPrint}
-            className='h-20 flex-col gap-2'
+            className={cn(
+              'h-20 flex-col gap-2',
+              autoPrint &&
+                'border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 hover:text-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-500/20 dark:hover:text-emerald-400'
+            )}
             onClick={toggleAutoPrint}
           >
-            <FileText />
+            <FileText className="size-5"/>
             {t('auto_print')}
           </Button>
         </CardContent>
       </Card>
 
-      <EvaluationModal type="barrier"
+      <EvaluationModal
+        type='barrier'
         open={pendingAction !== null}
         onClose={() => setPendingAction(null)}
         onSuccess={() => {
