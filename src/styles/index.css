@@ -100,3 +100,13 @@
   animation: none;
   mix-blend-mode: normal;
 }
+
+
+@utility panel-glow {
+  background-image: radial-gradient(
+    120% 70% at 0% 0%,
+    var(--panel-glow),
+    transparent 65%
+  );
+}
+

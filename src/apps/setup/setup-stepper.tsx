@@ -19,17 +19,19 @@ const tones = {
     description: 'text-muted-foreground'
   },
   // For use on the dark banner gradient
-  inverse: {
-    done: 'border-white bg-white text-[color:var(--banner-via)]',
-    active: 'border-white bg-white/10 text-white ring-4 ring-white/15',
-    todo: 'border-white/20 bg-transparent text-white/50',
-    lineDone: 'bg-white/70',
-    lineTodo: 'bg-white/15',
-    labelActive: 'text-white',
-    labelDone: 'text-white/80',
-    labelTodo: 'text-white/50',
-    description: 'text-white/60'
-  }
+// For use on the brand panel
+inverse: {
+  done: 'border-white bg-white text-panel dark:border-primary dark:bg-primary dark:text-primary-foreground',
+  active:
+    'border-white bg-white/10 text-white ring-4 ring-white/15 dark:border-primary dark:bg-primary/15 dark:ring-primary/25',
+  todo: 'border-white/20 bg-transparent text-white/50 dark:border-transparent dark:bg-white/8 dark:text-white/40',
+  lineDone: 'bg-white/70 dark:bg-primary',
+  lineTodo: 'bg-white/15 dark:bg-white/10',
+  labelActive: 'text-white',
+  labelDone: 'text-white/80',
+  labelTodo: 'text-white/50 dark:text-white/40',
+  description: 'text-white/60'
+}
 } satisfies Record<Tone, Record<string, string>>
 
 type Props = {
@@ -60,7 +62,7 @@ export function SetupStepper({
   const labelColor = (i: number) =>
     ({ done: t.labelDone, active: t.labelActive, todo: t.labelTodo })[status(i)]
 
-  const Circle = ({ i }: { i: number }) => (
+  const circle = (i: number) => (
     <span
       className={cn(
         'flex size-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all duration-300',
@@ -77,7 +79,7 @@ export function SetupStepper({
         {steps.map((step, i) => (
           <li key={step.id} aria-current={status(i) === 'active' ? 'step' : undefined} className='flex gap-4'>
             <div className='flex flex-col items-center'>
-              <Circle i={i} />
+              {circle(i)}
               {i < last && (
                 <span
                   aria-hidden
@@ -103,7 +105,7 @@ export function SetupStepper({
       {steps.map((step, i) => (
         <li key={step.id} aria-current={status(i) === 'active' ? 'step' : undefined} className='flex items-start'>
           <div className='flex w-16 flex-col items-center gap-2 sm:w-20'>
-            <Circle i={i} />
+            {circle(i)}
             <span
               className={cn(
                 'text-[11px] font-semibold transition-colors',
