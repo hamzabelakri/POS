@@ -1,16 +1,28 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearch } from '@tanstack/react-router'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
-import { ArrowLeftIcon, ArrowRightIcon, Loader2Icon } from 'lucide-react'
+import { ArrowRightIcon, InfoIcon, LogOut, Wallet } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/shadcn-io/spinner'
 import { useStartShift } from '@/hooks/use-shift'
 import { useAuthStore } from '@/stores/auth-store'
 import { AuthCard } from './auth-card'
+
+const DENOMINATOR = 1000
 
 export const StartShift = () => {
   const { t } = useTranslation()
@@ -35,8 +47,19 @@ export const StartShift = () => {
 
   const form = useForm<ShiftValues>({
     resolver: zodResolver(shiftSchema),
-    defaultValues: { start_amount: '' }
+    defaultValues: { start_amount: '0' }
   })
+
+  // Watch the raw input so the converted amount updates live.
+  const rawAmount = useWatch({ control: form.control, name: 'start_amount' })
+  const numericAmount = Number(rawAmount)
+  const hasValidAmount =
+    rawAmount?.trim() !== '' && Number.isFinite(numericAmount) && numericAmount >= 0
+  const convertedAmount = hasValidAmount ? numericAmount / DENOMINATOR : 0
+
+  const formattedConverted = new Intl.NumberFormat('en-EG', {
+    maximumFractionDigits: 3
+  }).format(convertedAmount)
 
   const goToApp = () => {
     if (search.redirect) {
@@ -46,8 +69,9 @@ export const StartShift = () => {
     }
   }
 
-  // Drop the session so a different user can sign in
-  const goBack = () => {
+  // Logout on this screen: no shift exists yet, so just drop the local session
+  // and go back to sign-in (any open shift stays untouched on the server).
+  const onLogout = () => {
     clearAuth()
     router.navigate({ to: '/sign-in', search: { redirect: search.redirect } })
   }
@@ -59,7 +83,7 @@ export const StartShift = () => {
   return (
     <AuthCard title={t('start_shift')} description={t('start_shift_description')}>
       <Form {...form}>
-        <form onSubmit={onSubmit} className='space-y-4'>
+        <form onSubmit={onSubmit} className='grid gap-3'>
           <FormField
             control={form.control}
             name='start_amount'
@@ -67,21 +91,52 @@ export const StartShift = () => {
               <FormItem>
                 <FormLabel>{t('starting_amount')}</FormLabel>
                 <FormControl>
-                  <Input type='number' inputMode='decimal' step='any' min={0} placeholder='0' {...field} />
+                  <InputGroup>
+                    <InputGroupInput
+                      type='number'
+                      inputMode='decimal'
+                      step='any'
+                      min={0}
+                      placeholder='0'
+                      {...field}
+                    />
+                    <InputGroupAddon>
+                      <Wallet />
+                    </InputGroupAddon>
+                    <InputGroupAddon align='inline-end'>
+                      <Badge variant='success'>{formattedConverted} EGP</Badge>
+                    </InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
+                <FormDescription className='flex items-start gap-1.5'>
+                  <InfoIcon className='mt-0.5 size-4 shrink-0' />
+                  <span>{t('start_amount_hint')}</span>
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <div className='flex justify-end gap-4'>
-            <Button type='button' variant='outline' onClick={goBack} disabled={isPending}>
-              <ArrowLeftIcon className='size-4' /> {t('back')}
+          <div className='flex items-center gap-4'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={onLogout}
+              disabled={isPending}
+              className='shrink-0'
+            >
+              <LogOut className='size-4' /> {t('log_out')}
             </Button>
-            <Button type='submit' disabled={isPending}>
-              {isPending && <Loader2Icon className='size-4 animate-spin' />}
-              {t('start_shift')} <ArrowRightIcon className='size-4' />
-            </Button>
+            {isPending ? (
+              <Button type='submit' disabled  className='flex-1'>
+                <Spinner variant='circle' />
+                {t('loading')}
+              </Button>
+            ) : (
+              <Button type='submit'  className='flex-1'>
+                {t('start_shift')} <ArrowRightIcon className='size-4' />
+              </Button>
+            )}
           </div>
         </form>
       </Form>

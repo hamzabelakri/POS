@@ -2,12 +2,19 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearch } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { ArrowRightIcon, Loader2Icon } from 'lucide-react'
+import { ArrowRightIcon, Eye, EyeOff, Lock, UserIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import React from 'react'
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput
+} from '@/components/ui/input-group'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/shadcn-io/spinner'
 import { useLogin } from '@/hooks/use-auth'
 import { useCloseCurrentShift, useFetchCurrentShift } from '@/hooks/use-shift'
 import { AlertEnum } from '@/models/alert-model'
@@ -27,6 +34,8 @@ export const SignIn = () => {
   const { showAlert } = useAlertStore()
 
   const isBusy = isLoggingIn || isFetchingShift || isClosingShift
+
+  const [showPassword, setShowPassword] = React.useState(false)
 
   // Schema built inside the component so validation messages are translated.
   const loginSchema = z.object({
@@ -91,9 +100,9 @@ export const SignIn = () => {
   })
 
   return (
-    <AuthCard title={t('sign_in')} description={t('sign_in_description')}>
+    <AuthCard title={t('sign_in')}>
       <Form {...form}>
-        <form onSubmit={onSubmit} className='space-y-4'>
+        <form onSubmit={onSubmit} className='grid gap-3'>
           <FormField
             control={form.control}
             name='username'
@@ -101,7 +110,12 @@ export const SignIn = () => {
               <FormItem>
                 <FormLabel>{t('username')}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t('enter_username')} autoComplete='username' {...field} />
+                  <InputGroup>
+                    <InputGroupInput placeholder={t('enter_username')} autoComplete='username' {...field} />
+                    <InputGroupAddon>
+                      <UserIcon />
+                    </InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -115,17 +129,43 @@ export const SignIn = () => {
               <FormItem>
                 <FormLabel>{t('password')}</FormLabel>
                 <FormControl>
-                  <Input type='password' placeholder={t('enter_password')} autoComplete='current-password' {...field} />
+                  <InputGroup>
+                    <InputGroupInput
+                      placeholder={t('enter_password')}
+                      autoComplete='current-password'
+                      type={showPassword ? 'text' : 'password'}
+                      {...field}
+                    />
+                    <InputGroupAddon>
+                      <Lock />
+                    </InputGroupAddon>
+                    <InputGroupAddon align='inline-end'>
+                      <InputGroupButton
+                        variant='ghost'
+                        size='icon-xs'
+                        onClick={() => setShowPassword(prev => !prev)}
+                        aria-label={showPassword ? t('hide_password') : t('show_password')}
+                      >
+                        {showPassword ? <EyeOff /> : <Eye />}
+                      </InputGroupButton>
+                    </InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <Button type='submit' className='w-full' disabled={isBusy}>
-            {isBusy && <Loader2Icon className='size-4 animate-spin' />}
-            {t('sign_in')} <ArrowRightIcon className='size-4' />
-          </Button>
+          {isBusy ? (
+  <Button type='submit' disabled  className='w-full'>
+    <Spinner variant='circle' />
+    {t('loading')}
+  </Button>
+) : (
+  <Button type='submit'  className='w-full'>
+    {t('sign_in')} <ArrowRightIcon className='size-4' />
+  </Button>
+)}
         </form>
       </Form>
     </AuthCard>
