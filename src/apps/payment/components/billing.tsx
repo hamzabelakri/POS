@@ -90,7 +90,6 @@ export function Billing({
   isRemoving?: boolean
 }) {
   const { t } = useTranslation()
-  const isEmpty = lines.length === 0
 
   return (
     // Stretches; the list scrolls, the total stays at the bottom.
@@ -103,7 +102,6 @@ export function Billing({
             size="sm"
             className="h-auto p-0"
             onClick={onClear}
-            disabled={isEmpty}
           >
             {t('clear_all')}
           </Button>

@@ -17,7 +17,7 @@ import { useShiftReportStore } from '@/stores/shift-report-store'
 import { useShiftReport } from '@/hooks/use-shift-report'
 import { Main } from '@/components/layout/main'
 import { DataTable } from '@/components/shared/data-table'
-import { cn } from '@/lib/utils'
+import { cn, formatAmount } from '@/lib/utils'
 import { ShiftReportDialogEnum } from '@/models/shift-report-model'
 import { ShiftReportModals } from './shift-report-modal'
 import { useShiftReportToolbarProps } from './table/data'
@@ -25,12 +25,24 @@ import { useShiftReportColumns } from './table/report-columns'
 
 type Icon = ComponentType<LucideProps>
 
+type SubtitleTone = 'up' | 'warn' | 'muted'
+
 type Kpi = {
   icon: Icon
   label: string
   value: string
   /** When true, the value is hidden while the report is locked */
   maskable?: boolean
+  /** Optional line shown under the value; never masked */
+  subtitle?: string
+  /** Color of the subtitle; defaults to 'muted' */
+  subtitleTone?: SubtitleTone
+}
+
+const subtitleToneClass: Record<SubtitleTone, string> = {
+  up: 'text-emerald-400',
+  warn: 'text-amber-400',
+  muted: 'text-white/55',
 }
 
 function ControlCenterBanner({
@@ -106,6 +118,16 @@ function ControlCenterBanner({
                     k.value
                   )}
                 </div>
+                {k.subtitle && (
+                  <div
+                    className={cn(
+                      'text-xs',
+                      subtitleToneClass[k.subtitleTone ?? 'muted']
+                    )}
+                  >
+                    {k.subtitle}
+                  </div>
+                )}
               </div>
             )
           })}
@@ -114,11 +136,6 @@ function ControlCenterBanner({
     </section>
   )
 }
-
-const currency = new Intl.NumberFormat(undefined, {
-  style: 'currency',
-  currency: 'USD',
-})
 
 export function ShiftReport() {
   const { t } = useTranslation()
@@ -142,6 +159,7 @@ export function ShiftReport() {
     const totalTurnover = report?.total_turnover ?? 0
     const totalCash = report?.total_cash ?? 0
     const start = startAmount ?? 0
+    const shiftAmount = start + totalTurnover
 
     return [
       {
@@ -152,19 +170,21 @@ export function ShiftReport() {
       {
         icon: Package,
         label: t('total_turnover'),
-        value: currency.format(totalTurnover),
+        value: formatAmount(totalTurnover),
         maskable: true,
       },
       {
         icon: Banknote,
         label: t('total_cash'),
-        value: currency.format(totalCash),
+        value: formatAmount(totalCash),
         maskable: true,
       },
       {
         icon: Wallet,
-        label: t('start_amount'),
-        value: currency.format(start),
+        label: t('shift_amount'),
+        value: formatAmount(shiftAmount),
+        subtitle: `${t('start_amount')}: ${formatAmount(start)}`,
+        subtitleTone: 'up',
         maskable: true,
       },
     ]

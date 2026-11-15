@@ -18,6 +18,10 @@ export const createDownloadLink = (blob: Blob, filename: string) => {
   link.remove();
 };
 
-
-
+// API amounts are in thousandths (denominator 1000): 50400 -> "50.4 EGP"
+export const formatAmount = (value: number) =>
+  `${new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 3,
+  }).format((value ?? 0) / 1000)} EGP`
 

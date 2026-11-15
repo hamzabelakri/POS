@@ -10,6 +10,7 @@ import { getDailyPassword } from '@/lib/daily-password'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -90,41 +91,38 @@ export function ConfigPasswordModal({
       }}
     >
       <DialogContent className='sm:max-w-lg'>
-        <DialogHeader className='border-b pb-3'>
-          <DialogTitle className='flex items-center gap-2'>
-            <div className='bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg'>
-              <IconLock className='size-5' />
-            </div>
-            {t('configuration', 'Configuration')}
-          </DialogTitle>
+        <DialogHeader icon={IconLock}>
+          <DialogTitle>{t('configuration', 'Configuration')}</DialogTitle>
         </DialogHeader>
 
-        <Form {...form}>
-          <form
-            id='config-password-form'
-            onSubmit={onSubmit}
-            className='space-y-4'
-          >
-            <FormField
-              control={form.control}
-              name='password'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('password', 'Password')}</FormLabel>
-                  <FormControl>
-                    <PasswordInput
-                      autoComplete='off'
-                      inputMode='numeric'
-                      autoFocus
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
+        <DialogBody>
+          <Form {...form}>
+            <form
+              id='config-password-form'
+              onSubmit={onSubmit}
+              className='space-y-4'
+            >
+              <FormField
+                control={form.control}
+                name='password'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('password', 'Password')}</FormLabel>
+                    <FormControl>
+                      <PasswordInput
+                        autoComplete='off'
+                        inputMode='numeric'
+                        autoFocus
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+        </DialogBody>
 
         <DialogFooter>
           <Button type='button' variant='outline' onClick={handleClose}>

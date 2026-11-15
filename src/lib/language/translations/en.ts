@@ -500,6 +500,10 @@ export const en = {
   'preview_receipt_tooltip': 'Preview the receipt',
   'print_receipt_tooltip': 'Print the receipt',
   'printer_disabled_tooltip': 'Printer is disabled',
+  "shift_amount": "Shift Amount",
+  "configuration_hint": "Review how this terminal is connected and how your car park is set up.",
+  "unsaved_changes": "You have unsaved changes.",
+
 
   // ==========================================
   // POS SETUP

@@ -500,6 +500,9 @@ export const fr = {
   'preview_receipt_tooltip': 'Aperçu du reçu',
   'print_receipt_tooltip': 'Imprimer le reçu',
   'printer_disabled_tooltip': 'L’imprimante est désactivée',
+  "shift_amount": "Montant de la permanence",
+  "configuration_hint": "Consultez la connexion de ce terminal et la configuration de votre parking.",
+  "unsaved_changes": "Vous avez des modifications non enregistrées.",
 
   // ==========================================
   // POS SETUP

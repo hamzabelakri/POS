@@ -19,13 +19,9 @@ import {
 } from '@/components/ui/tooltip'
 import { LongText } from '@/components/long-text'
 import { DataTableColumnHeader } from '@/components/shared/data-table'
+import { formatAmount } from '@/lib/utils'
 
-// API amounts are in thousandths (denominator 1000): 50400 -> "50.4 EGP"
-export const formatAmount = (value: number) =>
-  `${new Intl.NumberFormat(undefined, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 3,
-  }).format((value ?? 0) / 1000)} EGP`
+
 
 // "2026-10-29 16:20:42.106814" -> "2026-10-29 16:20:42"
 const formatEntryTime = (value?: string) => value?.split('.')[0] ?? '-'

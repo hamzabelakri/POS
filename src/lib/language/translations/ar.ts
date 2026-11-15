@@ -501,6 +501,11 @@ export const ar = {
   'preview_receipt_tooltip': 'معاينة الإيصال',
   'print_receipt_tooltip': 'طباعة الإيصال',
   'printer_disabled_tooltip': 'الطابعة معطّلة',
+  "shift_amount": "مبلغ الوردية",
+  "configuration_hint": "استعرض اتصال هذا الجهاز بالنظام الخلفي وإعدادات موقف السيارات.",
+  "unsaved_changes": "لديك تغييرات غير محفوظة.",
+
+
 
   // ==========================================
   // POS SETUP
