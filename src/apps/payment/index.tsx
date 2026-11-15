@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
-import { buildPlateSearchParams } from '@/service/consult'
 import { toVehicleView, type ExitVehicleEvent } from '@/models/sse-model'
+import { buildPlateSearchParams } from '@/service/consult'
+import { useSSEStore } from '@/stores/sse-store'
 import { useBilledLines } from '@/hooks/use-articles'
 import { useCancelArticle } from '@/hooks/use-payment'
-import { useSSEStore } from '@/stores/sse-store'
 import { Main } from '@/components/layout/main'
 import { Articles } from './components/articles'
 import { Billing } from './components/billing'
@@ -12,8 +12,8 @@ import { PlateSearch } from './components/plate-search'
 import { QuickActions } from './components/quick-actions'
 import { VehicleInfo } from './components/vehicle-info'
 import { LaneAlertModal } from './modals/lane-alert-modal'
-import { PlateSearchModal } from './modals/plate-search-modal'
 import { LaneErrorAlert } from './modals/lane-error-alert'
+import { PlateSearchModal } from './modals/plate-search-modal'
 
 export function Payment() {
   // Billing comes from the last exit_car message, not from local state
@@ -62,7 +62,7 @@ export function Payment() {
       </div>
 
       <LaneAlertModal />
-            <LaneErrorAlert />
+      <LaneErrorAlert />
       {searchEvent && (
         <PlateSearchModal
           onClose={() => setDismissedSearch(searchEvent)}

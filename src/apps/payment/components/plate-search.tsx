@@ -40,9 +40,9 @@ export function PlateSearch() {
 
   return (
     <>
-      <Card className='gap-3 py-4'>
-        <CardHeader>
-          <CardTitle>{t('license_plate')}</CardTitle>
+      <Card className='flex-1'>
+        <CardHeader className='border-b'>
+          <CardTitle>{t('search_lpn')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className='flex flex-wrap items-center gap-3'>

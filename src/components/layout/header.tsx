@@ -129,10 +129,14 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
           <ThemeSwitch />
 
           {isConfigPage ? (
-            <Button asChild variant='outline' size='sm'>
+            <Button
+              asChild
+              size='sm'
+              className='bg-panel hover:bg-panel/90 dark:border-border border border-transparent text-white hover:text-white'
+            >
               <Link to='/'>
-                <ArrowLeft className='rtl:rotate-180' aria-hidden='true' />
-                <span>{t('back_to_payment')}</span>
+                <ArrowLeft className='text-red-400 rtl:rotate-180' aria-hidden='true' />
+                <span>{t('back')}</span>
               </Link>
             </Button>
           ) : (
