@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { AxiosError } from 'axios'
 import { useMutation } from '@tanstack/react-query'
 import { AlertEnum } from '@/models/alert-model'
@@ -125,4 +125,40 @@ export function useCreateTransaction() {
     )
 
   return { ...mutation, submitArticle }
+}
+
+
+const MODIFIER: 'ctrl' | 'alt' = 'ctrl' // switch to 'alt' if the browser steals Ctrl+digit
+const LABEL = MODIFIER === 'ctrl' ? 'Ctrl' : 'Alt'
+const FIRST = 2 // the first article gets Ctrl+2 (use 1 if Ctrl+1 is free)
+const LAST = 9
+
+export const shortcutLabel = (index: number) => {
+  const n = FIRST + index
+  return n <= LAST ? `${LABEL}+${n}` : undefined
+}
+
+export function useArticleShortcuts<T>(
+  items: T[],
+  onTrigger: (item: T) => void,
+  enabled = true
+) {
+  useEffect(() => {
+    if (!enabled) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat || e.shiftKey || e.metaKey) return
+      if (e.ctrlKey !== (MODIFIER === 'ctrl')) return
+      if (e.altKey !== (MODIFIER === 'alt')) return
+
+      const match = /^(?:Digit|Numpad)(\d)$/.exec(e.code)
+      if (!match) return
+      const item = items[Number(match[1]) - FIRST]
+      if (!item) return
+
+      e.preventDefault()
+      onTrigger(item)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [items, onTrigger, enabled])
 }

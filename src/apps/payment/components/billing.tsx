@@ -1,16 +1,16 @@
-import { Loader2, X } from "lucide-react"
-import { useTranslation } from "react-i18next"
+import { Loader2, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardAction,
   CardContent,
   CardFooter,
-  CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { BillingLine, type Article } from "@/models/articles-model"
+} from '@/components/ui/card'
+import { BillingLine, type Article } from '@/models/articles-model'
+import { PanelHeader } from './panel-header'
 
 // A billed line: icon tile (or initial), title, position, remove button
 function BillingArticle({
@@ -30,49 +30,45 @@ function BillingArticle({
   return (
     <div
       className={
-        "group relative flex items-center gap-3 overflow-hidden rounded-xl border bg-card " +
-        "p-2.5 pl-4 shadow-xs transition-all duration-200 " +
-        "animate-in fade-in slide-in-from-right-2 " +
-        "hover:border-primary/40 hover:shadow-md " +
-        (isRemoving ? "opacity-60" : "")
+        'group relative flex items-center gap-3 overflow-hidden rounded-xl border bg-card ' +
+        'p-2.5 pl-4 shadow-xs transition-all duration-200 ' +
+        'animate-in fade-in slide-in-from-right-2 ' +
+        'hover:border-primary/40 hover:shadow-md ' +
+        (isRemoving ? 'opacity-60' : '')
       }
     >
       {/* Accent bar */}
-      <span className="absolute inset-y-0 left-0 w-1 bg-primary/70 transition-colors group-hover:bg-primary" />
+      <span className='bg-primary/70 group-hover:bg-primary absolute inset-y-0 left-0 w-1 transition-colors' />
 
       {/* Icon tile, falls back to the title's initial */}
-      <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted ring-1 ring-border">
+      <div className='bg-muted ring-border flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg ring-1'>
         {article.iconUrl ? (
-          <img
-            src={article.iconUrl}
-            alt=""
-            className="size-8 object-contain"
-          />
+          <img src={article.iconUrl} alt='' className='size-8 object-contain' />
         ) : (
-          <span className="text-base font-semibold text-muted-foreground">
+          <span className='text-muted-foreground text-base font-semibold'>
             {article.title.charAt(0).toUpperCase()}
           </span>
         )}
       </div>
 
-      <div className="min-w-0 flex-1">
-        <p className="line-clamp-2 text-sm leading-tight font-semibold">
+      <div className='min-w-0 flex-1'>
+        <p className='line-clamp-2 text-sm leading-tight font-semibold'>
           {article.title}
         </p>
-        <p className="mt-0.5 text-xs text-muted-foreground tabular-nums">
+        <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>
           #{index + 1}
         </p>
       </div>
 
       <Button
-        variant="ghost"
-        size="icon"
-        className="size-8 shrink-0 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+        variant='ghost'
+        size='icon'
+        className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive size-8 shrink-0 rounded-full'
         aria-label={t('remove_article', { title: article.title })}
         onClick={onRemove}
         disabled={disabled}
       >
-        {isRemoving ? <Loader2 className="animate-spin" /> : <X />}
+        {isRemoving ? <Loader2 className='animate-spin' /> : <X />}
       </Button>
     </div>
   )
@@ -93,25 +89,25 @@ export function Billing({
 
   return (
     // Stretches; the list scrolls, the total stays at the bottom.
-    <Card className="flex-1 gap-0 overflow-hidden pb-0">
-      <CardHeader className="border-b">
-        <CardTitle>{t('billing')}</CardTitle>
+    <Card className='flex-1 gap-0 overflow-hidden py-0'>
+      <PanelHeader>
+        <CardTitle className='text-base text-muted-foreground'>{t('billing')}</CardTitle>
         <CardAction>
           <Button
-            variant="link"
-            size="sm"
-            className="h-auto p-0"
+            variant='link'
+            size='sm'
+            className='h-auto p-0'
             onClick={onClear}
           >
             {t('clear_all')}
           </Button>
         </CardAction>
-      </CardHeader>
+      </PanelHeader>
 
       {/* Absolutely positioned inner list: a long list scrolls
           instead of making the whole page taller. Empty = just blank. */}
-      <CardContent className="relative min-h-40 flex-1 p-0">
-        <div className="absolute inset-0 space-y-2.5 overflow-y-auto p-4">
+      <CardContent className='relative min-h-40 flex-1 p-0'>
+        <div className='absolute inset-0 space-y-2.5 overflow-y-auto p-4'>
           {lines.map(({ key, article }, i) => (
             <BillingArticle
               key={key}
@@ -124,10 +120,10 @@ export function Billing({
         </div>
       </CardContent>
 
-      <CardFooter className="bg-green-500 text-primary-foreground flex-col gap-1 py-8">
-        <span className="text-2xl font-bold tracking-widest">{t('total')}</span>
+      <CardFooter className='bg-green-500 text-primary-foreground flex-col gap-1 py-8'>
+        <span className='text-2xl font-bold tracking-widest'>{t('total')}</span>
         {/* TODO: compute from the billed articles */}
-        <span className="text-5xl font-bold tabular-nums">0 EGP</span>
+        <span className='text-5xl font-bold tabular-nums'>0 EGP</span>
       </CardFooter>
     </Card>
   )
