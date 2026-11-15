@@ -10,17 +10,23 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { BillingLine, type Article } from '@/models/articles-model'
+import type { ExitCarTransaction } from '@/models/sse-model'
 import { PanelHeader } from './panel-header'
+
+const formatAmount = (value: number) =>
+  value.toLocaleString(undefined, { maximumFractionDigits: 2 })
 
 // A billed line: icon tile (or initial), title, position, remove button
 function BillingArticle({
   article,
+  transaction,
   index,
   onRemove,
   disabled,
   isRemoving,
 }: {
   article: Article
+  transaction?: ExitCarTransaction
   index: number
   onRemove: () => void
   disabled?: boolean
@@ -60,6 +66,20 @@ function BillingArticle({
         </p>
       </div>
 
+      {transaction && (
+        <span
+          className={
+            'shrink-0 text-base font-semibold tabular-nums ' +
+            (transaction.is_discount
+              ? 'text-destructive'
+              : 'text-green-600 dark:text-green-500')
+          }
+        >
+          {transaction.is_discount ? '-' : ''}
+          {formatAmount(Math.abs(transaction.value))}
+        </span>
+      )}
+
       <Button
         variant='ghost'
         size='icon'
@@ -76,11 +96,15 @@ function BillingArticle({
 
 export function Billing({
   lines,
+  transactions,
+  total,
   onRemove,
   onClear,
   isRemoving = false,
 }: {
   lines: BillingLine[]
+  transactions: Record<string, ExitCarTransaction>
+  total: number
   onRemove: (key: string) => void
   onClear: () => void
   isRemoving?: boolean
@@ -91,7 +115,9 @@ export function Billing({
     // Stretches; the list scrolls, the total stays at the bottom.
     <Card className='flex-1 gap-0 overflow-hidden py-0'>
       <PanelHeader>
-        <CardTitle className='text-base text-muted-foreground'>{t('billing')}</CardTitle>
+        <CardTitle className='text-muted-foreground text-base'>
+          {t('billing')}
+        </CardTitle>
         <CardAction>
           <Button
             variant='link'
@@ -112,6 +138,7 @@ export function Billing({
             <BillingArticle
               key={key}
               article={article}
+              transaction={transactions[key]}
               index={i}
               disabled={isRemoving}
               onRemove={() => onRemove(key)}
@@ -122,8 +149,9 @@ export function Billing({
 
       <CardFooter className='bg-green-500 text-primary-foreground flex-col gap-1 py-8'>
         <span className='text-2xl font-bold tracking-widest'>{t('total')}</span>
-        {/* TODO: compute from the billed articles */}
-        <span className='text-5xl font-bold tabular-nums'>0 EGP</span>
+        <span className='text-5xl font-bold tabular-nums'>
+          {formatAmount(total)} EGP
+        </span>
       </CardFooter>
     </Card>
   )

@@ -43,15 +43,28 @@ export function DatePickerWithRange({
 }: DatePickerWithRangeProps) {
   const { t } = useTranslation()
   const id = React.useId()
+  const [open, setOpen] = React.useState(false)
+  // edited inside the popover, only committed on Apply
+  const [draft, setDraft] = React.useState<DateRange | undefined>(value)
 
-  // Times currently applied (defaults cover the whole day)
-  const fromTime = value?.from ? format(value.from, TIME_FORMAT) : "00:00:00"
-  const toTime = value?.to ? format(value.to, TIME_FORMAT) : "23:59:59"
+  const handleOpenChange = (next: boolean) => {
+    if (next) setDraft(value) // always start from the committed value
+    setOpen(next)
+  }
+
+  const handleApply = () => {
+    onChange?.(draft)
+    setOpen(false)
+  }
+
+  // Times currently applied to the draft (defaults cover the whole day)
+  const fromTime = draft?.from ? format(draft.from, TIME_FORMAT) : "00:00:00"
+  const toTime = draft?.to ? format(draft.to, TIME_FORMAT) : "23:59:59"
 
   return (
     <Field className={cn("w-96", className)}>
       {label && <FieldLabel htmlFor={id}>{label}</FieldLabel>}
-      <Popover>
+      <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -77,16 +90,15 @@ export function DatePickerWithRange({
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="range"
-            defaultMonth={value?.from}
-            selected={value}
+            defaultMonth={draft?.from}
+            selected={draft}
             numberOfMonths={2}
             onSelect={(range) => {
               if (!range?.from) {
-                onChange?.(undefined)
+                setDraft(undefined)
                 return
               }
-              // keep the times already chosen when the days change
-              onChange?.({
+              setDraft({
                 from: withTime(range.from, fromTime),
                 to: range.to ? withTime(range.to, toTime) : undefined,
               })
@@ -101,13 +113,13 @@ export function DatePickerWithRange({
                 id={`${id}-from-time`}
                 type="time"
                 step={1}
-                disabled={!value?.from}
+                disabled={!draft?.from}
                 value={fromTime}
                 onChange={(e) => {
-                  if (value?.from && e.target.value) {
-                    onChange?.({
-                      ...value,
-                      from: withTime(value.from, e.target.value),
+                  if (draft?.from && e.target.value) {
+                    setDraft({
+                      ...draft,
+                      from: withTime(draft.from, e.target.value),
                     })
                   }
                 }}
@@ -119,18 +131,32 @@ export function DatePickerWithRange({
                 id={`${id}-to-time`}
                 type="time"
                 step={1}
-                disabled={!value?.to}
+                disabled={!draft?.to}
                 value={toTime}
                 onChange={(e) => {
-                  if (value?.to && e.target.value) {
-                    onChange?.({
-                      ...value,
-                      to: withTime(value.to, e.target.value),
+                  if (draft?.to && e.target.value) {
+                    setDraft({
+                      ...draft,
+                      to: withTime(draft.to, e.target.value),
                     })
                   }
                 }}
               />
             </div>
+          </div>
+
+          <div className="flex justify-end gap-2 border-t p-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setOpen(false)}
+            >
+              {t('cancel')}
+            </Button>
+            <Button type="button" size="sm" onClick={handleApply}>
+              {t('apply')}
+            </Button>
           </div>
         </PopoverContent>
       </Popover>

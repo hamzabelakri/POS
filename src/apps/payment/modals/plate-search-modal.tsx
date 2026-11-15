@@ -5,6 +5,7 @@ import { Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { DatePickerWithRange } from '@/components/ui/date-range-picker'
 import { LpnInput } from '@/components/ui/input-otp'
 import {
@@ -100,38 +101,54 @@ export function PlateSearchModal({
 
         {/* space-y-4 replaces the gap the old grid DialogContent provided */}
         <DialogBody className='space-y-4'>
-          <div className='flex flex-wrap items-center gap-3'>
-            <div className='flex flex-wrap items-center gap-2'>
-              <LpnInput value={plate} onChange={setPlate} sanitize={toUpper} />
-              <div className='flex h-9 min-w-20 items-center justify-center rounded-md border px-2 font-mono text-sm tracking-widest'>
-                {normalizePlate(plate) || '- - -'}
+          <Card className='gap-0 py-0'>
+            <CardContent className='py-4'>
+              <div className='flex flex-wrap items-center gap-3'>
+                <div className='flex flex-wrap items-center gap-2'>
+                  <LpnInput
+                    value={plate}
+                    onChange={setPlate}
+                    sanitize={toUpper}
+                  />
+                  <div className='flex h-9 w-28 shrink-0 items-center justify-center overflow-hidden rounded-md border px-2 font-mono text-sm tracking-widest'>
+                    <span className='truncate'>
+                      {normalizePlate(plate) || '- - -'}
+                    </span>
+                  </div>
+                </div>
+
+                <DatePickerWithRange value={range} onChange={setRange} />
+
+                <Select
+                  value={laneId ?? ''}
+                  onValueChange={(v) =>
+                    setLaneId(v === ALL_LANES ? undefined : v)
+                  }
+                >
+                  <SelectTrigger className='w-32' aria-label={t('lane')}>
+                    <SelectValue placeholder={t('all_lanes')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={ALL_LANES}>{t('all')}</SelectItem>
+                    {cameras.map((camera) => (
+                      <SelectItem key={camera.id} value={String(camera.lane_id)}>
+                        {camera.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Button
+                  size='icon'
+                  className='shrink-0'
+                  aria-label={t('search')}
+                  onClick={runSearch}
+                >
+                  <Search />
+                </Button>
               </div>
-            </div>
-
-            <DatePickerWithRange value={range} onChange={setRange} />
-
-            <Select
-              value={laneId ?? ''}
-              onValueChange={(v) => setLaneId(v === ALL_LANES ? undefined : v)}
-            >
-              <SelectTrigger className='w-40' aria-label={t('lane')}>
-                <SelectValue placeholder={t('all_lanes')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL_LANES}>{t('all')}</SelectItem>
-                {cameras.map((camera) => (
-                  <SelectItem key={camera.id} value={String(camera.lane_id)}>
-                    {camera.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Button className='min-w-24 flex-1' onClick={runSearch}>
-              <Search />
-              {t('search')}
-            </Button>
-          </div>
+            </CardContent>
+          </Card>
 
           <div className='max-h-[50vh] overflow-auto'>
             <DataTable

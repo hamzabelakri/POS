@@ -22,6 +22,11 @@ export function Payment() {
   const clearExitEvent = useSSEStore((s) => s.clearExitEvent)
   const { cancelArticle, isPending: isCancelling } = useCancelArticle()
 
+  // Amounts come from the last exit_car message
+  const exitCar = exitEvent?.type === 'exit_car' ? exitEvent.data : null
+  const transactions = exitCar?.transactions ?? {}
+  const total = exitCar?.payment_summary.total ?? 0
+
   const billedIds = useMemo(
     () => new Set(lines.map((l) => l.article.id)),
     [lines]
@@ -53,6 +58,8 @@ export function Payment() {
         <div className='flex flex-col gap-4'>
           <Billing
             lines={lines}
+            transactions={transactions}
+            total={total}
             onRemove={removeFromBilling}
             onClear={clearExitEvent}
           />

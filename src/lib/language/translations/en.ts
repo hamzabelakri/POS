@@ -503,6 +503,7 @@ export const en = {
   "shift_amount": "Shift Amount",
   "configuration_hint": "Review how this terminal is connected and how your car park is set up.",
   "unsaved_changes": "You have unsaved changes.",
+  "lost_ticket_plate_hint": "The license plate is optional and helps identify the vehicle, but the fee is calculated based on the entry time.",
 
 
   // ==========================================
