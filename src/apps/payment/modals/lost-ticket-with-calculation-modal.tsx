@@ -1,19 +1,20 @@
-import { useState } from "react"
-import { format } from "date-fns"
-import { IconTicket } from "@tabler/icons-react"
+import { useState } from 'react'
+import { format } from 'date-fns'
+import { IconTicket } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { CalculateTariffValues } from "@/models/payment-model"
+} from '@/components/ui/dialog'
+import { CalculateTariffValues } from '@/models/payment-model'
 
 const PLATE_SLOTS = 8
 
@@ -32,12 +33,12 @@ export function LostTicketWithCalculationModal({
 }: Props) {
   const { t } = useTranslation()
   const [plate, setPlate] = useState<string[]>(() =>
-    Array<string>(PLATE_SLOTS).fill("")
+    Array<string>(PLATE_SLOTS).fill('')
   )
   // datetime-local value, local time: "yyyy-MM-ddTHH:mm"
-  const [entry, setEntry] = useState("")
+  const [entry, setEntry] = useState('')
 
-  const lpn = plate.join("").trim()
+  const lpn = plate.join('').trim()
   const entryDate = entry ? new Date(entry) : null
 
   // An entry time is required, must be a valid date, and not in the future.
@@ -63,55 +64,50 @@ export function LostTicketWithCalculationModal({
 
   return (
     <Dialog open onOpenChange={(next) => !next && handleClose()}>
-      <DialogContent className="sm:max-w-xl">
-        <DialogHeader className="border-b pb-3">
-          <DialogTitle className="flex items-center gap-2">
-            <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-              <IconTicket className="size-5" />
-            </div>
-            {title ?? t('lost_ticket')}
-          </DialogTitle>
+      <DialogContent className='sm:max-w-xl'>
+        <DialogHeader icon={IconTicket}>
+          <DialogTitle>{title ?? t('lost_ticket')}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center gap-2">
+        <DialogBody className='space-y-4'>
+          <div className='flex flex-wrap items-center gap-2'>
             {plate.map((char, i) => (
               <Input
                 key={i}
                 value={char}
                 maxLength={1}
-                className="size-9 p-0 text-center"
+                className='size-9 p-0 text-center'
                 aria-label={t('plate_character', { index: i + 1 })}
                 onChange={(e) => handlePlateChange(i, e.target.value)}
               />
             ))}
-            <div className="flex h-9 w-20 items-center justify-center rounded-md border text-sm">
+            <div className='flex h-9 w-20 items-center justify-center rounded-md border text-sm'>
               - - -
             </div>
           </div>
 
-          <div className="space-y-2 sm:w-64">
-            <Label htmlFor="entryTime">{t('entry_time')}</Label>
+          <div className='space-y-2 sm:w-64'>
+            <Label htmlFor='entryTime'>{t('entry_time')}</Label>
             <Input
-              id="entryTime"
-              type="datetime-local"
+              id='entryTime'
+              type='datetime-local'
               value={entry}
               max={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
               onChange={(e) => setEntry(e.target.value)}
             />
           </div>
-        </div>
+        </DialogBody>
 
         <DialogFooter>
           <Button
-            type="button"
-            variant="outline"
+            type='button'
+            variant='outline'
             onClick={handleClose}
             disabled={isPending}
           >
             {t('close')}
           </Button>
-          <Button type="button" disabled={!canSubmit} onClick={handleSubmit}>
+          <Button type='button' disabled={!canSubmit} onClick={handleSubmit}>
             {isPending ? t('calculating') : t('calculate')}
           </Button>
         </DialogFooter>

@@ -10,6 +10,7 @@ import { useAuthorizeEvaluation } from '@/hooks/use-evaluation'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -91,36 +92,33 @@ export function EvaluationModal({ type, open, onClose, onSuccess }: Props) {
       }}
     >
       <DialogContent className='sm:max-w-lg'>
-        <DialogHeader className='border-b pb-3'>
-          <DialogTitle className='flex items-center gap-2'>
-            <div className='bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg'>
-              <IconLock className='size-5' />
-            </div>
-            {t('evaluation_password')}
-          </DialogTitle>
+        <DialogHeader icon={IconLock}>
+          <DialogTitle>{t('evaluation_password')}</DialogTitle>
         </DialogHeader>
 
-        <Form {...form}>
-          <form
-            id='evaluation-form'
-            onSubmit={form.handleSubmit(onSubmit)}
-            className='space-y-4'
-          >
-            <FormField
-              control={form.control}
-              name='evaluation_password'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('evaluation_password')}</FormLabel>
-                  <FormControl>
-                    <PasswordInput autoComplete='off' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
+        <DialogBody>
+          <Form {...form}>
+            <form
+              id='evaluation-form'
+              onSubmit={form.handleSubmit(onSubmit)}
+              className='space-y-4'
+            >
+              <FormField
+                control={form.control}
+                name='evaluation_password'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('evaluation_password')}</FormLabel>
+                    <FormControl>
+                      <PasswordInput autoComplete='off' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+        </DialogBody>
 
         <DialogFooter>
           <Button

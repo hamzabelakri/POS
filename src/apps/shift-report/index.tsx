@@ -1,38 +1,132 @@
-import { useEffect, useMemo } from 'react'
+import type { ComponentType } from 'react'
+import { useMemo } from 'react'
 import {
-  IconCash,
-  IconInfoCircle,
-  IconListDetails,
-  IconReceipt2,
-  IconReportMoney,
-} from '@tabler/icons-react'
+  ArrowLeftRight,
+  Banknote,
+  EyeClosed,
+  Lock,
+  Package,
+  Unlock,
+  Wallet,
+  type LucideProps,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/auth-store'
-import { useShiftReportStore } from '@/stores/shift-report-store'
 import { useEvaluationStore } from '@/stores/evaluation-store'
+import { useShiftReportStore } from '@/stores/shift-report-store'
 import { useShiftReport } from '@/hooks/use-shift-report'
-import { Card } from '@/components/ui/card'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { Main } from '@/components/layout/main'
 import { DataTable } from '@/components/shared/data-table'
-import { useShiftReportToolbarProps } from './table/data'
-import {
-  formatAmount,
-  useShiftReportColumns,
-} from './table/report-columns'
+import { cn } from '@/lib/utils'
+import { ShiftReportDialogEnum } from '@/models/shift-report-model'
 import { ShiftReportModals } from './shift-report-modal'
+import { useShiftReportToolbarProps } from './table/data'
+import { useShiftReportColumns } from './table/report-columns'
+
+type Icon = ComponentType<LucideProps>
+
+type Kpi = {
+  icon: Icon
+  label: string
+  value: string
+  /** When true, the value is hidden while the report is locked */
+  maskable?: boolean
+}
+
+function ControlCenterBanner({
+  title = 'Transaction Details',
+  kpis,
+  actionLabel,
+  actionIcon: ActionIcon,
+  onAction,
+  masked = false,
+  embedded = false,
+  className,
+}: {
+  title?: string
+  kpis: Kpi[]
+  actionLabel: string
+  actionIcon?: Icon
+  onAction?: () => void
+  /** Hides every `maskable` KPI value */
+  masked?: boolean
+  /** Removes the banner's own rounding so a parent card can clip it */
+  embedded?: boolean
+  className?: string
+}) {
+  return (
+    <section
+      className={cn(
+        'relative overflow-hidden bg-gradient-to-br from-[#0b2a4d] via-[#081f3b] to-[#040f20] p-6 text-white lg:px-8 lg:py-7',
+        embedded ? 'rounded-none' : 'rounded-xl',
+        className
+      )}
+    >
+      {/* blue glow, top right */}
+      <div
+        aria-hidden
+        className='pointer-events-none absolute -top-24 right-0 size-80 rounded-full bg-sky-500/15 blur-3xl'
+      />
+      {/* warm glow, bottom left */}
+      <div
+        aria-hidden
+        className='pointer-events-none absolute -bottom-24 left-24 size-64 rounded-full bg-amber-500/10 blur-3xl'
+      />
+
+      <div className='relative'>
+        {/* Header: title + action button */}
+        <div className='flex items-center justify-between gap-4'>
+          <h1 className='text-xl font-bold tracking-tight lg:text-2xl'>
+            {title}
+          </h1>
+          <button
+            type='button'
+            onClick={onAction}
+            className='inline-flex shrink-0 items-center gap-2 rounded-md border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:outline-none'
+          >
+            {ActionIcon && <ActionIcon className='size-4' />}
+            {actionLabel}
+          </button>
+        </div>
+
+        {/* KPIs */}
+        <div className='mt-5 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-white/10 pt-5 lg:grid-cols-4'>
+          {kpis.map(({ icon: KpiIcon, ...k }) => {
+            const hidden = masked && k.maskable
+            return (
+              <div key={k.label} className='space-y-1.5'>
+                <div className='flex items-center gap-2 text-sm font-medium tracking-wide text-white/70'>
+                  <KpiIcon className='size-4' />
+                  {k.label}
+                </div>
+                <div className='flex h-[28px] items-center text-2xl font-bold lg:text-[28px]'>
+                  {hidden ? (
+                    <EyeClosed className='size-6 text-white/40' />
+                  ) : (
+                    k.value
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+const currency = new Intl.NumberFormat(undefined, {
+  style: 'currency',
+  currency: 'USD',
+})
 
 export function ShiftReport() {
   const { t } = useTranslation()
   const shiftId = useAuthStore((state) => state.shift?.id)
-  const { queryParams, setQueryParams } = useShiftReportStore()
-  const { isEvaluated, setEvaluated } = useEvaluationStore()
-  // lock the amounts again when leaving the page
-  useEffect(() => () => setEvaluated(false), [setEvaluated])
+  const startAmount = useAuthStore((state) => state.shift?.start_amount)
+  const { queryParams, setQueryParams, setOpen } = useShiftReportStore()
+  const isEvaluated = useEvaluationStore((s) => s.isEvaluated)
+  const setEvaluated = useEvaluationStore((s) => s.setEvaluated)
 
   const { data: reportResponse, isLoading } = useShiftReport(
     shiftId,
@@ -43,94 +137,49 @@ export function ShiftReport() {
   const toolbarProps = useShiftReportToolbarProps()
   const columns = useShiftReportColumns()
 
+  const kpis = useMemo<Kpi[]>(() => {
+    const totalTransactions = report?.total_rows ?? 0
+    const totalTurnover = report?.total_turnover ?? 0
+    const totalCash = report?.total_cash ?? 0
+    const start = startAmount ?? 0
+
+    return [
+      {
+        icon: ArrowLeftRight,
+        label: t('total_transactions'),
+        value: String(totalTransactions),
+      },
+      {
+        icon: Package,
+        label: t('total_turnover'),
+        value: currency.format(totalTurnover),
+        maskable: true,
+      },
+      {
+        icon: Banknote,
+        label: t('total_cash'),
+        value: currency.format(totalCash),
+        maskable: true,
+      },
+      {
+        icon: Wallet,
+        label: t('start_amount'),
+        value: currency.format(start),
+        maskable: true,
+      },
+    ]
+  }, [
+    report?.total_rows,
+    report?.total_turnover,
+    report?.total_cash,
+    startAmount,
+    t,
+  ])
+
   return (
     <>
       <Main>
-        <div className='mb-2 flex flex-wrap items-center space-x-2'>
-          <div className='bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg'>
-            <IconReceipt2 className='size-5' />
-          </div>
-
-          <h2 className='text-2xl font-bold tracking-tight'>
-            {t('shift_report')}
-            {shiftId ? ` #${shiftId}` : ''}
-          </h2>
-        </div>
-
-        <div className='mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-          <Card className='bg-card text-card-foreground gap-0 rounded-xl border p-0 shadow-sm'>
-            <div className='flex flex-row items-center justify-between space-y-0 p-6 pt-4 pb-2'>
-              <div className='flex items-center gap-2 text-sm font-medium tracking-tight'>
-                <IconReportMoney className='size-5' />
-                {t('total_turnover')}
-              </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <IconInfoCircle
-                    size={24}
-                    strokeWidth={1.25}
-                    className='text-muted-foreground'
-                  />
-                </TooltipTrigger>
-
-                <TooltipContent>{t('total_turnover_tooltip')}</TooltipContent>
-              </Tooltip>
-            </div>
-            <div className='p-6 pt-0 pb-4'>
-              <div className='text-2xl font-bold'>
-                {isEvaluated ? formatAmount(report?.total_turnover ?? 0) : '••••••'}
-              </div>
-            </div>
-          </Card>
-          <Card className='bg-card text-card-foreground gap-0 rounded-xl border p-0 shadow-sm'>
-            <div className='flex flex-row items-center justify-between space-y-0 p-6 pt-4 pb-2'>
-              <div className='flex items-center gap-2 text-sm font-medium tracking-tight'>
-                <IconCash className='size-5' />
-                {t('total_cash')}
-              </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <IconInfoCircle
-                    size={24}
-                    strokeWidth={1.25}
-                    className='text-muted-foreground'
-                  />
-                </TooltipTrigger>
-
-                <TooltipContent>{t('total_cash_tooltip')}</TooltipContent>
-              </Tooltip>
-            </div>
-            <div className='p-6 pt-0 pb-4'>
-              <div className='text-2xl font-bold'>
-                {isEvaluated ? formatAmount(report?.total_cash ?? 0) : '••••••'}
-              </div>
-            </div>
-          </Card>
-          <Card className='bg-card text-card-foreground gap-0 rounded-xl border p-0 shadow-sm'>
-            <div className='flex flex-row items-center justify-between space-y-0 p-6 pt-4 pb-2'>
-              <div className='flex items-center gap-2 text-sm font-medium tracking-tight'>
-                <IconListDetails className='size-5' />
-                {t('total_payments')}
-              </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <IconInfoCircle
-                    size={24}
-                    strokeWidth={1.25}
-                    className='text-muted-foreground'
-                  />
-                </TooltipTrigger>
-
-                <TooltipContent>{t('total_payments_tooltip')}</TooltipContent>
-              </Tooltip>
-            </div>
-            <div className='p-6 pt-0 pb-4'>
-              <div className='text-2xl font-bold'>{report?.total_rows ?? 0}</div>
-            </div>
-          </Card>
-        </div>
-
-        <div className='-mx-4 mt-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12'>
+        <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12'>
           <DataTable
             data={data}
             columns={columns}
@@ -139,6 +188,21 @@ export function ShiftReport() {
             queryParams={queryParams}
             setQueryParams={setQueryParams}
             pagination={report}
+            header={
+              <ControlCenterBanner
+                embedded
+                title={t('transaction_details')}
+                kpis={kpis}
+                masked={!isEvaluated}
+                actionLabel={isEvaluated ? t('lock') : t('unlock')}
+                actionIcon={isEvaluated ? Lock : Unlock}
+                onAction={() =>
+                  isEvaluated
+                    ? setEvaluated(false)
+                    : setOpen(ShiftReportDialogEnum.EVALUATION)
+                }
+              />
+            }
           />
         </div>
       </Main>

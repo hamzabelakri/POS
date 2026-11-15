@@ -21,7 +21,7 @@ export function DataTableToolbar<TData>({
         {toolbarProps?.tableSearchProps && (
           <DataTableSearch tableSearchProps={toolbarProps?.tableSearchProps} />
         )}
-        <DataTableViewOptions table={table} />
+        {/* <DataTableViewOptions table={table} /> */}
       </div>
 
       <div className="flex gap-2">

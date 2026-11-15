@@ -498,6 +498,9 @@ export const ar = {
   'base_url': 'عنوان URL الأساسي',
   'pos_token': 'رمز نقاط البيع',
   'configuration_sections': 'أقسام الإعدادات',
+  'preview_receipt_tooltip': 'معاينة الإيصال',
+  'print_receipt_tooltip': 'طباعة الإيصال',
+  'printer_disabled_tooltip': 'الطابعة معطّلة',
 
   // ==========================================
   // POS SETUP
@@ -526,6 +529,14 @@ export const ar = {
   'total_payments_tooltip': 'إجمالي عدد معاملات الدفع',
   'payment_id': 'معرف الدفع',
   'lpn': 'رقم اللوحة',
+  'transaction_details': 'تفاصيل المعاملات',
+  'total_transactions': 'إجمالي المعاملات',
+  'start_amount': 'المبلغ الابتدائي',
+  'lock': 'قفل',
+  'unlock': 'إلغاء القفل',
+  'search_lpn': 'البحث برقم اللوحة',
+  'evaluation_password': 'كلمة مرور التقييم',
+  'evaluation_password_req': 'كلمة مرور التقييم مطلوبة',
 
   // ==========================================
   // PAYMENT

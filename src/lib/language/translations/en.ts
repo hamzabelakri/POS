@@ -497,6 +497,9 @@ export const en = {
   'base_url': 'Base URL',
   'pos_token': 'POS Token',
   'configuration_sections': 'Configuration sections',
+  'preview_receipt_tooltip': 'Preview the receipt',
+  'print_receipt_tooltip': 'Print the receipt',
+  'printer_disabled_tooltip': 'Printer is disabled',
 
   // ==========================================
   // POS SETUP
@@ -525,6 +528,14 @@ export const en = {
   'total_payments_tooltip': 'Total number of payment transactions',
   'payment_id': 'Payment ID',
   'lpn': 'LPN',
+  'transaction_details': 'Transaction Details',
+  'total_transactions': 'Total Transactions',
+  'start_amount': 'Start Amount',
+  'lock': 'Lock',
+  'unlock': 'Unlock',
+  'search_lpn': 'Search LPN',
+  'evaluation_password': 'Evaluation Password',
+  'evaluation_password_req': 'Evaluation password is required',
 
   // ==========================================
   // PAYMENT

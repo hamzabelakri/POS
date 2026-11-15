@@ -1,70 +1,47 @@
 import { useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
-import { ShiftReportRow } from '@/models/shift-report-model'
-import { IconCash, IconCreditCard } from '@tabler/icons-react'
+import {
+  ShiftReportRow,
+  ShiftReportDialogEnum,
+} from '@/models/shift-report-model'
+import { IconEye, IconPrinter, IconPrinterOff } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
+import { useEvaluationStore } from '@/stores/evaluation-store'
+import { useShiftReportStore } from '@/stores/shift-report-store'
+import { usePrintReceipt } from '@/hooks/use-printer'
+import { usePrinterUi } from '@/stores/printer-store'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { LongText } from '@/components/long-text'
 import { DataTableColumnHeader } from '@/components/shared/data-table'
-import { ReceiptActions } from '../shift-report-modal/receipt-actions'
 
-const paymentMethods: Record<
-  string,
-  { icon: any; variant: 'success' | 'secondary' }
-> = {
-  cash: { icon: IconCash, variant: 'success' },
-  card: { icon: IconCreditCard, variant: 'secondary' },
-}
-
+// API amounts are in thousandths (denominator 1000): 50400 -> "50.4 EGP"
 export const formatAmount = (value: number) =>
-  new Intl.NumberFormat(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value ?? 0)
+  `${new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 3,
+  }).format((value ?? 0) / 1000)} EGP`
 
 // "2026-10-29 16:20:42.106814" -> "2026-10-29 16:20:42"
 const formatEntryTime = (value?: string) => value?.split('.')[0] ?? '-'
 
+// "NEWLPN" -> "N E W L P N"
+const formatLpn = (value?: string) => (value ? value.split('').join(' ') : '-')
+
 export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
   const { t } = useTranslation()
+  const { setOpen, setCurrentPaymentId } = useShiftReportStore()
+  const isEvaluated = useEvaluationStore((s) => s.isEvaluated)
+  const printerUi = usePrinterUi()
+  const print = usePrintReceipt()
 
   return useMemo<ColumnDef<ShiftReportRow>[]>(
     () => [
-      {
-        accessorKey: 'payment_id',
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title={t('payment_id')} />
-        ),
-        meta: { label: t('payment_id') },
-        cell: ({ row }) => (
-          <div className='w-fit'>{row.original.payment_id}</div>
-        ),
-        enableHiding: false,
-      },
-      {
-        accessorKey: 'payment_method',
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title={t('payment_method')} />
-        ),
-        meta: { label: t('payment_method') },
-        cell: ({ row }) => {
-          const method = row.original.payment_method
-          const config = paymentMethods[method?.toLowerCase()]
-          const Icon = config?.icon
-
-          return (
-            <Badge
-              variant={config?.variant ?? 'secondary'}
-              className='capitalize'
-            >
-              {Icon && <Icon className='size-3' />}
-              {method || '-'}
-            </Badge>
-          )
-        },
-        filterFn: (row, id, value) =>
-          value.includes(row.original.payment_method),
-      },
       {
         accessorKey: 'card_type',
         header: ({ column }) => (
@@ -72,9 +49,9 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
         ),
         meta: { label: t('card_type') },
         cell: ({ row }) => (
-          <LongText className='max-w-36'>
-            {row.original.card_type || '-'}
-          </LongText>
+          <div className='w-fit capitalize'>
+            {row.original.card_type ? t(row.original.card_type) : '-'}
+          </div>
         ),
       },
       {
@@ -85,9 +62,9 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
         ),
         meta: { label: t('lpn') },
         cell: ({ row }) => (
-          <LongText className='max-w-36 font-mono'>
-            {row.original.media?.lpn || '-'}
-          </LongText>
+          <Badge variant='outline' className='font-mono whitespace-nowrap'>
+            {formatLpn(row.original.media?.lpn)}
+          </Badge>
         ),
       },
       {
@@ -101,6 +78,20 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
             {formatAmount(row.original.total)}
           </div>
         ),
+      },
+      {
+        accessorKey: 'payment_method',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t('payment_method')} />
+        ),
+        meta: { label: t('payment_method') },
+        cell: ({ row }) => (
+          <div className='w-fit capitalize'>
+            {row.original.payment_method || '-'}
+          </div>
+        ),
+        filterFn: (row, id, value) =>
+          value.includes(row.original.payment_method),
       },
       {
         accessorKey: 'entry_time',
@@ -117,15 +108,97 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
       {
         id: 'receipt',
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title={t('receipt')} />
+          <DataTableColumnHeader
+            column={column}
+            title={t('receipt')}
+            className='flex justify-end'
+          />
         ),
         meta: { label: t('receipt') },
-        cell: ({ row }) => (
-          <ReceiptActions paymentId={row.original.payment_id} />
-        ),
+        cell: ({ row }) => {
+          const printDisabled =
+            !isEvaluated || printerUi.blocked || print.isPending
+
+          return (
+            <div className='flex items-center justify-end gap-2'>
+              {/* Preview */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='h-8 w-8 p-0 text-primary hover:border-primary hover:text-primary'
+                    onClick={() => {
+                      setCurrentPaymentId(row.original.payment_id)
+                      setOpen(ShiftReportDialogEnum.RECEIPT)
+                    }}
+                  >
+                    <IconEye size={16} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  colorClass='bg-primary text-primary-foreground'
+                  arrowClass='bg-primary fill-primary'
+                >
+                  {t('preview_receipt_tooltip')}
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Print — disabled shows an unclickable IconPrinterOff styled like the button */}
+              {printDisabled ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      aria-disabled='true'
+                      className='border-input text-primary flex h-8 w-8 cursor-not-allowed items-center justify-center rounded-md border bg-transparent opacity-70'
+                    >
+                      <IconPrinterOff size={16} />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    colorClass='bg-primary text-primary-foreground'
+                    arrowClass='bg-primary fill-primary'
+                  >
+                    {printerUi.blocked
+                      ? printerUi.label
+                      : t('printer_disabled_tooltip')}
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='h-8 w-8 p-0 text-primary hover:border-primary hover:text-primary'
+                      onClick={() => print.mutate(row.original.payment_id)}
+                    >
+                      <IconPrinter size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    colorClass='bg-primary text-primary-foreground'
+                    arrowClass='bg-primary fill-primary'
+                  >
+                    {t('print_receipt_tooltip')}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          )
+        },
         enableSorting: false,
+        enableHiding: false,
       },
     ],
-    [t]
+    [
+      t,
+      setOpen,
+      setCurrentPaymentId,
+      isEvaluated,
+      printerUi.blocked,
+      printerUi.label,
+      print,
+    ]
   )
 }

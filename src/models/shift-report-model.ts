@@ -32,4 +32,5 @@ export interface ShiftReportQueryParams {
 
 export enum ShiftReportDialogEnum {
   EVALUATION = 'evaluation',
+  RECEIPT = 'receipt',
 }

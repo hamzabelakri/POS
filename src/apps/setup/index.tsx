@@ -1,20 +1,16 @@
 import { useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
+import { PanelDots } from '@/components/ui/panel-dots'
 import { LanguageSwitch } from '@/components/language-switch'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { SetupStepper } from './setup-stepper'
 import { ConfigurationStep } from './configuration-step'
 import { ConfirmationStep } from './confirmation-step'
+import { SetupStepper } from './setup-stepper'
 import { usePosSetup } from './use-pos-setup'
 import { WelcomeStep } from './welcome-step'
 
-
-function SetupBrand({
-  className,
-}: {
-  className?: string
-}) {
+function SetupBrand({ className }: { className?: string }) {
   return (
     <div className={cn('flex items-center gap-3', className)}>
       {/* Change the logo size here, it doesn't affect the layout */}
@@ -49,17 +45,15 @@ const PosSetup = () => {
   return (
     <div className='bg-background text-foreground flex min-h-svh'>
       {/* LEFT: brand panel, pinned to the viewport, independent of the right side */}
-     <aside
-  className={cn(
-    'relative hidden shrink-0 overflow-hidden text-white',
-    'lg:sticky lg:top-0 lg:flex lg:h-svh lg:w-[26rem] xl:w-[30rem]',
-    'bg-panel panel-glow border-border border-e'
-  )}
->
-        <div
-          aria-hidden
-          className='absolute inset-0 [background-image:radial-gradient(white_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)] [background-size:22px_22px] opacity-[0.14]'
-        />
+      <aside
+        className={cn(
+          'relative hidden shrink-0 overflow-hidden text-white',
+          'lg:sticky lg:top-0 lg:flex lg:h-svh lg:w-[26rem] xl:w-[30rem]',
+          'bg-panel panel-glow border-border border-e'
+        )}
+      >
+        <PanelDots />
+
         <SetupBrand className='absolute start-10' />
 
         <div className='relative flex h-full flex-col justify-center space-y-8 px-10 py-28'>

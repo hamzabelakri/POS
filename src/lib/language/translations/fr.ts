@@ -497,6 +497,9 @@ export const fr = {
   'base_url': 'URL de base',
   'pos_token': 'Jeton POS',
   'configuration_sections': 'Sections de configuration',
+  'preview_receipt_tooltip': 'Aperçu du reçu',
+  'print_receipt_tooltip': 'Imprimer le reçu',
+  'printer_disabled_tooltip': 'L’imprimante est désactivée',
 
   // ==========================================
   // POS SETUP
@@ -525,6 +528,14 @@ export const fr = {
   'total_payments_tooltip': 'Nombre total de transactions de paiement',
   'payment_id': 'ID de paiement',
   'lpn': 'LPN',
+  'transaction_details': 'Détails des transactions',
+  'total_transactions': 'Total des transactions',
+  'start_amount': 'Montant de départ',
+  'lock': 'Verrouiller',
+  'unlock': 'Déverrouiller',
+  'search_lpn': 'Rechercher un LPN',
+  'evaluation_password': 'Mot de passe d’évaluation',
+  'evaluation_password_req': 'Le mot de passe d’évaluation est requis',
 
   // ==========================================
   // PAYMENT

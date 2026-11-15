@@ -17,8 +17,8 @@ const LANGUAGE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
 const languages = [
   { code: "en", label: "English", flag: "/flags/united-states.svg", dir: "ltr" as Direction },
+  { code: "ar", label: "العربية", flag: "/flags/egypt.svg", dir: "rtl" as Direction },
   { code: "fr", label: "Français", flag: "/flags/france.svg", dir: "ltr" as Direction },
-  { code: "ar", label: "العربية", flag: "/flags/saudi-arabia.svg", dir: "rtl" as Direction },
 ];
 
 export function LanguageSwitch() {

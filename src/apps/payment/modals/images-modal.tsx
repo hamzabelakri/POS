@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -50,10 +51,13 @@ export function ImagesModal({
           <DialogTitle>{t('entry_exit_pictures')}</DialogTitle>
           <DialogDescription>{plate || '—'}</DialogDescription>
         </DialogHeader>
-        <div className='grid gap-4 md:grid-cols-2'>
-          <ImagePane label={t('entry')} src={entryImage} />
-          <ImagePane label={t('exit')} src={exitImage} />
-        </div>
+
+        <DialogBody>
+          <div className='grid gap-4 md:grid-cols-2'>
+            <ImagePane label={t('entry')} src={entryImage} />
+            <ImagePane label={t('exit')} src={exitImage} />
+          </div>
+        </DialogBody>
       </DialogContent>
     </Dialog>
   )

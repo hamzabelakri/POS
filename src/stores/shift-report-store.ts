@@ -1,24 +1,28 @@
-import { create } from "zustand";
+import { create } from 'zustand'
 import {
   ShiftReportDialogEnum,
   ShiftReportQueryParams,
-} from "@/models/shift-report-model";
+} from '@/models/shift-report-model'
 
 interface ShiftReportState {
-  open: ShiftReportDialogEnum | null;
-  setOpen: (open: ShiftReportDialogEnum | null) => void;
+  open: ShiftReportDialogEnum | null
+  setOpen: (open: ShiftReportDialogEnum | null) => void
 
+  currentPaymentId: number | null
+  setCurrentPaymentId: (id: number | null) => void
 
-  queryParams: ShiftReportQueryParams;
-  setQueryParams: (params: Partial<ShiftReportQueryParams>) => void;
+  queryParams: ShiftReportQueryParams
+  setQueryParams: (params: Partial<ShiftReportQueryParams>) => void
 
-  resetFilterQueryParams: () => void;
+  resetFilterQueryParams: () => void
 }
 
 export const useShiftReportStore = create<ShiftReportState>((set) => ({
   open: null,
   setOpen: (open) => set({ open }),
 
+  currentPaymentId: null,
+  setCurrentPaymentId: (id) => set({ currentPaymentId: id }),
 
   queryParams: {},
   setQueryParams: (params) =>
@@ -34,4 +38,4 @@ export const useShiftReportStore = create<ShiftReportState>((set) => ({
         page_size: state.queryParams.page_size,
       },
     })),
-}));
+}))

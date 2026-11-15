@@ -1,7 +1,12 @@
 import { Link, useLocation, useRouter } from '@tanstack/react-router'
+import { AlertEnum } from '@/models/alert-model'
 import { ArrowLeft, LogOut, Pause, Power } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useAlertStore } from '@/stores/alert-store'
+import { useAuthStore } from '@/stores/auth-store'
+import { useSSEStore } from '@/stores/sse-store'
 import { cn } from '@/lib/utils'
+import { useLogout } from '@/hooks/use-auth'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { LanguageSwitch } from '../language-switch'
@@ -24,6 +29,34 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
   const isConfigPage = useLocation({
     select: (location) => location.pathname.startsWith('/config'),
   })
+
+  // Shift actions
+  const shift = useAuthStore((state) => state.shift)
+  const clearAuth = useAuthStore((state) => state.clearAuth)
+  const showAlert = useAlertStore((state) => state.showAlert)
+  const { mutate: logoutShift, isPending } = useLogout()
+  const isOnline = useSSEStore((s) => s.natsOnline === true)
+  // Pause: drop the local session and go to login. The shift stays open on the
+  // server, so signing in again reports has_open_shift = true.
+  const handlePause = () => {
+    clearAuth()
+    router.navigate({ to: '/sign-in' })
+  }
+
+  // Close: POST /auth/logout { shift_id }. The hook then clears the session and
+  // navigates to /sign-in. It needs the id of the open shift.
+  const handleClose = () => {
+    if (!shift) {
+      showAlert({
+        type: AlertEnum.ERROR,
+        message: t('shift_unavailable'),
+        description: t('shift_unavailable_hint'),
+      })
+      return
+    }
+
+    logoutShift({ shift_id: shift.id })
+  }
 
   return (
     <header
@@ -74,12 +107,19 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
 
         {/* Center: system status — centered relative to the header */}
         <div className='flex items-center justify-center'>
-          <Badge variant='outline' className='gap-2 px-3 py-1' role='status'>
+          <Badge
+            variant={isOnline ? 'success' : 'destructive'}
+            className='gap-2 px-3 py-1'
+            role='status'
+          >
             <span
-              className='size-2 rounded-full bg-emerald-500'
+              className={cn(
+                'size-2 rounded-full',
+                isOnline ? 'bg-emerald-500' : 'bg-red-500'
+              )}
               aria-hidden='true'
             />
-            {t('system_online')}
+            {isOnline ? t('system_online') : t('system_offline')}
           </Badge>
         </div>
 
@@ -100,7 +140,8 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
               <Button
                 variant='outline'
                 size='sm'
-                onClick={() => router.navigate({ to: '/sign-in' })}
+                onClick={handlePause}
+                disabled={isPending}
               >
                 <Pause
                   className='text-red-600 dark:text-red-400'
@@ -112,6 +153,8 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
               <Button
                 size='sm'
                 className='bg-panel hover:bg-panel/90 dark:border-border border border-transparent text-white hover:text-white'
+                onClick={handleClose}
+                disabled={isPending}
               >
                 <LogOut
                   className='text-red-400 rtl:rotate-180'

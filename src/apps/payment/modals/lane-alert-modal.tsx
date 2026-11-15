@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   toImageSrc,
@@ -7,10 +7,17 @@ import {
   type GraylistResult,
   type SeasonParkerStatus,
 } from '@/models/sse-model'
-import { BadgeAlert, BadgeCheck, BadgeX, Clock, ShieldAlert } from 'lucide-react'
+import {
+  BadgeAlert,
+  BadgeCheck,
+  BadgeX,
+  Clock,
+  ShieldAlert,
+} from 'lucide-react'
 import { useSSEStore } from '@/stores/sse-store'
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -39,7 +46,7 @@ function Row({ label, value }: { label: string; value?: ReactNode }) {
   return (
     <div className='flex items-start justify-between gap-4 text-sm'>
       <span className='text-muted-foreground'>{label}</span>
-      <span className='text-right font-medium'>{value || '—'}</span>
+      <span className='text-end font-medium'>{value || '—'}</span>
     </div>
   )
 }
@@ -61,13 +68,16 @@ function Flag({ label, on }: { label: string; on: boolean }) {
 
 function Shell({
   icon,
+  iconClassName,
   title,
   message,
   onClose,
   wide,
   children,
 }: {
-  icon: ReactNode
+  icon: ComponentType<{ className?: string }>
+  /** Icon color; the header is dark, so use light shades (e.g. text-red-400) */
+  iconClassName?: string
   title: string
   message: string
   onClose: () => void
@@ -77,14 +87,11 @@ function Shell({
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent className={wide ? 'sm:max-w-5xl' : 'sm:max-w-3xl'}>
-        <DialogHeader className='border-b pb-3'>
-          <DialogTitle className='flex items-center gap-2'>
-            {icon}
-            {title}
-          </DialogTitle>
+        <DialogHeader icon={icon} iconClassName={iconClassName}>
+          <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{message}</DialogDescription>
         </DialogHeader>
-        {children}
+        <DialogBody>{children}</DialogBody>
       </DialogContent>
     </Dialog>
   )
@@ -163,18 +170,19 @@ function VehicleSection({ car }: { car: ExitCar }) {
   )
 }
 
+// Colors are light shades because they sit on the dark dialog header
 const SEASON_PARKER_STATES: Record<
   string,
   { Icon: typeof BadgeCheck; color: string; titleKey: string }
 > = {
   season_parker_valid: {
     Icon: BadgeCheck,
-    color: 'text-green-600',
+    color: 'text-green-400',
     titleKey: 'season_parker_valid',
   },
   season_parker_not_present_in_facility: {
     Icon: BadgeAlert,
-    color: 'text-amber-500',
+    color: 'text-amber-400',
     titleKey: 'season_parker_not_present_in_facility',
   },
 }
@@ -182,7 +190,7 @@ const SEASON_PARKER_STATES: Record<
 // Any other state is treated as not valid
 const SEASON_PARKER_FALLBACK = {
   Icon: BadgeX,
-  color: 'text-destructive',
+  color: 'text-red-400',
   titleKey: 'season_parker_not_valid',
 }
 
@@ -199,7 +207,8 @@ export function LaneAlertModal() {
     case 'graylist_lpn':
       return (
         <Shell
-          icon={<ShieldAlert className='text-destructive size-5' />}
+          icon={ShieldAlert}
+          iconClassName='text-red-400'
           title={t('graylisted_plate')}
           message={alert.message}
           onClose={close}
@@ -212,7 +221,8 @@ export function LaneAlertModal() {
       return (
         <Shell
           wide
-          icon={<ShieldAlert className='text-destructive size-5' />}
+          icon={ShieldAlert}
+          iconClassName='text-red-400'
           title={t('graylisted_season_parker')}
           message={alert.message}
           onClose={close}
@@ -230,12 +240,13 @@ export function LaneAlertModal() {
         </Shell>
       )
 
-       case 'season_parker_status': {
+    case 'season_parker_status': {
       const { Icon, color, titleKey } =
         SEASON_PARKER_STATES[alert.data.state] ?? SEASON_PARKER_FALLBACK
       return (
         <Shell
-          icon={<Icon className={`size-5 ${color}`} />}
+          icon={Icon}
+          iconClassName={color}
           title={t(titleKey)}
           message={alert.message}
           onClose={close}
@@ -248,7 +259,8 @@ export function LaneAlertModal() {
     case 'graylist_exited_with_zero_payment':
       return (
         <Shell
-          icon={<ShieldAlert className='size-5 text-amber-500' />}
+          icon={ShieldAlert}
+          iconClassName='text-amber-400'
           title={t('exited_with_zero_payment')}
           message={alert.message}
           onClose={close}
@@ -268,7 +280,8 @@ export function LaneAlertModal() {
     case 'car_exited_in_unpaid_grace_time':
       return (
         <Shell
-          icon={<Clock className='size-5 text-amber-500' />}
+          icon={Clock}
+          iconClassName='text-amber-400'
           title={t('exited_in_unpaid_grace_time')}
           message={alert.message}
           onClose={close}
@@ -277,5 +290,4 @@ export function LaneAlertModal() {
         </Shell>
       )
   }
-  
 }
