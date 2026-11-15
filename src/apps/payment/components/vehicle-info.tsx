@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/shadcn-io/spinner'
-import { ImagesModal } from '../modals/images-modal'
+import { EntryExitImagesModal } from '../modals/images-modal'
 
 export function VehicleInfo() {
   const { t } = useTranslation()
@@ -115,19 +115,13 @@ export function VehicleInfo() {
 
             <div className='space-y-2'>
               <Label htmlFor='entryTime'>{t('entry_time')}</Label>
-              <Input
-                id='entryTime'
-                readOnly
-                placeholder='—'
-                value={view?.entryTime ?? ''}
-              />
+              <Input id='entryTime' readOnly value={view?.entryTime ?? ''} />
             </div>
             <div className='space-y-2'>
               <Label htmlFor='parkingDuration'>{t('parking_duration')}</Label>
               <Input
                 id='parkingDuration'
                 readOnly
-                placeholder='—'
                 value={view?.parkingDuration ?? ''}
               />
             </div>
@@ -135,7 +129,7 @@ export function VehicleInfo() {
         </CardContent>
       </Card>
 
-      <ImagesModal
+      <EntryExitImagesModal
         open={showImages}
         onOpenChange={setShowImages}
         plate={view?.plate}

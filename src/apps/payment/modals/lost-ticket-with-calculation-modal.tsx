@@ -2,8 +2,10 @@ import { useMemo, useState } from 'react'
 import { IconInfoCircle, IconTicket } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 
+import { normalizePlate } from '@/service/consult'
+import { CalculateTariffValues } from '@/models/payment-model'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { LpnInput } from '@/components/ui/input-otp'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -20,10 +22,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { CalculateTariffValues } from '@/models/payment-model'
 
-const PLATE_SLOTS = 8
 const YEARS_BACK = 5
+
+const toUpper = (s: string) => s.toUpperCase()
 
 type EntryParts = {
   day: string
@@ -105,12 +107,10 @@ export function LostTicketWithCalculationModal({
   onSubmit,
 }: Props) {
   const { t } = useTranslation()
-  const [plate, setPlate] = useState<string[]>(() =>
-    Array<string>(PLATE_SLOTS).fill('')
-  )
+  const [plate, setPlate] = useState('')
   const [entry, setEntry] = useState<EntryParts>(getNowEntry)
 
-  const lpn = plate.join('').trim()
+  const lpn = plate.trim()
 
   // ---- dropdown options ----
   const currentYear = new Date().getFullYear()
@@ -181,9 +181,6 @@ export function LostTicketWithCalculationModal({
   const validEntry = !!entryDate && !isFuture
   const canSubmit = validEntry && !isPending
 
-  const handlePlateChange = (index: number, value: string) =>
-    setPlate((prev) => prev.map((char, i) => (i === index ? value : char)))
-
   const handleSubmit = () => {
     if (!canSubmit || !entryDate) return // narrows entryDate to Date
     onSubmit({ lpn, entryTime: entryDate })
@@ -211,18 +208,13 @@ export function LostTicketWithCalculationModal({
                 aria-labelledby='lost-ticket-plate-label'
                 className='flex flex-wrap items-center gap-2'
               >
-                {plate.map((char, i) => (
-                  <Input
-                    key={i}
-                    value={char}
-                    maxLength={1}
-                    className='size-9 p-0 text-center'
-                    aria-label={t('plate_character', { index: i + 1 })}
-                    onChange={(e) => handlePlateChange(i, e.target.value)}
-                  />
-                ))}
-                <div className='flex h-9 w-20 items-center justify-center rounded-md border text-sm'>
-                  - - -
+                <LpnInput
+                  value={plate}
+                  onChange={setPlate}
+                  sanitize={toUpper}
+                />
+                <div className='flex h-9 min-w-20 items-center justify-center rounded-md border px-2 font-mono text-sm tracking-widest'>
+                  {normalizePlate(plate) || '- - -'}
                 </div>
               </div>
             </div>

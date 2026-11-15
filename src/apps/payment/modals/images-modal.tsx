@@ -30,7 +30,7 @@ function ImagePane({ label, src }: { label: string; src: string | null }) {
   )
 }
 
-export function ImagesModal({
+export function EntryExitImagesModal({
   open,
   onOpenChange,
   plate,
@@ -49,7 +49,6 @@ export function ImagesModal({
       <DialogContent className='sm:max-w-4xl'>
         <DialogHeader>
           <DialogTitle>{t('entry_exit_pictures')}</DialogTitle>
-          <DialogDescription>{plate || '—'}</DialogDescription>
         </DialogHeader>
 
         <DialogBody>

@@ -12,22 +12,18 @@ import {
 import { BillingLine, type Article } from '@/models/articles-model'
 import type { ExitCarTransaction } from '@/models/sse-model'
 import { PanelHeader } from './panel-header'
+import { formatAmount } from '@/lib/utils'
 
-const formatAmount = (value: number) =>
-  value.toLocaleString(undefined, { maximumFractionDigits: 2 })
-
-// A billed line: icon tile (or initial), title, position, remove button
+// A billed line: icon tile (or initial), title, amount, remove button
 function BillingArticle({
   article,
   transaction,
-  index,
   onRemove,
   disabled,
   isRemoving,
 }: {
   article: Article
   transaction?: ExitCarTransaction
-  index: number
   onRemove: () => void
   disabled?: boolean
   isRemoving?: boolean
@@ -60,9 +56,6 @@ function BillingArticle({
       <div className='min-w-0 flex-1'>
         <p className='line-clamp-2 text-sm leading-tight font-semibold'>
           {article.title}
-        </p>
-        <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>
-          #{index + 1}
         </p>
       </div>
 
@@ -134,12 +127,11 @@ export function Billing({
           instead of making the whole page taller. Empty = just blank. */}
       <CardContent className='relative min-h-40 flex-1 p-0'>
         <div className='absolute inset-0 space-y-2.5 overflow-y-auto p-4'>
-          {lines.map(({ key, article }, i) => (
+          {lines.map(({ key, article }) => (
             <BillingArticle
               key={key}
               article={article}
               transaction={transactions[key]}
-              index={i}
               disabled={isRemoving}
               onRemove={() => onRemove(key)}
             />
@@ -150,7 +142,7 @@ export function Billing({
       <CardFooter className='bg-green-500 text-primary-foreground flex-col gap-1 py-8'>
         <span className='text-2xl font-bold tracking-widest'>{t('total')}</span>
         <span className='text-5xl font-bold tabular-nums'>
-          {formatAmount(total)} EGP
+          {formatAmount(total)}
         </span>
       </CardFooter>
     </Card>
