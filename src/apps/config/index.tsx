@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
@@ -45,7 +46,7 @@ function Banner({ host, cameras }: { host: string; cameras: number }) {
   const { t } = useTranslation()
 
   return (
-    <header className='relative overflow-hidden rounded-2xl bg-linear-to-br from-(--banner-from) via-(--banner-via) to-(--banner-to) text-white'>
+    <header className='relative overflow-hidden bg-linear-to-br from-(--banner-from) via-(--banner-via) to-(--banner-to) text-white'>
       <div className='flex flex-col gap-6 p-6 sm:flex-row sm:items-end sm:justify-between sm:p-8'>
         <div className='space-y-1.5'>
           <h1 className='font-manrope text-2xl font-semibold tracking-tight sm:text-3xl'>
@@ -168,169 +169,171 @@ export function Configuration() {
 
   return (
     <Main>
-      <div className='mx-auto max-w-6xl space-y-6'>
-        <Banner
-          host={hostOf(pos.backoffice_base_url)}
-          cameras={(config.cameras?.length ?? 0) + 1}
-        />
+      <div className='mx-auto max-w-6xl'>
+        <div className='bg-card overflow-hidden rounded-2xl border'>
+          <Banner
+            host={hostOf(pos.backoffice_base_url)}
+            cameras={(config.cameras?.length ?? 0) + 1}
+          />
 
-        <div className='flex flex-col gap-6 md:flex-row md:items-start'>
-          <SidebarNav items={items} value={active} onValueChange={changeSection} />
+          <div className='flex flex-col gap-6 p-4 md:flex-row md:items-start md:p-6'>
+            <SidebarNav items={items} value={active} onValueChange={changeSection} />
 
-          <div
-            key={active}
-            className='animate-setup-in min-w-0 flex-1 space-y-4 motion-reduce:animate-none'
-          >
-            {searchable && (
-              <div className='relative'>
-                <Search
-                  className='text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2'
-                  aria-hidden='true'
-                />
-                <Input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder={t('search_settings', 'Search settings')}
-                  aria-label={t('search_settings', 'Search settings')}
-                  className='bg-card pl-9'
-                />
-              </div>
-            )}
-
-            {active === 'connection' && (
-              <Form {...form}>
-                <form
-                  onSubmit={onSubmit}
-                  className='bg-card overflow-hidden rounded-xl border'
-                >
-                  <div className='space-y-5 p-5'>
-                    <div>
-                      <h3 className='font-manrope font-semibold'>
-                        {t('connection')}
-                      </h3>
-                    </div>
-
-                    <div className='grid gap-5 sm:grid-cols-2'>
-                      <FormField
-                        control={form.control}
-                        name='base_url'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t('base_url')}</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                inputMode='url'
-                                autoComplete='off'
-                                className='font-mono text-[13px]'
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='pos_token'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t('pos_token')}</FormLabel>
-                            <FormControl>
-                              <PasswordInput
-                                {...field}
-                                autoComplete='off'
-                                className='font-mono text-[13px]'
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <footer className='bg-muted/40 flex items-center justify-between gap-3 border-t px-5 py-3'>
-                    <p className='text-muted-foreground text-xs' aria-live='polite'>
-                      {isDirty ? t('unsaved_changes', 'You have unsaved changes.') : ''}
-                    </p>
-                    <div className='flex gap-2'>
-                      <Button
-                        type='button'
-                        variant='ghost'
-                        disabled={!isDirty || isPending}
-                        onClick={() => form.reset()}
-                      >
-                        {t('reset', 'Reset')}
-                      </Button>
-                      <Button type='submit' disabled={!isDirty || isPending}>
-                        {isPending ? t('saving') : t('save_changes', 'Save changes')}
-                      </Button>
-                    </div>
-                  </footer>
-                </form>
-              </Form>
-            )}
-
-            {active === 'pos' && (
-              <Section
-                title={t('pos')}
-                data={pos}
-                omit={['pos_token', 'backoffice_base_url']}
-                query={query}
-              />
-            )}
-
-            {active === 'carpark' && (
-              <Section title={t('carpark')} data={carpark} query={query} />
-            )}
-
-            {active === 'carpark-settings' && (
-              <Section
-                title={t('carpark_settings')}
-                data={carpark_settings}
-                query={query}
-              />
-            )}
-
-            {active === 'extra' && (
-              <Section
-                title={t('extra_settings')}
-                data={config.carpark_extra_settings}
-                query={query}
-              />
-            )}
-
-            {active === 'cameras' && (
-              <>
-                <Section title={t('exit_camera')} data={config.camera} query={query} />
-                {config.cameras?.map((cam) => (
-                  <Section
-                    key={cam.id}
-                    title={t('camera_named', { name: cam.name })}
-                    data={cam}
-                    query={query}
+            <div
+              key={active}
+              className='animate-setup-in min-w-0 flex-1 space-y-4 motion-reduce:animate-none'
+            >
+              {searchable && (
+                <div className='relative'>
+                  <Search
+                    className='text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2'
+                    aria-hidden='true'
                   />
-                ))}
-              </>
-            )}
-
-            {active === 'receipt' && (
-              <div className='grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-start'>
-                <Section
-                  title={t('receipt_settings')}
-                  data={receipt}
-                  query={query}
-                  columns={1}
-                />
-                <div className='xl:sticky xl:top-4'>
-                  <ReceiptPreview
-                    header={receipt.receipt_header}
-                    body={receipt.receipt_body}
-                    footer={receipt.receipt_footer}
+                  <Input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder={t('search_settings', 'Search settings')}
+                    aria-label={t('search_settings', 'Search settings')}
+                    className='bg-card pl-9'
                   />
                 </div>
-              </div>
-            )}
+              )}
+
+              {active === 'connection' && (
+                <Form {...form}>
+                  <form
+                    onSubmit={onSubmit}
+                    className='bg-card overflow-hidden rounded-xl border'
+                  >
+                    <div className='space-y-5 p-5'>
+                      <div>
+                        <h3 className='font-manrope font-semibold'>
+                          {t('connection')}
+                        </h3>
+                      </div>
+
+                      <div className='grid gap-5 sm:grid-cols-2'>
+                        <FormField
+                          control={form.control}
+                          name='base_url'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{t('base_url')}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  inputMode='url'
+                                  autoComplete='off'
+                                  className='font-mono text-[13px]'
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='pos_token'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{t('pos_token')}</FormLabel>
+                              <FormControl>
+                                <PasswordInput
+                                  {...field}
+                                  autoComplete='off'
+                                  className='font-mono text-[13px]'
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    <footer className='bg-muted/40 flex items-center justify-between gap-3 border-t px-5 py-3'>
+                      <p className='text-muted-foreground text-xs' aria-live='polite'>
+                        {isDirty ? t('unsaved_changes', 'You have unsaved changes.') : ''}
+                      </p>
+                      <div className='flex gap-2'>
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          disabled={!isDirty || isPending}
+                          onClick={() => form.reset()}
+                        >
+                          {t('reset', 'Reset')}
+                        </Button>
+                        <Button type='submit' disabled={!isDirty || isPending}>
+                          {isPending ? t('saving') : t('save_changes', 'Save changes')}
+                        </Button>
+                      </div>
+                    </footer>
+                  </form>
+                </Form>
+              )}
+
+              {active === 'pos' && (
+                <Section
+                  title={t('pos')}
+                  data={pos}
+                  omit={['pos_token', 'backoffice_base_url']}
+                  query={query}
+                />
+              )}
+
+              {active === 'carpark' && (
+                <Section title={t('carpark')} data={carpark} query={query} />
+              )}
+
+              {active === 'carpark-settings' && (
+                <Section
+                  title={t('carpark_settings')}
+                  data={carpark_settings}
+                  query={query}
+                />
+              )}
+
+              {active === 'extra' && (
+                <Section
+                  title={t('extra_settings')}
+                  data={config.carpark_extra_settings}
+                  query={query}
+                />
+              )}
+
+              {active === 'cameras' && (
+                <>
+                  <Section title={t('exit_camera')} data={config.camera} query={query} />
+                  {config.cameras?.map((cam) => (
+                    <Section
+                      key={cam.id}
+                      title={t('camera_named', { name: cam.name })}
+                      data={cam}
+                      query={query}
+                    />
+                  ))}
+                </>
+              )}
+
+              {active === 'receipt' && (
+                <div className='grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-start'>
+                  <Section
+                    title={t('receipt_settings')}
+                    data={receipt}
+                    query={query}
+                    columns={1}
+                  />
+                  <div className='xl:sticky xl:top-4'>
+                    <ReceiptPreview
+                      header={receipt.receipt_header}
+                      body={receipt.receipt_body}
+                      footer={receipt.receipt_footer}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

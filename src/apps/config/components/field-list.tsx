@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { Check, Copy, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
@@ -35,31 +35,6 @@ function IconButton({
     >
       {children}
     </button>
-  )
-}
-
-function CopyButton({ text }: { text: string }) {
-  const { t } = useTranslation()
-  const [copied, setCopied] = useState(false)
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
-    } catch {
-      /* clipboard unavailable (insecure context) */
-    }
-  }
-
-  return (
-    <IconButton label={copied ? t('copied', 'Copied') : t('copy', 'Copy')} onClick={copy}>
-      {copied ? (
-        <Check className='text-success size-3.5' aria-hidden='true' />
-      ) : (
-        <Copy className='size-3.5' aria-hidden='true' />
-      )}
-    </IconButton>
   )
 }
 
@@ -123,21 +98,18 @@ function FieldRow({ name, value }: { name: string; value: unknown }) {
       </dt>
       <dd className='flex min-w-0 items-start justify-between gap-2'>
         <div className='min-w-0 flex-1'>{display}</div>
-        {text !== '' && typeof value !== 'boolean' && (
+        {secret && (
           <div className='flex shrink-0 items-center'>
-            {secret && (
-              <IconButton
-                label={revealed ? t('hide', 'Hide') : t('show', 'Show')}
-                onClick={() => setRevealed((v) => !v)}
-              >
-                {revealed ? (
-                  <EyeOff className='size-3.5' aria-hidden='true' />
-                ) : (
-                  <Eye className='size-3.5' aria-hidden='true' />
-                )}
-              </IconButton>
-            )}
-            <CopyButton text={text} />
+            <IconButton
+              label={revealed ? t('hide', 'Hide') : t('show', 'Show')}
+              onClick={() => setRevealed((v) => !v)}
+            >
+              {revealed ? (
+                <EyeOff className='size-3.5' aria-hidden='true' />
+              ) : (
+                <Eye className='size-3.5' aria-hidden='true' />
+              )}
+            </IconButton>
           </div>
         )}
       </dd>
@@ -179,7 +151,7 @@ export function Section({
       </header>
       {entries.length === 0 ? (
         <p className='text-muted-foreground px-4 py-6 text-sm'>
-          {t('no_matches', 'No settings match your search.')}
+          {t('no_settings_match_search')}
         </p>
       ) : (
         // Negative margins hide the outer-edge borders of the last row/column.

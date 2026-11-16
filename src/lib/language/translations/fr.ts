@@ -510,7 +510,8 @@ export const fr = {
   "configuration_hint": "Consultez la connexion de ce terminal et la configuration de votre parking.",
   "unsaved_changes": "Vous avez des modifications non enregistrées.",
   "lost_ticket_plate_hint": "La plaque d'immatriculation est facultative et aide à identifier le véhicule, mais le tarif est calculé selon l'heure d'entrée.",
-  
+  "no_settings_match_search": "Aucun paramètre ne correspond à votre recherche.",
+
 
   // ==========================================
   // POS SETUP

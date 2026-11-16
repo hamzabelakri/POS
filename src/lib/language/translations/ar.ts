@@ -510,6 +510,7 @@ export const ar = {
   "shift_amount": "مبلغ الوردية",
   "configuration_hint": "استعرض اتصال هذا الجهاز بالنظام الخلفي وإعدادات موقف السيارات.",
   "unsaved_changes": "لديك تغييرات غير محفوظة.",
+  "no_settings_match_search": "لا توجد إعدادات تطابق بحثك.",
 
 
 
