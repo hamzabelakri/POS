@@ -10,7 +10,7 @@ export interface ConfigReceiptPreviewPayload {
 
 export interface ReceiptPreviewResponse {
   status: number
-  data: { image_base64: string }
+  data: { receipt: string }  
 }
 
 export interface PrinterStatus {

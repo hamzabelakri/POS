@@ -47,9 +47,9 @@ export function usePaymentReceiptPreview(paymentId: number, enabled = true) {
   return useQuery({
     queryKey: ["payment-receipt-preview", paymentId],
     queryFn: () => previewPaymentReceipt(paymentId),
-    select: (res) => res.data.image_base64,
+    select: (res) => res.data.receipt,  
     enabled,
-    staleTime: Infinity, // a stored receipt never changes
+    staleTime: Infinity,
   })
 }
 

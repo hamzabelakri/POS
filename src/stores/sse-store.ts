@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import type { PrinterStatus } from "@/models/printer-model"
-import type { ExitVehicleEvent, LaneAlert } from "@/models/sse-model"
+import type { ExitVehicleEvent, LaneAlert, QueuedLaneAlert } from "@/models/sse-model"
 
 export type SSEStatus =
   | "disconnected"
@@ -10,6 +10,9 @@ export type SSEStatus =
 
 /** Live printer status plus the backend's human-readable message. */
 export type PrinterState = PrinterStatus & { message: string }
+
+/** Monotonic id source for open lane alerts (per session, unique enough for keys). */
+let nextAlertId = 0
 
 interface SSEState {
   status: SSEStatus
@@ -32,12 +35,14 @@ interface SSEState {
    */
   removeExitTransaction: (key: string) => void
 
-  /** Last lane alert (graylist, season parker, tariff, barrier, printer); a new one replaces the previous. */
-  laneAlert: LaneAlert | null
+  /** Open lane alerts, oldest first; each one is its own modal, so the newest is on top. */
+  laneAlerts: QueuedLaneAlert[]
+  /** Opens a new alert on top of the existing ones. */
   setLaneAlert: (a: LaneAlert) => void
-  clearLaneAlert: () => void
+  /** Closes one alert by id; the others stay open. */
+  clearLaneAlert: (id: number) => void
 
-  /** Clears the vehicle and the alert (used by Clear All). */
+  /** Clears the vehicle and all alerts (used by Clear All). */
   clearExitEvent: () => void
 
   /** Clear live data (used on logout). */
@@ -78,23 +83,28 @@ export const useSSEStore = create<SSEState>((set) => ({
 
       // Last line removed: same as Clear All
       if (Object.keys(transactions).length === 0) {
-        return { exitEvent: null, laneAlert: null }
+        return { exitEvent: null, laneAlerts: [] }
       }
       return {
         exitEvent: { type: "exit_car", data: { ...e.data, transactions } },
       }
     }),
 
-  laneAlert: null,
-  setLaneAlert: (a) => set({ laneAlert: a }),
-  clearLaneAlert: () =>
-    set((s) => (s.laneAlert === null ? s : { laneAlert: null })),
+  laneAlerts: [],
+  setLaneAlert: (a) =>
+    set((s) => ({ laneAlerts: [...s.laneAlerts, { ...a, id: ++nextAlertId }] })),
+  clearLaneAlert: (id) =>
+    set((s) =>
+      s.laneAlerts.some((a) => a.id === id)
+        ? { laneAlerts: s.laneAlerts.filter((a) => a.id !== id) }
+        : s
+    ),
 
   clearExitEvent: () =>
     set((s) =>
-      s.exitEvent === null && s.laneAlert === null
+      s.exitEvent === null && s.laneAlerts.length === 0
         ? s
-        : { exitEvent: null, laneAlert: null }
+        : { exitEvent: null, laneAlerts: [] }
     ),
 
   reset: () =>
@@ -103,6 +113,6 @@ export const useSSEStore = create<SSEState>((set) => ({
       natsOnline: null,
       printer: null,
       exitEvent: null,
-      laneAlert: null,
+      laneAlerts: [],
     }),
 }))

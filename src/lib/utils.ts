@@ -25,3 +25,8 @@ export const formatAmount = (value: number) =>
     maximumFractionDigits: 3,
   }).format((value ?? 0) / 1000)} EGP`
 
+
+  // The receipts API returns a full data URI (data:image/png;base64,...).
+// Fall back to prefixing raw base64 if a plain string is ever returned.
+export const toImageSrc = (value: string) =>
+  value.startsWith('data:') ? value : `data:image/png;base64,${value}`

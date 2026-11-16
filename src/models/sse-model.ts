@@ -159,6 +159,9 @@ export type LaneAlert =
   | { type: 'open_barrier_try_again'; data: null; message: string }
   | { type: 'print_receipt_try_again'; data: null; message: string }
 
+/** An open lane alert; `id` lets each modal be closed on its own. */
+export type QueuedLaneAlert = LaneAlert & { id: number }
+
 /* ───────── Helpers ───────── */
 
 /**

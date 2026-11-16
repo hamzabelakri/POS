@@ -5,9 +5,7 @@ import {
   useConfigReceiptPreview,
   useConfigReceiptPreviewImage,
 } from '@/hooks/use-printer'
-
-const toImageSrc = (b64: string) =>
-  b64.startsWith('data:') ? b64 : `data:image/png;base64,${b64}`
+import { toImageSrc } from '@/lib/utils'
 
 export function ReceiptPreview({
   header,

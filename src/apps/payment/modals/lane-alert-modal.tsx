@@ -5,6 +5,8 @@ import {
   toVehicleView,
   type ExitCar,
   type GraylistResult,
+  type LaneAlert,
+  type QueuedLaneAlert,
   type SeasonParkerStatus,
 } from '@/models/sse-model'
 import {
@@ -261,14 +263,16 @@ const SEASON_PARKER_FALLBACK = {
   titleKey: 'season_parker_not_valid',
 }
 
-/* ───────── Entry point ───────── */
+/* ───────── Per-alert content ───────── */
 
-export function LaneAlertModal() {
+function LaneAlertContent({
+  alert,
+  onClose,
+}: {
+  alert: QueuedLaneAlert
+  onClose: () => void
+}) {
   const { t } = useTranslation()
-  const alert = useSSEStore((s) => s.laneAlert)
-  const close = useSSEStore((s) => s.clearLaneAlert)
-
-  if (!alert) return null
 
   switch (alert.type) {
     case 'graylist_lpn':
@@ -278,7 +282,7 @@ export function LaneAlertModal() {
           iconClassName='text-red-400'
           title={t('graylisted_plate')}
           message={alert.message}
-          onClose={close}
+          onClose={onClose}
         >
           <GraylistSection g={alert.data} />
         </Shell>
@@ -292,7 +296,7 @@ export function LaneAlertModal() {
           iconClassName='text-red-400'
           title={t('graylisted_season_parker')}
           message={alert.message}
-          onClose={close}
+          onClose={onClose}
         >
           <div className='space-y-6'>
             <div className='space-y-2'>
@@ -316,7 +320,7 @@ export function LaneAlertModal() {
           iconClassName={color}
           title={t(titleKey)}
           message={alert.message}
-          onClose={close}
+          onClose={onClose}
         >
           <SeasonParkerSection s={alert.data} />
         </Shell>
@@ -330,7 +334,7 @@ export function LaneAlertModal() {
           iconClassName='text-amber-400'
           title={t('exited_with_zero_payment')}
           message={alert.message}
-          onClose={close}
+          onClose={onClose}
         >
           <div className='space-y-4'>
             <GraylistSection g={alert.data.graylist} />
@@ -351,7 +355,7 @@ export function LaneAlertModal() {
           iconClassName='text-amber-400'
           title={t('exited_in_unpaid_grace_time')}
           message={alert.message}
-          onClose={close}
+          onClose={onClose}
         >
           <VehicleSection car={alert.data} />
         </Shell>
@@ -364,14 +368,14 @@ export function LaneAlertModal() {
           iconClassName='text-red-400'
           title={t('tariff_error', { defaultValue: alert.message })}
           message={alert.message}
-          onClose={close}
+          onClose={onClose}
         >
           <ErrorDetailSection detail={alert.data} />
         </Shell>
       )
 
     case 'open_barrier_try_again':
-      return <BarrierRetryModal message={alert.message} onClose={close} />
+      return <BarrierRetryModal message={alert.message} onClose={onClose} />
 
     case 'print_receipt_try_again':
       return (
@@ -379,10 +383,32 @@ export function LaneAlertModal() {
           icon={Printer}
           iconClassName='text-amber-400'
           title={t('print_receipt_try_again', { defaultValue: alert.message })}
-          onClose={close}
+          onClose={onClose}
         >
           <MessageSection message={alert.message} />
         </Shell>
       )
   }
+}
+
+/* ───────── Entry point ───────── */
+
+export function LaneAlertModal() {
+  const alerts = useSSEStore((s) => s.laneAlerts)
+  const close = useSSEStore((s) => s.clearLaneAlert)
+
+  // One modal per alert, in arrival order: later ones mount after, so they
+  // render above. The key keeps each modal's state (e.g. a pending retry)
+  // tied to its own alert.
+  return (
+    <>
+      {alerts.map((alert) => (
+        <LaneAlertContent
+          key={alert.id}
+          alert={alert}
+          onClose={() => close(alert.id)}
+        />
+      ))}
+    </>
+  )
 }

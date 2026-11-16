@@ -7,9 +7,10 @@ import {
 import { IconEye, IconPrinter, IconPrinterOff } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { useEvaluationStore } from '@/stores/evaluation-store'
-import { useShiftReportStore } from '@/stores/shift-report-store'
-import { usePrintReceipt } from '@/hooks/use-printer'
 import { usePrinterUi } from '@/stores/printer-store'
+import { useShiftReportStore } from '@/stores/shift-report-store'
+import { formatAmount } from '@/lib/utils'
+import { usePrintReceipt } from '@/hooks/use-printer'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,9 +20,6 @@ import {
 } from '@/components/ui/tooltip'
 import { LongText } from '@/components/long-text'
 import { DataTableColumnHeader } from '@/components/shared/data-table'
-import { formatAmount } from '@/lib/utils'
-
-
 
 // "2026-10-29 16:20:42.106814" -> "2026-10-29 16:20:42"
 const formatEntryTime = (value?: string) => value?.split('.')[0] ?? '-'
@@ -70,7 +68,7 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
         ),
         meta: { label: t('total') },
         cell: ({ row }) => (
-          <div className='w-fit font-medium text-nowrap tabular-nums'>
+          <div className='text-success w-fit font-mono font-bold text-nowrap slashed-zero tabular-nums'>
             {formatAmount(row.original.total)}
           </div>
         ),
@@ -123,7 +121,7 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
                   <Button
                     variant='outline'
                     size='sm'
-                    className='h-8 w-8 p-0 text-primary hover:border-primary hover:text-primary'
+                    className='text-primary hover:border-primary hover:text-primary h-8 w-8 p-0'
                     onClick={() => {
                       setCurrentPaymentId(row.original.payment_id)
                       setOpen(ShiftReportDialogEnum.RECEIPT)
@@ -166,7 +164,7 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
                     <Button
                       variant='outline'
                       size='sm'
-                      className='h-8 w-8 p-0 text-primary hover:border-primary hover:text-primary'
+                      className='text-primary hover:border-primary hover:text-primary h-8 w-8 p-0'
                       onClick={() => print.mutate(row.original.payment_id)}
                     >
                       <IconPrinter size={16} />

@@ -9,13 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/shadcn-io/spinner'
-
-// The API doesn't say whether `receipt` is a URL, a data URI or raw base64.
-// This handles all three; adjust once you confirm the format (and the image type).
-const toImageSrc = (receipt: string) => {
-  if (/^(data:|https?:\/\/|\/)/.test(receipt)) return receipt
-  return `data:image/png;base64,${receipt}`
-}
+import { toImageSrc } from '@/lib/utils'
 
 export function ReceiptPreviewModal({
   paymentId,
@@ -36,13 +30,13 @@ export function ReceiptPreviewModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-lg'>
+      <DialogContent className='sm:max-w-md'>
         <DialogHeader icon={IconFileDescription}>
           <DialogTitle>{t('receipt')}</DialogTitle>
         </DialogHeader>
 
         <DialogBody>
-          <div className='flex max-h-[70vh] min-h-40 items-center justify-center overflow-auto'>
+          <div className='flex max-h-[70vh] min-h-32 items-center justify-center overflow-auto'>
             {isLoading ? (
               <Spinner variant='circle' />
             ) : isError ? (
@@ -53,7 +47,7 @@ export function ReceiptPreviewModal({
               <img
                 src={toImageSrc(receipt)}
                 alt={t('receipt')}
-                className='h-auto max-w-full'
+                className='h-auto max-h-[70vh] w-full object-contain'
               />
             ) : (
               <p className='text-muted-foreground text-sm'>
