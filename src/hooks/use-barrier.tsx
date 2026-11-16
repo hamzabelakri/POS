@@ -4,6 +4,7 @@ import {
   closeBarrier,
   lockBarrier,
   openBarrier,
+  retryOpenBarrier,
   unlockBarrier,
 } from "@/service/barrier";
 import { BarrierResponse } from "@/models/barrier-model";
@@ -11,7 +12,7 @@ import { ApiError } from "@/models/api";
 import { AlertEnum } from "@/models/alert-model";
 import { useAlertStore } from "@/stores/alert-store";
 
-// Shared by the four barrier hooks: they only differ by endpoint and fallback error.
+// Shared by the barrier hooks: they only differ by endpoint and fallback error.
 function useBarrierMutation(
   mutationFn: () => Promise<BarrierResponse>,
   fallbackError: string
@@ -44,3 +45,9 @@ export const useLockBarrier = () =>
 
 export const useUnlockBarrier = () =>
   useBarrierMutation(unlockBarrier, "Unable to unlock the barrier. Please try again.");
+
+export const useRetryOpenBarrier = () =>
+  useBarrierMutation(
+    retryOpenBarrier,
+    "Unable to open the barrier. Please try again."
+  );

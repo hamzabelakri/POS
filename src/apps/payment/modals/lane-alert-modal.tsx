@@ -12,17 +12,21 @@ import {
   BadgeCheck,
   BadgeX,
   Clock,
+  Loader2,
   Printer,
   ShieldAlert,
   TriangleAlert,
   XCircle,
 } from 'lucide-react'
 import { useSSEStore } from '@/stores/sse-store'
+import { useRetryOpenBarrier } from '@/hooks/use-barrier'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogBody,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -76,25 +80,29 @@ function Shell({
   message,
   onClose,
   wide,
+  footer,
   children,
 }: {
   icon: ComponentType<{ className?: string }>
   /** Icon color; the header is dark, so use light shades (e.g. text-red-400) */
   iconClassName?: string
   title: string
-  message: string
+  /** Header description; omit when the message is shown in the body instead */
+  message?: string
   onClose: () => void
   wide?: boolean
-  children?: ReactNode
+  footer?: ReactNode
+  children: ReactNode
 }) {
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent className={wide ? 'sm:max-w-5xl' : 'sm:max-w-3xl'}>
         <DialogHeader icon={icon} iconClassName={iconClassName}>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{message}</DialogDescription>
+          {message && <DialogDescription>{message}</DialogDescription>}
         </DialogHeader>
-        {children && <DialogBody>{children}</DialogBody>}
+        <DialogBody>{children}</DialogBody>
+        {footer && <DialogFooter>{footer}</DialogFooter>}
       </DialogContent>
     </Dialog>
   )
@@ -184,6 +192,50 @@ function ErrorDetailSection({ detail }: { detail: string | null }) {
     </div>
   )
 }
+
+function MessageSection({ message }: { message: string }) {
+  return <p className='text-sm'>{message || '—'}</p>
+}
+
+/* ───────── Barrier retry ───────── */
+
+function BarrierRetryModal({
+  message,
+  onClose,
+}: {
+  message: string
+  onClose: () => void
+}) {
+  const { t } = useTranslation()
+  const { mutate, isPending } = useRetryOpenBarrier()
+
+  // Close on success; on error the alert shows and the modal stays for another try
+  const retry = () => mutate(undefined, { onSuccess: onClose })
+
+  return (
+    <Shell
+      icon={TriangleAlert}
+      iconClassName='text-amber-400'
+      title={t('open_barrier_try_again', { defaultValue: message })}
+      onClose={onClose}
+      footer={
+        <>
+          <Button variant='outline' onClick={onClose} disabled={isPending}>
+            {t('cancel')}
+          </Button>
+          <Button onClick={retry} disabled={isPending}>
+            {isPending && <Loader2 className='animate-spin' />}
+            {t('try')}
+          </Button>
+        </>
+      }
+    >
+      <MessageSection message={message} />
+    </Shell>
+  )
+}
+
+/* ───────── Season parker states ───────── */
 
 // Colors are light shades because they sit on the dark dialog header
 const SEASON_PARKER_STATES: Record<
@@ -305,16 +357,21 @@ export function LaneAlertModal() {
         </Shell>
       )
 
-    case 'open_barrier_try_again':
+    case 'tariff_error':
       return (
         <Shell
-          icon={TriangleAlert}
-          iconClassName='text-amber-400'
-          title={t('open_barrier_try_again', { defaultValue: alert.message })}
+          icon={XCircle}
+          iconClassName='text-red-400'
+          title={t('tariff_error', { defaultValue: alert.message })}
           message={alert.message}
           onClose={close}
-        />
+        >
+          <ErrorDetailSection detail={alert.data} />
+        </Shell>
       )
+
+    case 'open_barrier_try_again':
+      return <BarrierRetryModal message={alert.message} onClose={close} />
 
     case 'print_receipt_try_again':
       return (
@@ -322,9 +379,10 @@ export function LaneAlertModal() {
           icon={Printer}
           iconClassName='text-amber-400'
           title={t('print_receipt_try_again', { defaultValue: alert.message })}
-          message={alert.message}
           onClose={close}
-        />
+        >
+          <MessageSection message={alert.message} />
+        </Shell>
       )
   }
 }

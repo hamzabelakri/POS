@@ -32,10 +32,7 @@ interface SSEState {
    */
   removeExitTransaction: (key: string) => void
 
-  /**
-   * Last lane alert (graylist, season parker, tariff, barrier); a new one
-   * replaces the previous.
-   */
+  /** Last lane alert (graylist, season parker, tariff, barrier, printer); a new one replaces the previous. */
   laneAlert: LaneAlert | null
   setLaneAlert: (a: LaneAlert) => void
   clearLaneAlert: () => void

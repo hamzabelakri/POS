@@ -56,7 +56,7 @@ const PosSetup = () => {
 
         <SetupBrand className='absolute start-10' />
 
-        <div className='relative flex h-full flex-col justify-center space-y-8 px-10 py-28'>
+        <div className='relative flex h-full flex-col justify-start space-y-8 px-10 pt-38 pb-10'>
           <h1 className='text-2xl leading-tight font-semibold tracking-tight'>
             {t('setup_banner_title')}
           </h1>
@@ -80,8 +80,8 @@ const PosSetup = () => {
           <ThemeSwitch />
         </div>
 
-        <main className='flex flex-1 flex-col items-center px-6 pt-24 pb-12'>
-          <div className='w-full max-w-md space-y-10'>
+        <main className='flex flex-1 flex-col items-center px-6 pt-38 pb-12'>
+          <div className='w-full max-w-2xl space-y-10'>
             {/* Mobile only: the left panel is hidden */}
             <div className='space-y-8 lg:hidden'>
               <SetupBrand className='justify-center' />

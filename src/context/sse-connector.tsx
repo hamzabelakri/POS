@@ -137,7 +137,6 @@ function toDetail(data: unknown): string | null {
 
 function handleTariffError(data: unknown, envelope: Envelope) {
   const detail = toDetail(data)
-  // Technical cause (IP, port...): console only
   if (detail) console.error('SSE tariff_error:', detail)
   useSSEStore.getState().setLaneAlert({
     type: 'tariff_error',
@@ -185,7 +184,7 @@ const handlers: Record<string, Handler> = {
     handle: handleCarExitedInUnpaidGraceTime,
     allowError: true,
   },
-  // These are errors (error_code 500), so allowError is required or they are dropped
+  // These are alerts with error_code 500, so allowError is required or they are dropped
   tariff_error: { handle: handleTariffError, allowError: true },
   open_barrier_try_again: {
     handle: handleOpenBarrierTryAgain,

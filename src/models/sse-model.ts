@@ -73,7 +73,7 @@ export type VehicleView = {
   hasEntry: boolean
 }
 
-/* ───────── Lane alerts (graylist / season parker) ───────── */
+/* ───────── Lane alerts (graylist / season parker / tariff / barrier / printer) ───────── */
 
 export type GraylistEntry = {
   id: number
@@ -158,19 +158,6 @@ export type LaneAlert =
   /** Barrier / printer failures: the message is all there is (data is null). */
   | { type: 'open_barrier_try_again'; data: null; message: string }
   | { type: 'print_receipt_try_again'; data: null; message: string }
-
-/* ───────── Lane errors (tariff / barrier) ───────── */
-
-export type LaneErrorType = 'tariff_error' | 'open_barrier_try_again'
-
-/** Failure reported by the lane, kept apart from LaneAlert (not tied to a vehicle). */
-export type LaneError = {
-  type: LaneErrorType
-  /** Backend's human-readable text, e.g. "failed to calculate tariff" */
-  message: string
-  /** Technical cause (tariff_error only): logged, never shown to the operator */
-  detail: string | null
-}
 
 /* ───────── Helpers ───────── */
 
