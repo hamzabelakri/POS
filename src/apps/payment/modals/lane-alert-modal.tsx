@@ -12,7 +12,10 @@ import {
   BadgeCheck,
   BadgeX,
   Clock,
+  Printer,
   ShieldAlert,
+  TriangleAlert,
+  XCircle,
 } from 'lucide-react'
 import { useSSEStore } from '@/stores/sse-store'
 import {
@@ -82,7 +85,7 @@ function Shell({
   message: string
   onClose: () => void
   wide?: boolean
-  children: ReactNode
+  children?: ReactNode
 }) {
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -91,7 +94,7 @@ function Shell({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{message}</DialogDescription>
         </DialogHeader>
-        <DialogBody>{children}</DialogBody>
+        {children && <DialogBody>{children}</DialogBody>}
       </DialogContent>
     </Dialog>
   )
@@ -166,6 +169,18 @@ function VehicleSection({ car }: { car: ExitCar }) {
         <Row label={t('entry_time')} value={v.entryTime} />
         <Row label={t('parking_duration')} value={v.parkingDuration} />
       </div>
+    </div>
+  )
+}
+
+function ErrorDetailSection({ detail }: { detail: string | null }) {
+  const { t } = useTranslation()
+  return (
+    <div className='space-y-2'>
+      <h3 className='text-sm font-semibold'>{t('details')}</h3>
+      <pre className='bg-muted/30 rounded-lg border p-3 font-mono text-xs break-words whitespace-pre-wrap'>
+        {detail ?? '—'}
+      </pre>
     </div>
   )
 }
@@ -288,6 +303,28 @@ export function LaneAlertModal() {
         >
           <VehicleSection car={alert.data} />
         </Shell>
+      )
+
+    case 'open_barrier_try_again':
+      return (
+        <Shell
+          icon={TriangleAlert}
+          iconClassName='text-amber-400'
+          title={t('open_barrier_try_again', { defaultValue: alert.message })}
+          message={alert.message}
+          onClose={close}
+        />
+      )
+
+    case 'print_receipt_try_again':
+      return (
+        <Shell
+          icon={Printer}
+          iconClassName='text-amber-400'
+          title={t('print_receipt_try_again', { defaultValue: alert.message })}
+          message={alert.message}
+          onClose={close}
+        />
       )
   }
 }

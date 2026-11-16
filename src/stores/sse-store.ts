@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import type { PrinterStatus } from "@/models/printer-model"
-import type { ExitVehicleEvent, LaneAlert, LaneError } from "@/models/sse-model"
+import type { ExitVehicleEvent, LaneAlert } from "@/models/sse-model"
 
 export type SSEStatus =
   | "disconnected"
@@ -32,15 +32,13 @@ interface SSEState {
    */
   removeExitTransaction: (key: string) => void
 
-  /** Last graylist / season parker message; a new one replaces the previous. */
+  /**
+   * Last lane alert (graylist, season parker, tariff, barrier); a new one
+   * replaces the previous.
+   */
   laneAlert: LaneAlert | null
   setLaneAlert: (a: LaneAlert) => void
   clearLaneAlert: () => void
-
-  /** Last lane error (tariff / barrier); a new one replaces the previous. */
-  laneError: LaneError | null
-  setLaneError: (e: LaneError) => void
-  clearLaneError: () => void
 
   /** Clears the vehicle and the alert (used by Clear All). */
   clearExitEvent: () => void
@@ -95,11 +93,6 @@ export const useSSEStore = create<SSEState>((set) => ({
   clearLaneAlert: () =>
     set((s) => (s.laneAlert === null ? s : { laneAlert: null })),
 
-  laneError: null,
-  setLaneError: (e) => set({ laneError: e }),
-  clearLaneError: () =>
-    set((s) => (s.laneError === null ? s : { laneError: null })),
-
   clearExitEvent: () =>
     set((s) =>
       s.exitEvent === null && s.laneAlert === null
@@ -114,6 +107,5 @@ export const useSSEStore = create<SSEState>((set) => ({
       printer: null,
       exitEvent: null,
       laneAlert: null,
-      laneError: null,
     }),
 }))

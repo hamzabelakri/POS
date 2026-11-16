@@ -18,7 +18,7 @@ export function PaymentActions() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t('payment_method')}</CardTitle>
+        <CardTitle className="text-muted-foreground text-base">{t('payment_method')}</CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-3">
         <Button

@@ -10,7 +10,7 @@ export function PanelHeader({
   return (
     <CardHeader
       className={cn(
-        'bg-muted/50 rounded-t-xl border-b py-2.5 [.border-b]:pb-2.5',
+        'bg-muted/50 rounded-t-xl border-b py-2.5 [.border-b]:pb-2',
         className
       )}
       {...props}

@@ -124,22 +124,41 @@ function handleCarExitedInUnpaidGraceTime(data: unknown, envelope: Envelope) {
   })
 }
 
+/** Normalizes an error payload to displayable text, or null when empty. */
+function toDetail(data: unknown): string | null {
+  if (data == null) return null
+  if (typeof data === 'string') return data || null
+  try {
+    return JSON.stringify(data)
+  } catch {
+    return null
+  }
+}
+
 function handleTariffError(data: unknown, envelope: Envelope) {
-  const detail = typeof data === 'string' && data ? data : null
+  const detail = toDetail(data)
   // Technical cause (IP, port...): console only
   if (detail) console.error('SSE tariff_error:', detail)
-  useSSEStore.getState().setLaneError({
+  useSSEStore.getState().setLaneAlert({
     type: 'tariff_error',
+    data: detail,
     message: envelope.message ?? '',
-    detail,
   })
 }
 
 function handleOpenBarrierTryAgain(_data: unknown, envelope: Envelope) {
-  useSSEStore.getState().setLaneError({
+  useSSEStore.getState().setLaneAlert({
     type: 'open_barrier_try_again',
+    data: null,
     message: envelope.message ?? '',
-    detail: null,
+  })
+}
+
+function handlePrintReceiptTryAgain(_data: unknown, envelope: Envelope) {
+  useSSEStore.getState().setLaneAlert({
+    type: 'print_receipt_try_again',
+    data: null,
+    message: envelope.message ?? '',
   })
 }
 
@@ -170,6 +189,10 @@ const handlers: Record<string, Handler> = {
   tariff_error: { handle: handleTariffError, allowError: true },
   open_barrier_try_again: {
     handle: handleOpenBarrierTryAgain,
+    allowError: true,
+  },
+  print_receipt_try_again: {
+    handle: handlePrintReceiptTryAgain,
     allowError: true,
   },
 }

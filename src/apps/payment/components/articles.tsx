@@ -44,7 +44,7 @@ function ArticleGroup({
         disabled={isDisabled(article)}
         title={article.description}
         aria-keyshortcuts={shortcut?.replace('Ctrl', 'Control')}
-        className='hover:border-primary hover:bg-primary/5 relative h-auto min-h-36 w-44 shrink-0 flex-col justify-center gap-3 px-3 py-5 text-center whitespace-normal transition-colors'
+        className='hover:border-primary hover:bg-primary/5 relative h-auto min-h-34 w-32 shrink-0 flex-col justify-center gap-2 rounded-xl px-3 py-3 text-center whitespace-normal transition-colors'
         onClick={() => onSelect(article)}
       >
         {shortcut && (
@@ -53,9 +53,9 @@ function ArticleGroup({
           </kbd>
         )}
         {article.iconUrl && (
-          <img src={article.iconUrl} alt='' className='size-14 object-contain' />
+          <img src={article.iconUrl} alt='' className='size-10 object-contain' />
         )}
-        <span className='line-clamp-2 text-base leading-tight font-medium'>
+        <span className='line-clamp-2 text-sm leading-tight font-medium'>
           {article.title}
         </span>
       </Button>
