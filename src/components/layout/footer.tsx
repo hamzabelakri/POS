@@ -1,26 +1,41 @@
 // src/components/layout/footer.tsx
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { SlidersHorizontal, Monitor, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useAuthStore } from '@/stores/auth-store'
 import { usePosConfigStore } from '@/stores/pos-config-store'
 import { ConfigPasswordModal } from '../config-password'
 
+const pad = (n: number) => String(n).padStart(2, '0')
+
+// dd/MM/yyyy HH:mm:ss
+function formatDateTime(d: Date) {
+  const date = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`
+  const time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+  return `${date} ${time}`
+}
+
+function useNow() {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(id)
+  }, [])
+  return now
+}
+
 export function Footer() {
   const { t } = useTranslation()
   const [configOpen, setConfigOpen] = useState(false)
+  const now = useNow()
 
   const pos = usePosConfigStore((s) => s.config?.pos)
   const cashier = useAuthStore((s) => s.cashier)
 
   const cashierName = cashier
     ? `${cashier.first_name} ${cashier.last_name}`.trim()
-    : ''
-  const initials = cashier
-    ? `${cashier.first_name.charAt(0)}${cashier.last_name.charAt(0)}`.toUpperCase()
     : ''
 
   return (
@@ -52,17 +67,22 @@ export function Footer() {
             )}
           </div>
 
-          {/* Right: configuration */}
-          <Button
-            type='button'
-            variant='ghost'
-            size='sm'
-            className='h-6 gap-1 px-2 text-xs'
-            onClick={() => setConfigOpen(true)}
-          >
-            <SlidersHorizontal className='size-3.5' aria-hidden='true' />
-            {t('configurations')}
-          </Button>
+          {/* Right: live clock + configurations */}
+          <div className='flex items-center gap-4'>
+            <time className='tabular-nums' dateTime={now.toISOString()}>
+              {formatDateTime(now)}
+            </time>
+            <Button
+              type='button'
+              variant='ghost'
+              size='sm'
+              className='h-6 gap-1 px-2 text-xs'
+              onClick={() => setConfigOpen(true)}
+            >
+              <SlidersHorizontal className='size-3.5' aria-hidden='true' />
+              {t('configurations')}
+            </Button>
+          </div>
         </div>
       </footer>
 

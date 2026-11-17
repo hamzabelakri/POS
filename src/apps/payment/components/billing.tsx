@@ -29,18 +29,34 @@ function BillingArticle({
   isRemoving?: boolean
 }) {
   const { t } = useTranslation()
+
+  // Accent bar, amount, and hover border share the same semantic color
+  const isDiscount = transaction?.is_discount === true
+  const accentBar = isDiscount
+    ? 'bg-destructive/70 group-hover:bg-destructive'
+    : 'bg-green-600/70 group-hover:bg-green-600 dark:bg-green-500/70 dark:group-hover:bg-green-500'
+  const hoverBorder = isDiscount
+    ? 'hover:border-destructive/40'
+    : 'hover:border-green-600/40 dark:hover:border-green-500/40'
+
   return (
     <div
       className={
         'group relative flex items-center gap-3 overflow-hidden rounded-xl border bg-card ' +
         'p-2.5 pl-4 shadow-xs transition-all duration-200 ' +
         'animate-in fade-in slide-in-from-right-2 ' +
-        'hover:border-primary/40 hover:shadow-md ' +
+        'hover:shadow-md ' +
+        hoverBorder +
+        ' ' +
         (isRemoving ? 'opacity-60' : '')
       }
     >
-      {/* Accent bar */}
-      <span className='bg-primary/70 group-hover:bg-primary absolute inset-y-0 left-0 w-1 transition-colors' />
+      {/* Accent bar — matches the amount color */}
+      <span
+        className={
+          'absolute inset-y-0 left-0 w-1 transition-colors ' + accentBar
+        }
+      />
 
       {/* Icon tile, falls back to the title's initial */}
       <div className='bg-muted ring-border flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg ring-1'>

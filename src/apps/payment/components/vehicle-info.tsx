@@ -56,7 +56,7 @@ export function VehicleInfo() {
                 <div className='flex size-16 items-center justify-center rounded-full border'>
                   {isCapturing ? <Spinner variant='circle' /> : <Camera className='size-7' />}
                 </div>
-                <span className='text-sm font-medium'>{t('capture_picture')}</span>
+                <span className='text-muted-foreground text-sm font-medium'>{t('exit_picture')}</span>
               </button>
             ) : (
               <div className='flex size-full min-h-56 flex-col items-center justify-center gap-3'>
@@ -83,12 +83,12 @@ export function VehicleInfo() {
           {/* Fields */}
           <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
             <div className='col-span-2 space-y-2'>
-              <Label htmlFor='licensePlate'>{t('license_plate')}</Label>
+              <Label className='text-muted-foreground' htmlFor='licensePlate'>{t('license_plate')}</Label>
               <div className='flex items-center gap-2'>
                 <Input
                   id='licensePlate'
                   readOnly
-                  className='flex-1 text-muted-foreground'
+                  className='flex-1 '
                   value={plate}
                 />
                 <Button
@@ -104,39 +104,39 @@ export function VehicleInfo() {
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='epan'>{t('epan')}</Label>
+              <Label className='text-muted-foreground' htmlFor='epan'>{t('epan')}</Label>
               <Input
                 id='epan'
                 readOnly
-                className='text-muted-foreground'
+                className=''
                 value={view?.epan ?? ''}
               />
             </div>
             <div className='space-y-2'>
-              <Label htmlFor='cardType'>{t('card_type')}</Label>
+              <Label className='text-muted-foreground' htmlFor='cardType'>{t('card_type')}</Label>
               <Input
                 id='cardType'
                 readOnly
-                className='text-muted-foreground'
+                className=''
                 value={view?.cardType ?? ''}
               />
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='entryTime'>{t('entry_time')}</Label>
+              <Label className='text-muted-foreground' htmlFor='entryTime'>{t('entry_time')}</Label>
               <Input
                 id='entryTime'
                 readOnly
-                className='text-muted-foreground'
+                className=''
                 value={view?.entryTime ?? ''}
               />
             </div>
             <div className='space-y-2'>
-              <Label htmlFor='parkingDuration'>{t('parking_duration')}</Label>
+              <Label className='text-muted-foreground' htmlFor='parkingDuration'>{t('parking_duration')}</Label>
               <Input
                 id='parkingDuration'
                 readOnly
-                className='text-muted-foreground'
+                className=''
                 value={view?.parkingDuration ?? ''}
               />
             </div>

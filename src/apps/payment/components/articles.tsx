@@ -44,7 +44,7 @@ function ArticleGroup({
         disabled={isDisabled(article)}
         title={article.description}
         aria-keyshortcuts={shortcut?.replace('Ctrl', 'Control')}
-        className='hover:border-primary hover:bg-primary/5 relative h-auto min-h-34 w-32 shrink-0 flex-col justify-center gap-2 rounded-xl px-3 py-3 text-center whitespace-normal transition-colors'
+        className='text-muted-foreground hover:border-primary hover:bg-primary/5 relative h-auto min-h-34 w-32 shrink-0 flex-col justify-center gap-2 rounded-xl px-3 py-3 text-center whitespace-normal transition-colors'
         onClick={() => onSelect(article)}
       >
         {shortcut && (

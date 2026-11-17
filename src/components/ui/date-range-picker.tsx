@@ -70,7 +70,7 @@ export function DatePickerWithRange({
             variant="outline"
             id={id}
             aria-label={label ?? t('date_range')}
-            className="justify-start px-2.5 font-normal tabular-nums"
+            className="justify-start px-2.5 font-normal tabular-nums text-muted-foreground"
           >
             <CalendarIcon data-icon="inline-start" />
             {value?.from ? (
@@ -105,7 +105,7 @@ export function DatePickerWithRange({
             }}
           />
 
-          {/* Time inputs (with seconds) */}
+          {/* Time inputs (with seconds, no clock icon) */}
           <div className="grid grid-cols-2 gap-3 border-t p-3">
             <div className="space-y-1.5">
               <Label htmlFor={`${id}-from-time`}>{t('from_time')}</Label>
@@ -123,10 +123,11 @@ export function DatePickerWithRange({
                     })
                   }
                 }}
+                className="[&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor={`${id}-to-time`}>{t('to_time')}</Label>
+              <Label className="text-muted-foreground" htmlFor={`${id}-to-time`}>{t('to_time')}</Label>
               <Input
                 id={`${id}-to-time`}
                 type="time"
@@ -141,6 +142,7 @@ export function DatePickerWithRange({
                     })
                   }
                 }}
+                className="[&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
               />
             </div>
           </div>

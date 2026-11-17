@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import type { ConfigValues } from './setup-config'
 import { SetupStepper } from './stepper'
 import { STEP_IDS, WelcomeStep, ConfigurationStep, ReadyStep } from './setup-steps'
+import { LanguageSwitch } from '@/components/language-switch' // Adjust import path if needed
 
 interface SetupFlowProps {
   onComplete?: (values: ConfigValues) => void
@@ -11,7 +12,7 @@ interface SetupFlowProps {
 }
 
 // Right-hand column of the setup page. The split-screen shell and background
-// come from AuthLayout, so this component only renders the stepper and the active step.
+// come from AuthLayout, so this component only renders the stepper, active step, and footer.
 export default function SetupFlow({ onComplete, onGoToLogin }: SetupFlowProps) {
   const { t } = useTranslation()
   const router = useRouter()
@@ -19,7 +20,7 @@ export default function SetupFlow({ onComplete, onGoToLogin }: SetupFlowProps) {
   const [savedValues, setSavedValues] = useState<ConfigValues | null>(null)
 
   const steps = useMemo(
-    () => STEP_IDS.map(id => ({ id, title: t(`setup_step_${id}`) })),
+    () => STEP_IDS.map(id => ({ id, title: t(`${id}`) })),
     [t]
   )
 
@@ -58,6 +59,10 @@ export default function SetupFlow({ onComplete, onGoToLogin }: SetupFlowProps) {
           )}
         </div>
       </main>
+
+      <footer className='w-full flex items-center justify-end px-6 py-4 sm:px-10 border-t border-border/40'>
+        <LanguageSwitch />
+      </footer>
     </>
   )
 }

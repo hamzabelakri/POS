@@ -23,7 +23,7 @@ export function PaymentActions() {
       <CardContent className="grid grid-cols-2 gap-3">
         <Button
           variant="outline"
-          className="h-16 flex-col gap-2"
+          className="text-muted-foreground h-16 flex-col gap-2"
           disabled={disabled}
           onClick={() => pay("cash")}
         >
@@ -36,7 +36,7 @@ export function PaymentActions() {
         </Button>
         <Button
           variant="outline"
-          className="h-16 flex-col gap-2"
+          className="text-muted-foreground h-16 flex-col gap-2"
           disabled={disabled}
           onClick={() => pay("card")}
         >

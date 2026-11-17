@@ -94,7 +94,7 @@ export function QuickActions() {
               disabled={barrierBusy}
               className={cn(
                 buttonVariants({ variant: 'outline' }),
-                'h-20 flex-col gap-2'
+                'text-muted-foreground h-20 flex-col gap-2'
               )}
             >
               <ArrowUp className="size-5"/>
@@ -116,14 +116,14 @@ export function QuickActions() {
           <Button
             variant={printerUi.blocked ? 'ghost' : 'outline'}
             className={cn(
-              'h-20 flex-col gap-2',
+              'text-muted-foreground h-20 flex-col gap-2',
               printerUi.blocked &&
                 'border border-red-500/30 bg-red-500/10 text-red-700 hover:bg-red-500/20 hover:text-red-700 disabled:opacity-100 dark:text-red-400 dark:hover:bg-red-500/20 dark:hover:text-red-400'
             )}
             disabled={!shift || printerUi.blocked || printLast.isPending}
             onClick={handlePrintLastReceipt}
           >
-           <Printer className="size-5" />
+           <Printer className="size-5 " />
             {printerUi.label}
           </Button>
 
@@ -131,7 +131,7 @@ export function QuickActions() {
             variant={autoPrint ? 'ghost' : 'outline'}
             aria-pressed={autoPrint}
             className={cn(
-              'h-20 flex-col gap-2',
+              'h-20 flex-col gap-2 text-muted-foreground',
               autoPrint &&
                 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 hover:text-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-500/20 dark:hover:text-emerald-400'
             )}

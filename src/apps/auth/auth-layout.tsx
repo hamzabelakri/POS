@@ -1,11 +1,8 @@
 import type { ReactNode } from 'react'
-import { Store } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 
-// Bundled with the app at public/images/background.jpg.
-// BASE_URL keeps the path correct under a sub-path or a relative-base (Electron/file://) build,
-// and the leading base makes it independent of the current route's depth.
+// Bundled with the app at public/images/background.jpg and public/images/logo.svg.
 const BACKGROUND_URL = `${import.meta.env.BASE_URL}images/background.jpg`
+const LOGO_URL = `${import.meta.env.BASE_URL}images/logo.svg`
 
 interface AuthLayoutProps {
   children: ReactNode
@@ -14,9 +11,6 @@ interface AuthLayoutProps {
 // Split-screen shell shared by every pre-app page (setup, sign-in, start shift).
 // It owns the left panel only; each page renders its own right-hand column.
 export function AuthLayout({ children }: AuthLayoutProps) {
-  const { t } = useTranslation()
-  const appName = t('app_name')
-
   return (
     <div className='grid min-h-svh w-full lg:grid-cols-2'>
       <aside
@@ -25,22 +19,15 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       >
         <div aria-hidden className='absolute inset-0 bg-black/40' />
 
-        <div className='relative flex h-full flex-col justify-between p-10 text-white'>
-          <div className='flex items-center gap-2.5'>
-            <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 backdrop-blur'>
-              <Store className='h-4 w-4' />
-            </div>
-            <span className='text-sm font-semibold tracking-tight'>{appName}</span>
+        <div className='relative flex h-full flex-col justify-between p-10'>
+          {/* Logo only at the top, texts removed */}
+          <div className='flex items-center'>
+            <img src={LOGO_URL} alt='Logo' className='h-8 w-auto object-contain' />
           </div>
 
-          <div className='max-w-sm space-y-3'>
-            <h2 className='text-2xl font-semibold tracking-tight'>{t('auth_banner_title')}</h2>
-            <p className='text-sm leading-relaxed text-white/70'>{t('auth_banner_description')}</p>
-          </div>
-
-          <p className='text-xs text-white/40'>
-            © {new Date().getFullYear()} {appName}. {t('all_rights_reserved')}
-          </p>
+          {/* Empty spacer divs to maintain flex distribution if needed */}
+          <div />
+          <div />
         </div>
       </aside>
 

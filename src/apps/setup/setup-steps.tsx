@@ -139,7 +139,8 @@ export function WelcomeStep({ onNext }: { onNext: () => void }) {
 
       <Button size='lg' onClick={onNext} className={cn(brandButtonClass, 'w-full')}>
         {t('start_setup')}
-        <ArrowRight className='h-4 w-4' />
+        {/* Flip arrow direction for RTL */}
+        <ArrowRight className='h-4 w-4 mr-2 rtl:rotate-180' />
       </Button>
     </section>
   )
@@ -185,14 +186,14 @@ export function ConfigurationStep({ defaultValues, onBack, onSaved }: Configurat
               <FormItem>
                 <FormLabel>{t('backoffice_url')}</FormLabel>
                 <div className='relative'>
-                  <GlobeIcon className='text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2' />
+                  <GlobeIcon className='text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 rtl:left-auto rtl:right-3' />
                   <FormControl>
                     <Input
                       type='text'
                       inputMode='url'
                       placeholder='http://192.168.1.10:8008'
                       autoComplete='off'
-                      className='h-11 pl-9'
+                      className='h-11 pl-9 rtl:pl-3 rtl:pr-9'
                       {...field}
                     />
                   </FormControl>
@@ -209,7 +210,7 @@ export function ConfigurationStep({ defaultValues, onBack, onSaved }: Configurat
               <FormItem>
                 <FormLabel>{t('pos_token')}</FormLabel>
                 <div className='relative'>
-                  <KeyRoundIcon className='text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2' />
+                  <KeyRoundIcon className='text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 rtl:left-auto rtl:right-3' />
                   <FormControl>
                     <Input
                       type={showToken ? 'text' : 'password'}
@@ -225,7 +226,7 @@ export function ConfigurationStep({ defaultValues, onBack, onSaved }: Configurat
                     type='button'
                     onClick={() => setShowToken(v => !v)}
                     aria-label={showToken ? t('hide_token') : t('show_token')}
-                    className='text-muted-foreground hover:text-foreground focus-visible:ring-primary/40 absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md outline-none focus-visible:ring-2'
+                    className='text-muted-foreground hover:text-foreground focus-visible:ring-primary/40 absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md outline-none focus-visible:ring-2 rtl:right-auto rtl:left-2'
                   >
                     {showToken ? <EyeOffIcon className='size-4' /> : <EyeIcon className='size-4' />}
                   </button>
@@ -252,9 +253,10 @@ export function ConfigurationStep({ defaultValues, onBack, onSaved }: Configurat
               variant='ghost'
               onClick={onBack}
               disabled={isPending}
-              className='h-11 sm:mr-auto'
+              // Using logical margin utilities (`sm:mr-auto` flipped for RTL)
+              className='h-11 sm:mr-auto rtl:sm:mr-0 rtl:sm:ml-auto'
             >
-              <ArrowLeftIcon className='size-4' /> {t('back')}
+              <ArrowLeftIcon className='size-4 rtl:rotate-180' /> {t('back')}
             </Button>
             <Button
               type='button'
@@ -317,8 +319,13 @@ export function ReadyStep({ values, onBack, onGoToLogin }: ReadyStepProps) {
       </dl>
 
       <div className='border-border flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:items-center'>
-        <Button type='button' variant='ghost' onClick={onBack} className='h-11 sm:mr-auto'>
-          <ArrowLeftIcon className='size-4' /> {t('back')}
+        <Button 
+          type='button' 
+          variant='ghost' 
+          onClick={onBack} 
+          className='h-11 sm:mr-auto rtl:sm:mr-0 rtl:sm:ml-auto'
+        >
+          <ArrowLeftIcon className='size-4 rtl:rotate-180' /> {t('back')}
         </Button>
         <Button type='button' onClick={onGoToLogin} className={cn(brandButtonClass, 'flex-1')}>
           <LogInIcon className='size-4' /> {t('go_to_login')}
