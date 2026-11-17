@@ -69,8 +69,14 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
     >
       <div className='grid h-full grid-cols-[1fr_auto_1fr] items-stretch'>
         {/* Left: logo + navigation */}
-        <div className='flex h-full items-center gap-4 justify-self-start ps-4'>
-          <div className='flex items-center'>
+        <div className='flex h-full items-center gap-4 justify-self-start'>
+          <div
+            className={cn(
+              'bg-panel text-primary-foreground flex h-full items-center',
+              'ps-4 pe-8',
+              '[clip-path:polygon(0_0,100%_0,calc(100%_-_28px)_100%,0_100%)]'
+            )}
+          >
             <img
               src='/images/logo.svg'
               alt={t('app_name')}

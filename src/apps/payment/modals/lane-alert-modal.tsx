@@ -86,7 +86,7 @@ function Shell({
   children,
 }: {
   icon: ComponentType<{ className?: string }>
-  /** Icon color; the header is dark, so use light shades (e.g. text-red-400) */
+  /** Icon color; the icon now sits on a tinted tile, so use the standard foreground shades */
   iconClassName?: string
   title: string
   /** Header description; omit when the message is shown in the body instead */
@@ -96,14 +96,27 @@ function Shell({
   footer?: ReactNode
   children: ReactNode
 }) {
+  const Icon = icon
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent className={wide ? 'sm:max-w-5xl' : 'sm:max-w-3xl'}>
-        <DialogHeader icon={icon} iconClassName={iconClassName}>
-          <DialogTitle>{title}</DialogTitle>
-          {message && <DialogDescription>{message}</DialogDescription>}
+        {/* ── Header ── */}
+        <DialogHeader className='pt-5 pb-4'>
+          <div className='flex items-center gap-3'>
+            <div className='bg-primary/10 flex size-9 shrink-0 items-center justify-center rounded-lg'>
+              <Icon className={iconClassName ?? 'text-primary size-5'} />
+            </div>
+            <div>
+              <DialogTitle>{title}</DialogTitle>
+              {message && <DialogDescription>{message}</DialogDescription>}
+            </div>
+          </div>
         </DialogHeader>
+
+        {/* ── Body ── */}
         <DialogBody>{children}</DialogBody>
+
+        {/* ── Footer ── */}
         {footer && <DialogFooter>{footer}</DialogFooter>}
       </DialogContent>
     </Dialog>
@@ -217,7 +230,7 @@ function BarrierRetryModal({
   return (
     <Shell
       icon={TriangleAlert}
-      iconClassName='text-amber-400'
+      iconClassName='text-amber-500'
       title={t('open_barrier_try_again', { defaultValue: message })}
       onClose={onClose}
       footer={
@@ -239,19 +252,19 @@ function BarrierRetryModal({
 
 /* ───────── Season parker states ───────── */
 
-// Colors are light shades because they sit on the dark dialog header
+// Colors use standard foreground shades because the icon now sits on a tinted tile
 const SEASON_PARKER_STATES: Record<
   string,
   { Icon: typeof BadgeCheck; color: string; titleKey: string }
 > = {
   season_parker_valid: {
     Icon: BadgeCheck,
-    color: 'text-green-400',
+    color: 'text-green-500',
     titleKey: 'season_parker_valid',
   },
   season_parker_not_present_in_facility: {
     Icon: BadgeAlert,
-    color: 'text-amber-400',
+    color: 'text-amber-500',
     titleKey: 'season_parker_not_present_in_facility',
   },
 }
@@ -259,7 +272,7 @@ const SEASON_PARKER_STATES: Record<
 // Any other state is treated as not valid
 const SEASON_PARKER_FALLBACK = {
   Icon: BadgeX,
-  color: 'text-red-400',
+  color: 'text-red-500',
   titleKey: 'season_parker_not_valid',
 }
 
@@ -279,7 +292,7 @@ function LaneAlertContent({
       return (
         <Shell
           icon={ShieldAlert}
-          iconClassName='text-red-400'
+          iconClassName='text-red-500'
           title={t('graylisted_plate')}
           message={alert.message}
           onClose={onClose}
@@ -293,7 +306,7 @@ function LaneAlertContent({
         <Shell
           wide
           icon={ShieldAlert}
-          iconClassName='text-red-400'
+          iconClassName='text-red-500'
           title={t('graylisted_season_parker')}
           message={alert.message}
           onClose={onClose}
@@ -331,7 +344,7 @@ function LaneAlertContent({
       return (
         <Shell
           icon={ShieldAlert}
-          iconClassName='text-amber-400'
+          iconClassName='text-amber-500'
           title={t('exited_with_zero_payment')}
           message={alert.message}
           onClose={onClose}
@@ -352,7 +365,7 @@ function LaneAlertContent({
       return (
         <Shell
           icon={Clock}
-          iconClassName='text-amber-400'
+          iconClassName='text-amber-500'
           title={t('exited_in_unpaid_grace_time')}
           message={alert.message}
           onClose={onClose}
@@ -365,7 +378,7 @@ function LaneAlertContent({
       return (
         <Shell
           icon={XCircle}
-          iconClassName='text-red-400'
+          iconClassName='text-red-500'
           title={t('tariff_error', { defaultValue: alert.message })}
           message={alert.message}
           onClose={onClose}
@@ -381,7 +394,7 @@ function LaneAlertContent({
       return (
         <Shell
           icon={Printer}
-          iconClassName='text-amber-400'
+          iconClassName='text-amber-500'
           title={t('print_receipt_try_again', { defaultValue: alert.message })}
           onClose={onClose}
         >

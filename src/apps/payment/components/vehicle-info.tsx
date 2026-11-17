@@ -76,7 +76,6 @@ export function VehicleInfo() {
                 onClick={updateVehicleImage}
               >
                 {isUpdatingImage ? <Spinner variant='circle' /> : <RefreshCw />}
-                {t('update_image')}
               </Button>
             )}
           </div>
@@ -89,7 +88,7 @@ export function VehicleInfo() {
                 <Input
                   id='licensePlate'
                   readOnly
-                  className='flex-1'
+                  className='flex-1 text-muted-foreground'
                   value={plate}
                 />
                 <Button
@@ -106,22 +105,38 @@ export function VehicleInfo() {
 
             <div className='space-y-2'>
               <Label htmlFor='epan'>{t('epan')}</Label>
-              <Input id='epan' readOnly value={view?.epan ?? ''} />
+              <Input
+                id='epan'
+                readOnly
+                className='text-muted-foreground'
+                value={view?.epan ?? ''}
+              />
             </div>
             <div className='space-y-2'>
               <Label htmlFor='cardType'>{t('card_type')}</Label>
-              <Input id='cardType' readOnly value={view?.cardType ?? ''} />
+              <Input
+                id='cardType'
+                readOnly
+                className='text-muted-foreground'
+                value={view?.cardType ?? ''}
+              />
             </div>
 
             <div className='space-y-2'>
               <Label htmlFor='entryTime'>{t('entry_time')}</Label>
-              <Input id='entryTime' readOnly value={view?.entryTime ?? ''} />
+              <Input
+                id='entryTime'
+                readOnly
+                className='text-muted-foreground'
+                value={view?.entryTime ?? ''}
+              />
             </div>
             <div className='space-y-2'>
               <Label htmlFor='parkingDuration'>{t('parking_duration')}</Label>
               <Input
                 id='parkingDuration'
                 readOnly
+                className='text-muted-foreground'
                 value={view?.parkingDuration ?? ''}
               />
             </div>

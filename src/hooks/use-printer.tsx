@@ -74,7 +74,7 @@ export function useConfigReceiptPreview() {
     onSuccess: (res) => {
       queryClient.setQueryData(
         CONFIG_RECEIPT_PREVIEW_KEY,
-        res.data.image_base64
+        res.data.receipt
       )
     },
     onError: (error) => {

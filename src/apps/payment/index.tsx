@@ -12,7 +12,6 @@ import { PlateSearch } from './components/plate-search'
 import { QuickActions } from './components/quick-actions'
 import { VehicleInfo } from './components/vehicle-info'
 import { LaneAlertModal } from './modals/lane-alert-modal'
-import { LaneErrorAlert } from './modals/lane-error-alert'
 import { PlateSearchModal } from './modals/plate-search-modal'
 
 export function Payment() {
@@ -69,7 +68,6 @@ export function Payment() {
       </div>
 
       <LaneAlertModal />
-      <LaneErrorAlert />
       {searchEvent && (
         <PlateSearchModal
           onClose={() => setDismissedSearch(searchEvent)}

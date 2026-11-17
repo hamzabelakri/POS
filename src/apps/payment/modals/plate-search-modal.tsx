@@ -95,11 +95,19 @@ export function PlateSearchModal({
   return (
     <Dialog open onOpenChange={(next) => !next && handleClose()}>
       <DialogContent className='sm:max-w-6xl'>
-        <DialogHeader icon={IconSearch}>
-          <DialogTitle>{t('license_plate')}</DialogTitle>
+        {/* ── Header ── */}
+        <DialogHeader className='pt-5 pb-4'>
+          <div className='flex items-center gap-3'>
+            <div className='bg-primary/10 flex size-9 shrink-0 items-center justify-center rounded-lg'>
+              <IconSearch className='text-primary size-5' />
+            </div>
+            <div>
+              <DialogTitle>{t('license_plate')}</DialogTitle>
+            </div>
+          </div>
         </DialogHeader>
 
-        {/* space-y-4 replaces the gap the old grid DialogContent provided */}
+        {/* ── Body ── */}
         <DialogBody className='space-y-4'>
           <Card className='gap-0 py-0'>
             <CardContent className='py-4'>
@@ -163,8 +171,14 @@ export function PlateSearchModal({
           </div>
         </DialogBody>
 
+        {/* ── Footer ── */}
         <DialogFooter>
-          <Button type='button' variant='outline' onClick={handleClose}>
+          <Button
+            type='button'
+            variant='ghost'
+            onClick={handleClose}
+            className='text-muted-foreground'
+          >
             {t('close')}
           </Button>
         </DialogFooter>

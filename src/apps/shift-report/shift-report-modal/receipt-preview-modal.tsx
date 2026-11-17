@@ -36,7 +36,7 @@ export function ReceiptPreviewModal({
         </DialogHeader>
 
         <DialogBody>
-          <div className='flex max-h-[70vh] min-h-32 items-center justify-center overflow-auto'>
+          <div className='flex max-h-[50vh] min-h-32 items-center justify-center overflow-auto'>
             {isLoading ? (
               <Spinner variant='circle' />
             ) : isError ? (
@@ -47,7 +47,7 @@ export function ReceiptPreviewModal({
               <img
                 src={toImageSrc(receipt)}
                 alt={t('receipt')}
-                className='h-auto max-h-[70vh] w-full object-contain'
+                className='h-auto max-h-[50vh] w-60 object-contain'
               />
             ) : (
               <p className='text-muted-foreground text-sm'>
