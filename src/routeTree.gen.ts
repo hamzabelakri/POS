@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
@@ -25,6 +26,10 @@ import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenti
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authRouteRoute = authRouteRouteImport.update({
+  id: '/(auth)',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
@@ -58,19 +63,19 @@ const errors401Route = errors401RouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const authStartShiftRoute = authStartShiftRouteImport.update({
-  id: '/(auth)/start-shift',
+  id: '/start-shift',
   path: '/start-shift',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => authRouteRoute,
 } as any)
 const authSignInRoute = authSignInRouteImport.update({
-  id: '/(auth)/sign-in',
+  id: '/sign-in',
   path: '/sign-in',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => authRouteRoute,
 } as any)
 const authPosSetupRoute = authPosSetupRouteImport.update({
-  id: '/(auth)/pos-setup',
+  id: '/pos-setup',
   path: '/pos-setup',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => authRouteRoute,
 } as any)
 const AuthenticatedShiftReportIndexRoute =
   AuthenticatedShiftReportIndexRouteImport.update({
@@ -92,6 +97,7 @@ const AuthenticatedErrorsErrorRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof AuthenticatedIndexRoute
   '/pos-setup': typeof authPosSetupRoute
   '/sign-in': typeof authSignInRoute
   '/start-shift': typeof authStartShiftRoute
@@ -100,12 +106,12 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
-  '/': typeof AuthenticatedIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/config': typeof AuthenticatedConfigIndexRoute
   '/shift-report': typeof AuthenticatedShiftReportIndexRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof AuthenticatedIndexRoute
   '/pos-setup': typeof authPosSetupRoute
   '/sign-in': typeof authSignInRoute
   '/start-shift': typeof authStartShiftRoute
@@ -114,13 +120,13 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
-  '/': typeof AuthenticatedIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/config': typeof AuthenticatedConfigIndexRoute
   '/shift-report': typeof AuthenticatedShiftReportIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/(auth)': typeof authRouteRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/(auth)/pos-setup': typeof authPosSetupRoute
   '/(auth)/sign-in': typeof authSignInRoute
@@ -138,6 +144,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/pos-setup'
     | '/sign-in'
     | '/start-shift'
@@ -146,12 +153,12 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
-    | '/'
     | '/errors/$error'
     | '/config'
     | '/shift-report'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/pos-setup'
     | '/sign-in'
     | '/start-shift'
@@ -160,12 +167,12 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
-    | '/'
     | '/errors/$error'
     | '/config'
     | '/shift-report'
   id:
     | '__root__'
+    | '/(auth)'
     | '/_authenticated'
     | '/(auth)/pos-setup'
     | '/(auth)/sign-in'
@@ -182,10 +189,8 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  authRouteRoute: typeof authRouteRouteWithChildren
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  authPosSetupRoute: typeof authPosSetupRoute
-  authSignInRoute: typeof authSignInRoute
-  authStartShiftRoute: typeof authStartShiftRoute
   errors401Route: typeof errors401Route
   errors403Route: typeof errors403Route
   errors404Route: typeof errors404Route
@@ -200,6 +205,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)': {
+      id: '/(auth)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof authRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/': {
@@ -249,21 +261,21 @@ declare module '@tanstack/react-router' {
       path: '/start-shift'
       fullPath: '/start-shift'
       preLoaderRoute: typeof authStartShiftRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof authRouteRoute
     }
     '/(auth)/sign-in': {
       id: '/(auth)/sign-in'
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof authSignInRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof authRouteRoute
     }
     '/(auth)/pos-setup': {
       id: '/(auth)/pos-setup'
       path: '/pos-setup'
       fullPath: '/pos-setup'
       preLoaderRoute: typeof authPosSetupRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof authRouteRoute
     }
     '/_authenticated/shift-report/': {
       id: '/_authenticated/shift-report/'
@@ -289,6 +301,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface authRouteRouteChildren {
+  authPosSetupRoute: typeof authPosSetupRoute
+  authSignInRoute: typeof authSignInRoute
+  authStartShiftRoute: typeof authStartShiftRoute
+}
+
+const authRouteRouteChildren: authRouteRouteChildren = {
+  authPosSetupRoute: authPosSetupRoute,
+  authSignInRoute: authSignInRoute,
+  authStartShiftRoute: authStartShiftRoute,
+}
+
+const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
+  authRouteRouteChildren,
+)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
@@ -307,10 +335,8 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  authRouteRoute: authRouteRouteWithChildren,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  authPosSetupRoute: authPosSetupRoute,
-  authSignInRoute: authSignInRoute,
-  authStartShiftRoute: authStartShiftRoute,
   errors401Route: errors401Route,
   errors403Route: errors403Route,
   errors404Route: errors404Route,
