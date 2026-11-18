@@ -12,12 +12,16 @@ import { ApiError } from "@/models/api";
 import { AlertEnum } from "@/models/alert-model";
 import { useAlertStore } from "@/stores/alert-store";
 
-// Shared by the barrier hooks: they only differ by endpoint and fallback error.
+interface MutationOptions {
+  showErrorAlert?: boolean;
+}
+
 function useBarrierMutation(
   mutationFn: () => Promise<BarrierResponse>,
-  fallbackError: string
+  options: MutationOptions = {}
 ) {
   const { showAlert } = useAlertStore();
+  const { showErrorAlert = true } = options;
 
   return useMutation<BarrierResponse, AxiosError<ApiError>, void>({
     mutationFn,
@@ -25,29 +29,26 @@ function useBarrierMutation(
       showAlert({ message: data.message, type: AlertEnum.SUCCESS });
     },
     onError: (error) => {
-      console.error(fallbackError, error?.response?.data?.error);
-      showAlert({
-        message: error?.response?.data?.error || fallbackError,
-        type: AlertEnum.ERROR,
-      });
+      console.error("Barrier mutation error:", error);
+
+      const errorMessage = error?.response?.data?.error;
+      if (showErrorAlert && errorMessage) {
+        showAlert({
+          message: errorMessage,
+          type: AlertEnum.ERROR,
+        });
+      }
     },
   });
 }
 
-export const useOpenBarrier = () =>
-  useBarrierMutation(openBarrier, "Unable to open the barrier. Please try again.");
+export const useOpenBarrier = () => useBarrierMutation(openBarrier);
 
-export const useCloseBarrier = () =>
-  useBarrierMutation(closeBarrier, "Unable to close the barrier. Please try again.");
+export const useCloseBarrier = () => useBarrierMutation(closeBarrier);
 
-export const useLockBarrier = () =>
-  useBarrierMutation(lockBarrier, "Unable to lock the barrier. Please try again.");
+export const useLockBarrier = () => useBarrierMutation(lockBarrier);
 
-export const useUnlockBarrier = () =>
-  useBarrierMutation(unlockBarrier, "Unable to unlock the barrier. Please try again.");
+export const useUnlockBarrier = () => useBarrierMutation(unlockBarrier);
 
 export const useRetryOpenBarrier = () =>
-  useBarrierMutation(
-    retryOpenBarrier,
-    "Unable to open the barrier. Please try again."
-  );
+  useBarrierMutation(retryOpenBarrier, { showErrorAlert: false });

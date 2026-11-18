@@ -44,7 +44,7 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
         meta: { label: t('card_type') },
         cell: ({ row }) => (
           <div className='w-fit capitalize'>
-            {row.original.card_type ? t(row.original.card_type) : '-'}
+            {t(row.original.card_type)}
           </div>
         ),
       },
@@ -81,7 +81,7 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
         meta: { label: t('payment_method') },
         cell: ({ row }) => (
           <div className='w-fit capitalize'>
-            {row.original.payment_method || '-'}
+            {row.original.payment_method}
           </div>
         ),
         filterFn: (row, id, value) =>

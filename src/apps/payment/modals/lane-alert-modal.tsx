@@ -1,37 +1,18 @@
-import type { ComponentType, ReactNode } from 'react'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
+import { AlertEnum } from '@/models/alert-model'
 import {
   toImageSrc,
   toVehicleView,
   type ExitCar,
   type GraylistResult,
-  type LaneAlert,
   type QueuedLaneAlert,
   type SeasonParkerStatus,
 } from '@/models/sse-model'
-import {
-  BadgeAlert,
-  BadgeCheck,
-  BadgeX,
-  Clock,
-  Loader2,
-  Printer,
-  ShieldAlert,
-  TriangleAlert,
-  XCircle,
-} from 'lucide-react'
+import { useAlertStore, type AlertConfig } from '@/stores/alert-store'
 import { useSSEStore } from '@/stores/sse-store'
 import { useRetryOpenBarrier } from '@/hooks/use-barrier'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogBody,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 
 /* ───────── Shared pieces ───────── */
 
@@ -72,54 +53,6 @@ function Flag({ label, on }: { label: string; on: boolean }) {
     >
       {label}: {on ? t('blocked') : t('allowed')}
     </span>
-  )
-}
-
-function Shell({
-  icon,
-  iconClassName,
-  title,
-  message,
-  onClose,
-  wide,
-  footer,
-  children,
-}: {
-  icon: ComponentType<{ className?: string }>
-  /** Icon color; the icon now sits on a tinted tile, so use the standard foreground shades */
-  iconClassName?: string
-  title: string
-  /** Header description; omit when the message is shown in the body instead */
-  message?: string
-  onClose: () => void
-  wide?: boolean
-  footer?: ReactNode
-  children: ReactNode
-}) {
-  const Icon = icon
-  return (
-    <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className={wide ? 'sm:max-w-5xl' : 'sm:max-w-3xl'}>
-        {/* ── Header ── */}
-        <DialogHeader className='pt-5 pb-4'>
-          <div className='flex items-center gap-3'>
-            <div className='bg-primary/10 flex size-9 shrink-0 items-center justify-center rounded-lg'>
-              <Icon className={iconClassName ?? 'text-primary size-5'} />
-            </div>
-            <div>
-              <DialogTitle>{title}</DialogTitle>
-              {message && <DialogDescription>{message}</DialogDescription>}
-            </div>
-          </div>
-        </DialogHeader>
-
-        {/* ── Body ── */}
-        <DialogBody>{children}</DialogBody>
-
-        {/* ── Footer ── */}
-        {footer && <DialogFooter>{footer}</DialogFooter>}
-      </DialogContent>
-    </Dialog>
   )
 }
 
@@ -208,109 +141,49 @@ function ErrorDetailSection({ detail }: { detail: string | null }) {
   )
 }
 
-function MessageSection({ message }: { message: string }) {
-  return <p className='text-sm'>{message || '—'}</p>
-}
+/* ───────── Alert type per season parker state ───────── */
 
-/* ───────── Barrier retry ───────── */
-
-function BarrierRetryModal({
-  message,
-  onClose,
-}: {
-  message: string
-  onClose: () => void
-}) {
-  const { t } = useTranslation()
-  const { mutate, isPending } = useRetryOpenBarrier()
-
-  // Close on success; on error the alert shows and the modal stays for another try
-  const retry = () => mutate(undefined, { onSuccess: onClose })
-
-  return (
-    <Shell
-      icon={TriangleAlert}
-      iconClassName='text-amber-500'
-      title={t('open_barrier_try_again', { defaultValue: message })}
-      onClose={onClose}
-      footer={
-        <>
-          <Button variant='outline' onClick={onClose} disabled={isPending}>
-            {t('cancel')}
-          </Button>
-          <Button onClick={retry} disabled={isPending}>
-            {isPending && <Loader2 className='animate-spin' />}
-            {t('try')}
-          </Button>
-        </>
-      }
-    >
-      <MessageSection message={message} />
-    </Shell>
-  )
-}
-
-/* ───────── Season parker states ───────── */
-
-// Colors use standard foreground shades because the icon now sits on a tinted tile
 const SEASON_PARKER_STATES: Record<
   string,
-  { Icon: typeof BadgeCheck; color: string; titleKey: string }
+  { type: AlertConfig['type']; titleKey: string }
 > = {
-  season_parker_valid: {
-    Icon: BadgeCheck,
-    color: 'text-green-500',
-    titleKey: 'season_parker_valid',
-  },
+  // INFO, not SUCCESS: ConfirmAlert auto-hides success alerts without running callbacks
+  season_parker_valid: { type: AlertEnum.INFO, titleKey: 'season_parker_valid' },
   season_parker_not_present_in_facility: {
-    Icon: BadgeAlert,
-    color: 'text-amber-500',
+    type: AlertEnum.WARNING,
     titleKey: 'season_parker_not_present_in_facility',
   },
 }
-
-// Any other state is treated as not valid
 const SEASON_PARKER_FALLBACK = {
-  Icon: BadgeX,
-  color: 'text-red-500',
+  type: AlertEnum.ERROR,
   titleKey: 'season_parker_not_valid',
 }
 
-/* ───────── Per-alert content ───────── */
+/* ───────── Lane alert → ConfirmAlert config ───────── */
 
-function LaneAlertContent({
-  alert,
-  onClose,
-}: {
-  alert: QueuedLaneAlert
-  onClose: () => void
-}) {
-  const { t } = useTranslation()
+type View = Pick<AlertConfig, 'type' | 'message' | 'description' | 'content' | 'wide'>
 
+// Show the backend message as a subtitle only when it isn't already the title
+const sub = (title: string, msg: string) => (msg && msg !== title ? msg : undefined)
+
+function buildView(alert: QueuedLaneAlert, t: TFunction): View {
   switch (alert.type) {
     case 'graylist_lpn':
-      return (
-        <Shell
-          icon={ShieldAlert}
-          iconClassName='text-red-500'
-          title={t('graylisted_plate')}
-          message={alert.message}
-          onClose={onClose}
-        >
-          <GraylistSection g={alert.data} />
-        </Shell>
-      )
+      return {
+        type: AlertEnum.ERROR,
+        message: t('graylisted_plate'),
+        description: alert.message || undefined,
+        wide: true,
+        content: <GraylistSection g={alert.data} />,
+      }
 
     case 'graylist_season_parker':
-      return (
-        <Shell
-          wide
-          icon={ShieldAlert}
-          iconClassName='text-red-500'
-          title={t('graylisted_season_parker')}
-          message={alert.message}
-          onClose={onClose}
-        >
+      return {
+        type: AlertEnum.ERROR,
+        message: t('graylisted_season_parker'),
+        description: alert.message || undefined,
+        wide: true,
+        content: (
           <div className='space-y-6'>
             <div className='space-y-2'>
               <h3 className='text-sm font-semibold'>{t('graylist')}</h3>
@@ -321,34 +194,28 @@ function LaneAlertContent({
               <SeasonParkerSection s={alert.data.season_parker} />
             </div>
           </div>
-        </Shell>
-      )
+        ),
+      }
 
     case 'season_parker_status': {
-      const { Icon, color, titleKey } =
+      const { type, titleKey } =
         SEASON_PARKER_STATES[alert.data.state] ?? SEASON_PARKER_FALLBACK
-      return (
-        <Shell
-          icon={Icon}
-          iconClassName={color}
-          title={t(titleKey)}
-          message={alert.message}
-          onClose={onClose}
-        >
-          <SeasonParkerSection s={alert.data} />
-        </Shell>
-      )
+      return {
+        type,
+        message: t(titleKey),
+        description: alert.message || undefined,
+        wide: true,
+        content: <SeasonParkerSection s={alert.data} />,
+      }
     }
 
     case 'graylist_exited_with_zero_payment':
-      return (
-        <Shell
-          icon={ShieldAlert}
-          iconClassName='text-amber-500'
-          title={t('exited_with_zero_payment')}
-          message={alert.message}
-          onClose={onClose}
-        >
+      return {
+        type: AlertEnum.WARNING,
+        message: t('exited_with_zero_payment'),
+        description: alert.message || undefined,
+        wide: true,
+        content: (
           <div className='space-y-4'>
             <GraylistSection g={alert.data.graylist} />
             <div className='border-t pt-4'>
@@ -358,70 +225,92 @@ function LaneAlertContent({
               />
             </div>
           </div>
-        </Shell>
-      )
+        ),
+      }
 
     case 'car_exited_in_unpaid_grace_time':
-      return (
-        <Shell
-          icon={Clock}
-          iconClassName='text-amber-500'
-          title={t('exited_in_unpaid_grace_time')}
-          message={alert.message}
-          onClose={onClose}
-        >
-          <VehicleSection car={alert.data} />
-        </Shell>
-      )
+      return {
+        type: AlertEnum.WARNING,
+        message: t('exited_in_unpaid_grace_time'),
+        description: alert.message || undefined,
+        wide: true,
+        content: <VehicleSection car={alert.data} />,
+      }
 
-    case 'tariff_error':
-      return (
-        <Shell
-          icon={XCircle}
-          iconClassName='text-red-500'
-          title={t('tariff_error', { defaultValue: alert.message })}
-          message={alert.message}
-          onClose={onClose}
-        >
-          <ErrorDetailSection detail={alert.data} />
-        </Shell>
-      )
+    case 'tariff_error': {
+      const title = t('tariff_error', { defaultValue: alert.message })
+      return {
+        type: AlertEnum.ERROR,
+        message: title,
+        description: sub(title, alert.message),
+        content: alert.data ? <ErrorDetailSection detail={alert.data} /> : undefined,
+      }
+    }
 
-    case 'open_barrier_try_again':
-      return <BarrierRetryModal message={alert.message} onClose={onClose} />
+    case 'open_barrier_try_again': {
+      const title = t('open_barrier_try_again', { defaultValue: alert.message })
+      return {
+        type: AlertEnum.WARNING,
+        message: title,
+        description: sub(title, alert.message),
+      }
+    }
 
-    case 'print_receipt_try_again':
-      return (
-        <Shell
-          icon={Printer}
-          iconClassName='text-amber-500'
-          title={t('print_receipt_try_again', { defaultValue: alert.message })}
-          onClose={onClose}
-        >
-          <MessageSection message={alert.message} />
-        </Shell>
-      )
+    case 'print_receipt_try_again': {
+      const title = t('print_receipt_try_again', { defaultValue: alert.message })
+      return {
+        type: AlertEnum.WARNING,
+        message: title,
+        description: sub(title, alert.message),
+      }
+    }
   }
 }
 
 /* ───────── Entry point ───────── */
 
+/**
+ * Shows the newest lane alert through the shared ConfirmAlert. Older ones stay
+ * queued in the SSE store and come back, newest first, as each one is closed.
+ */
 export function LaneAlertModal() {
+  const { t } = useTranslation()
   const alerts = useSSEStore((s) => s.laneAlerts)
   const close = useSSEStore((s) => s.clearLaneAlert)
+  const { mutate: retryBarrier } = useRetryOpenBarrier()
+  const shownId = useRef<number | null>(null)
 
-  // One modal per alert, in arrival order: later ones mount after, so they
-  // render above. The key keeps each modal's state (e.g. a pending retry)
-  // tied to its own alert.
-  return (
-    <>
-      {alerts.map((alert) => (
-        <LaneAlertContent
-          key={alert.id}
-          alert={alert}
-          onClose={() => close(alert.id)}
-        />
-      ))}
-    </>
-  )
+  useEffect(() => {
+    const top = alerts.at(-1)
+
+    // Queue emptied elsewhere (Clear All, logout): close what we opened
+    if (!top) {
+      if (shownId.current !== null) {
+        shownId.current = null
+        useAlertStore.getState().hideAlert()
+      }
+      return
+    }
+    if (shownId.current === top.id) return
+    shownId.current = top.id
+
+    const isBarrier = top.type === 'open_barrier_try_again'
+    const done = () => {
+      shownId.current = null
+      close(top.id)
+    }
+
+    useAlertStore.getState().showAlert({
+      ...buildView(top, t),
+      confirmText: isBarrier ? t('try') : t('ok', { defaultValue: 'Okay' }),
+      cancelText: isBarrier ? t('cancel') : undefined,
+      onConfirm: () => {
+        done()
+        if (isBarrier) retryBarrier()
+      },
+      onCancel: done,
+    })
+  }, [alerts, t, close, retryBarrier])
+
+  return null
 }

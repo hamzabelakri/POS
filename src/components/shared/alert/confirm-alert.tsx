@@ -23,7 +23,7 @@ import { useEffect } from "react";
 
 type ButtonVariant = "destructive" | "warning" | "success" | "default";
 
-const alertStyles: Record<
+export const alertStyles: Record<
   AlertType,
   {
     Icon: LucideIcon;
@@ -70,6 +70,8 @@ export function ConfirmAlert() {
     isOpen,
     message,
     description,
+    content,
+    wide,
     type,
     confirmText,
     cancelText,
@@ -103,7 +105,12 @@ export function ConfirmAlert() {
 
   return (
     <AlertDialog open={isOpen}>
-      <AlertDialogContent className="w-120 data-[state=open]:!zoom-in-0 data-[state=closed]:!zoom-out-0 origin-center duration-400">
+      <AlertDialogContent
+        className={cn(
+          "data-[state=open]:!zoom-in-0 data-[state=closed]:!zoom-out-0 origin-center duration-400",
+          wide ? "w-3xl sm:max-w-3xl" : "w-120"
+        )}
+      >
         <AlertDialogHeader className="items-center">
           <div
             className={cn(
@@ -120,6 +127,11 @@ export function ConfirmAlert() {
             </AlertDialogDescription>
           )}
         </AlertDialogHeader>
+        {content && (
+          <div className="max-h-[60vh] overflow-y-auto text-start">
+            {content}
+          </div>
+        )}
         <AlertDialogFooter className="mt-2 sm:justify-center">
           {cancelText && (
             <AlertDialogCancel

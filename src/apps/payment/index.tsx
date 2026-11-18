@@ -11,17 +11,16 @@ import { PaymentActions } from './components/payment-actions'
 import { PlateSearch } from './components/plate-search'
 import { QuickActions } from './components/quick-actions'
 import { VehicleInfo } from './components/vehicle-info'
-import { LaneAlertModal } from './modals/lane-alert-modal'
+
 import { PlateSearchModal } from './modals/plate-search-modal'
+import { LaneAlertDialogs } from './modals/lane-alert-dialogs' // Clean import
 
 export function Payment() {
-  // Billing comes from the last exit_car message, not from local state
   const lines = useBilledLines()
   const exitEvent = useSSEStore((s) => s.exitEvent)
   const clearExitEvent = useSSEStore((s) => s.clearExitEvent)
   const { cancelArticle, isPending: isCancelling } = useCancelArticle()
 
-  // Amounts come from the last exit_car message
   const exitCar = exitEvent?.type === 'exit_car' ? exitEvent.data : null
   const transactions = exitCar?.transactions ?? {}
   const total = exitCar?.payment_summary.total ?? 0
@@ -32,11 +31,10 @@ export function Payment() {
   )
 
   const removeFromBilling = (key: string) => {
-    if (isCancelling) return // avoids double cancels
-    cancelArticle(key) // the line disappears after the cancel succeeds
+    if (isCancelling) return
+    cancelArticle(key)
   }
 
-  // Each message is a new object, so a new search_car reopens the modal
   const [dismissedSearch, setDismissedSearch] =
     useState<ExitVehicleEvent | null>(null)
   const searchEvent =
@@ -67,7 +65,9 @@ export function Payment() {
         </div>
       </div>
 
-      <LaneAlertModal />
+      {/* No action mapping props needed anymore! */}
+      <LaneAlertDialogs />
+
       {searchEvent && (
         <PlateSearchModal
           onClose={() => setDismissedSearch(searchEvent)}
