@@ -11,9 +11,10 @@ import { PaymentActions } from './components/payment-actions'
 import { PlateSearch } from './components/plate-search'
 import { QuickActions } from './components/quick-actions'
 import { VehicleInfo } from './components/vehicle-info'
-
+import { LaneAlertDialogs } from './alerts/lane-alert-dialogs'
+import { BarrierRetryAlerts } from './alerts/barrier-retry-alerts'
 import { PlateSearchModal } from './modals/plate-search-modal'
-import { LaneAlertDialogs } from './modals/lane-alert-dialogs' // Clean import
+
 
 export function Payment() {
   const lines = useBilledLines()
@@ -65,8 +66,8 @@ export function Payment() {
         </div>
       </div>
 
-      {/* No action mapping props needed anymore! */}
       <LaneAlertDialogs />
+      <BarrierRetryAlerts />
 
       {searchEvent && (
         <PlateSearchModal

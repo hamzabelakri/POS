@@ -74,7 +74,7 @@ function seasonParkerTone(state: string): DialogTone {
 function seasonParkerDetails(sp: SeasonParker, t: TFunction): DetailItem[] {
   return [
     {
-      label: t('cardholder'),
+      label: t('card_holder'),
       value: [sp.participant_first_name, sp.participant_last_name].filter(Boolean).join(' ') || '—',
     },
     { label: t('card_number'), value: sp.card_number || '—' },
@@ -378,8 +378,7 @@ function LaneAlertContent({ alert, onDismiss }: { alert: QueuedLaneAlert } & Dis
       return <CarExitedUnpaidGraceModal alert={alert} onDismiss={onDismiss} />
     case 'tariff_error':
       return <TariffErrorModal alert={alert} onDismiss={onDismiss} />
-    case 'open_barrier_try_again':
-      return <BarrierRetryAlertModal alert={alert} onDismiss={onDismiss} />
+  
     case 'print_receipt_try_again':
       return <PrintReceiptRetryAlertModal alert={alert} onDismiss={onDismiss} />
     default:

@@ -638,6 +638,7 @@ export const fr = {
   'setup_banner_description': 'Vous ne devez le faire qu\'une seule fois par terminal.',
   'setup_progress': 'Progression de la configuration',
   "in_facility": "Dans l'établissement",
-  "cardholder": "Titulaire de la carte"
+  "card_holder": "Titulaire de la carte",
+  "try_again": "Réessayer"
 
 } as const;

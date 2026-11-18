@@ -641,6 +641,7 @@ export const ar = {
   'setup_banner_description': 'تحتاج إلى القيام بذلك مرة واحدة فقط لكل جهاز.',
   'setup_progress': 'تقدم التهيئة',
   "in_facility": "في المنشأة",
-  "cardholder": "حامل البطاقة"
+  "card_holder": "حامل البطاقة",
+  "try_again": "حاول مرة أخرى"
 
 } as const;

@@ -639,7 +639,8 @@ export const en = {
   'setup_banner_description': 'You only need to do this once per terminal.',
   'setup_progress': 'Setup progress',
   "in_facility": "In facility",
-  "cardholder": "Cardholder"
+  "card_holder": "Cardholder",
+  "try_again": "Try Again"
 
 
 } as const;
