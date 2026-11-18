@@ -1,13 +1,13 @@
 import { useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
+import { SeasonParker } from '@/models/season-parker-model'
 import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useSeasonParkerExit } from '@/hooks/use-season-parker'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { LongText } from '@/components/long-text'
 import { DataTableColumnHeader } from '@/components/shared/data-table'
-import { SeasonParker } from '@/models/season-parker-model'
-import { useSeasonParkerExit } from '@/hooks/use-season-parker'
 
 // "2026-10-28 00:00:00" -> "2026-10-28"
 const formatDate = (value?: string) => value?.split(' ')[0] ?? '-'
@@ -134,11 +134,17 @@ export const useSeasonParkerColumns = (
       {
         id: 'actions',
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title={t('actions')} />
+          <DataTableColumnHeader
+            column={column}
+            title={t('actions')}
+            className='flex justify-end'
+          />
         ),
         meta: { label: t('actions') },
         cell: ({ row }) => (
-          <ProceedButton parker={row.original} onSuccess={onProceedSuccess} />
+          <div className='flex justify-end'>
+            <ProceedButton parker={row.original} onSuccess={onProceedSuccess} />
+          </div>
         ),
         enableSorting: false,
         enableHiding: false,

@@ -1,13 +1,13 @@
 import { useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
+import { PlateSearchDetail } from '@/models/consult-model'
 import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useProceedConsult } from '@/hooks/use-consult'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { LongText } from '@/components/long-text'
 import { DataTableColumnHeader } from '@/components/shared/data-table'
-import { PlateSearchDetail } from '@/models/consult-model'
-import { useProceedConsult } from '@/hooks/use-consult'
 
 // "2026-09-01 08:22:04" (drops fractional seconds if the API ever sends them)
 const formatEntryTime = (value?: string) => value?.split('.')[0] ?? '-'
@@ -80,7 +80,9 @@ export const usePlateSearchColumns = (
         ),
         meta: { label: t('card_type') },
         cell: ({ row }) => (
-          <LongText className='max-w-36'>{row.original.card_type || '-'}</LongText>
+          <LongText className='max-w-36'>
+            {row.original.card_type || '-'}
+          </LongText>
         ),
         enableSorting: false,
       },
@@ -98,17 +100,23 @@ export const usePlateSearchColumns = (
         enableSorting: false,
       },
       {
-        id: 'actions',
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title={t('actions')} />
-        ),
-        meta: { label: t('actions') },
-        cell: ({ row }) => (
-          <ProceedButton car={row.original} onSuccess={onProceedSuccess} />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-      },
+  id: 'actions',
+  header: ({ column }) => (
+    <DataTableColumnHeader
+      column={column}
+      title={t('actions')}
+      className='flex justify-end'
+    />
+  ),
+  meta: { label: t('actions') },
+  cell: ({ row }) => (
+    <div className='flex justify-end'>
+      <ProceedButton car={row.original} onSuccess={onProceedSuccess} />
+    </div>
+  ),
+  enableSorting: false,
+  enableHiding: false,
+},
     ],
     [t, onProceedSuccess]
   )
