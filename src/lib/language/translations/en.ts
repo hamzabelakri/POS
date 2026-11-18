@@ -638,6 +638,8 @@ export const en = {
   'setup_banner_title': 'Connect to backoffice in a few steps',
   'setup_banner_description': 'You only need to do this once per terminal.',
   'setup_progress': 'Setup progress',
+  "in_facility": "In facility",
+  "cardholder": "Cardholder"
 
 
 } as const;

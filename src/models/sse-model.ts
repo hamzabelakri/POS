@@ -119,6 +119,7 @@ export type SeasonParkerStatus = {
     | 'season_parker_valid'
     | 'season_parker_not_valid'
     | 'season_parker_not_present_in_facility'
+    | 'season_parker_blocked'
     | (string & {})
   season_parker: SeasonParker
   image: string

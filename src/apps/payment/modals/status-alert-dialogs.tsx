@@ -20,6 +20,13 @@ export type DetailItem = {
   value: React.ReactNode
 }
 
+export type DetailSection = {
+  title?: string
+  image?: string | null
+  imageAlt?: string
+  details?: DetailItem[]
+}
+
 export type AlertButton = {
   label: string
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
@@ -34,6 +41,8 @@ export type StatusAlertDialogProps = {
   image?: string | null
   imageAlt?: string
   details?: DetailItem[]
+  /** Side-by-side columns; when set, `image` / `details` are ignored. */
+  sections?: DetailSection[]
   cancelLabel?: string
   confirmLabel?: string
   onCancel?: () => void
@@ -90,6 +99,33 @@ const TONES: Record<DialogTone, ToneConfig> = {
   },
 }
 
+function DetailSectionBlock({ section, ring }: { section: DetailSection; ring: string }) {
+  return (
+    <div className="min-w-0 space-y-4">
+      {section.title ? (
+        <h3 className="text-sm font-semibold text-muted-foreground">{section.title}</h3>
+      ) : null}
+
+      {section.image ? (
+        <div className={cn("h-36 overflow-hidden rounded-xl ring-1 bg-muted", ring)}>
+          <img src={section.image} alt={section.imageAlt ?? ""} className="h-full w-full object-cover" />
+        </div>
+      ) : null}
+
+      {section.details?.length ? (
+        <dl className="divide-y rounded-xl border text-sm">
+          {section.details.map((d) => (
+            <div key={d.label} className="flex items-center justify-between gap-4 px-4 py-2.5">
+              <dt className="text-muted-foreground">{d.label}</dt>
+              <dd className="text-right font-medium tabular-nums text-foreground">{d.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+    </div>
+  )
+}
+
 export function StatusAlertDialog({
   tone,
   title,
@@ -97,6 +133,7 @@ export function StatusAlertDialog({
   image,
   imageAlt = "",
   details,
+  sections,
   cancelLabel,
   confirmLabel,
   onCancel,
@@ -108,14 +145,25 @@ export function StatusAlertDialog({
 }: StatusAlertDialogProps) {
   const t = TONES[tone]
   const Icon = t.icon
-  const hasDetails = Boolean(details?.length)
 
   const finalCancel = cancelButton || (cancelLabel ? { label: cancelLabel, onClick: onCancel } : undefined)
   const finalConfirm = confirmButton || (confirmLabel ? { label: confirmLabel, onClick: onConfirm } : undefined)
 
+  // Normalize to sections: existing callers that pass `image` / `details` get a single section.
+  const resolvedSections: DetailSection[] = sections?.length
+    ? sections
+    : [{ image, imageAlt, details }]
+  const hasBody = resolvedSections.some((s) => s.image || s.details?.length)
+  const isWide = resolvedSections.length > 1
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-md gap-0 overflow-hidden p-0 sm:rounded-2xl">
+      <AlertDialogContent
+        className={cn(
+          "gap-0 overflow-hidden p-0 sm:rounded-2xl",
+          isWide ? "sm:max-w-3xl" : "max-w-md"
+        )}
+      >
         {/* Header banner with tone-based light background */}
         <div className={cn("border-b px-6 py-5", t.headerBg)}>
           <AlertDialogHeader className="flex-row items-start gap-4 space-y-0 text-left">
@@ -135,25 +183,12 @@ export function StatusAlertDialog({
           </AlertDialogHeader>
         </div>
 
-        {/* Body content: Image + Details */}
-        {(image || hasDetails) ? (
-          <div className="space-y-4 px-6 pt-5 pb-6">
-            {image ? (
-              <div className={cn("h-36 overflow-hidden rounded-xl ring-1 bg-muted", t.ring)}>
-                <img src={image} alt={imageAlt} className="h-full w-full object-cover" />
-              </div>
-            ) : null}
-
-            {hasDetails ? (
-              <dl className="divide-y rounded-xl border text-sm">
-                {details?.map((d) => (
-                  <div key={d.label} className="flex items-center justify-between gap-4 px-4 py-2.5">
-                    <dt className="text-muted-foreground">{d.label}</dt>
-                    <dd className="text-right font-medium tabular-nums text-foreground">{d.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            ) : null}
+        {/* Body content: one or more sections (image + details) */}
+        {hasBody ? (
+          <div className={cn("gap-6 px-6 pt-5 pb-6", isWide ? "grid md:grid-cols-2" : "")}>
+            {resolvedSections.map((s, i) => (
+              <DetailSectionBlock key={s.title ?? i} section={s} ring={t.ring} />
+            ))}
           </div>
         ) : null}
 
