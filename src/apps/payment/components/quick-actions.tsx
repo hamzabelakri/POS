@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { ComponentType, SVGProps, useState } from 'react'
 import { type BarrierAction } from '@/models/barrier-model'
 import {
   ArrowDown,
@@ -29,7 +29,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { EvaluationModal } from '@/components/shared/modal/evaluation-modal'
-
+import {
+  BarrierClosedIcon,
+  BarrierOpenIcon,
+  LockIcon,
+  UnlockIcon,
+} from './barrier-icons'
 // Actions that require the evaluation password first
 const PROTECTED_ACTIONS: BarrierAction[] = ['open', 'unlock']
 
@@ -53,17 +58,18 @@ export function QuickActions() {
   // Set while waiting for the evaluation password
   const [pendingAction, setPendingAction] = useState<BarrierAction | null>(null)
 
-  // Built inside the component so labels are translated; ids stay as API values.
-  const BARRIER_ACTIONS = [
-    { id: 'open', label: t('open_barrier'), icon: ArrowUp },
-    { id: 'close', label: t('close_barrier'), icon: ArrowDown },
-    { id: 'lock', label: t('lock_barrier'), icon: Lock },
-    { id: 'unlock', label: t('unlock_barrier'), icon: LockOpen },
-  ] as const satisfies readonly {
-    id: BarrierAction
-    label: string
-    icon: LucideIcon
-  }[]
+
+
+const BARRIER_ACTIONS = [
+  { id: 'open', label: t('open_barrier'), icon: BarrierOpenIcon },
+  { id: 'close', label: t('close_barrier'), icon: BarrierClosedIcon },
+  { id: 'lock', label: t('lock_barrier'), icon: LockIcon },
+  { id: 'unlock', label: t('unlock_barrier'), icon: UnlockIcon },
+] as const satisfies readonly {
+  id: BarrierAction
+  label: string
+  icon: ComponentType<SVGProps<SVGSVGElement>>
+}[]
 
   const runBarrierAction = (action: BarrierAction) => {
     const run = { open, close, lock, unlock }[action]
@@ -101,15 +107,12 @@ export function QuickActions() {
               {t('barrier')}
             </DropdownMenuTrigger>
             <DropdownMenuContent side='top' align='start' className='w-48'>
-              {BARRIER_ACTIONS.map(({ id, label, icon: Icon }) => (
-                <DropdownMenuItem
-                  key={id}
-                  onClick={() => handleBarrierAction(id)}
-                >
-                  <Icon />
-                  {label}
-                </DropdownMenuItem>
-              ))}
+          {BARRIER_ACTIONS.map(({ id, label, icon: Icon }) => (
+  <DropdownMenuItem key={id} onClick={() => handleBarrierAction(id)}>
+    <Icon className='size-8' />
+    {label}
+  </DropdownMenuItem>
+))}
             </DropdownMenuContent>
           </DropdownMenu>
 

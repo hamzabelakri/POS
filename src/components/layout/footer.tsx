@@ -1,4 +1,3 @@
-// src/components/layout/footer.tsx
 import { useEffect, useState } from 'react'
 import { SlidersHorizontal, Monitor, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'

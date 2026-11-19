@@ -1,45 +1,38 @@
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0.025 259.815);
-
-  --card: oklch(0.996 0.002 259.815);
-  --card-foreground: var(--foreground);
-
-  --popover: oklch(0.996 0.002 259.815);
-  --popover-foreground: var(--foreground);
-
+  --foreground: oklch(0.129 0.042 264.695);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.129 0.042 264.695);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.129 0.042 264.695);
   --primary: oklch(0.623 0.214 259.815);
-  --primary-foreground: oklch(0.985 0.004 259.815);
-
-  --main: oklch(0.985 0.004 259.815);
-
-  --secondary: oklch(0.965 0.012 259.815);
-  --secondary-foreground: oklch(0.21 0.03 259.815);
-
-  --muted: oklch(0.965 0.012 259.815);
-  --muted-foreground: oklch(0.54 0.028 259.815);
-
-  --accent: oklch(0.955 0.018 259.815);
-  --accent-foreground: oklch(0.21 0.03 259.815);
-
+  --primary-foreground: oklch(0.984 0.003 247.858);
+  --main: oklch(0.985 0.003 264.798);
+  --secondary: oklch(0.968 0.007 247.896);
+  --secondary-foreground: oklch(0.208 0.042 265.755);
+  --muted: oklch(0.968 0.007 247.896);
+  --muted-foreground: oklch(0.554 0.046 257.417);
+  --accent: oklch(0.968 0.007 247.896);
+  --accent-foreground: oklch(0.208 0.042 265.755);
   --destructive: oklch(0.577 0.245 27.325);
   --success: oklch(0.577 0.245 136);
-  --warning: oklch(79.5% 0.184 86.047);
-
-  --border: oklch(0.623 0.214 259.815 / 0.16);
-  --input: oklch(0.623 0.214 259.815 / 0.2);
+  --warning: oklch(0.795 0.184 86.047);
+  --border: oklch(0.929 0.013 255.508);
+  --input: oklch(0.929 0.013 255.508);
   --ring: var(--primary);
 
-  --panel-from: oklch(0.22 0.065 259.815);
-  --panel-via: oklch(0.165 0.05 259.815);
-  --panel-to: oklch(0.115 0.035 259.815);
-  --panel-foreground: oklch(0.985 0.004 259.815);
-  --panel-glow-cool: oklch(0.623 0.214 259.815 / 15%);
-  --panel-glow-warm: oklch(79.5% 0.184 86.047 / 10%);
-  --panel-close: oklch(0.82 0.035 259.815);
-  --panel-close-hover: oklch(0.623 0.214 259.815 / 20%);
-  --panel-close-ring: oklch(0.623 0.214 259.815 / 60%);
+  --panel: #081f3b;
+  --panel-from: #0b2a4d;
+  --panel-via: #081f3b;
+  --panel-to: #040f20;
+  --panel-foreground: #ffffff;
+  --panel-glow: color-mix(in oklch, var(--primary) 18%, transparent);
+  --panel-glow-cool: oklch(0.685 0.169 237.323 / 0.15);
+  --panel-glow-warm: oklch(0.769 0.188 70.08 / 0.1);
+  --panel-close: oklch(0.82 0.05 250);
+  --panel-close-hover: oklch(0.75 0.12 240 / 0.2);
+  --panel-close-ring: oklch(0.746 0.16 232.661 / 0.6);
 }
 
 .dark {
