@@ -36,9 +36,23 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
   const showAlert = useAlertStore((state) => state.showAlert)
   const { mutate: logoutShift, isPending } = useLogout()
   const isOnline = useSSEStore((s) => s.natsOnline === true)
+  const hasExitCar = useSSEStore((s) => s.exitEvent !== null)
+
+  // Pause/close are not allowed while a vehicle bucket is open.
+  // Returns true when the action was blocked.
+  const blockIfBucketOpen = () => {
+    if (!hasExitCar) return false
+    showAlert({
+      type: AlertEnum.WARNING,
+      message: t('clear_bucket_first'),
+    })
+    return true
+  }
+
   // Pause: drop the local session and go to login. The shift stays open on the
   // server, so signing in again reports has_open_shift = true.
   const handlePause = () => {
+    if (blockIfBucketOpen()) return
     clearAuth()
     router.navigate({ to: '/sign-in' })
   }
@@ -46,6 +60,8 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
   // Close: POST /auth/logout { shift_id }. The hook then clears the session and
   // navigates to /sign-in. It needs the id of the open shift.
   const handleClose = () => {
+    if (blockIfBucketOpen()) return
+
     if (!shift) {
       showAlert({
         type: AlertEnum.ERROR,

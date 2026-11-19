@@ -659,9 +659,7 @@ export const fr = {
   "graylist_detection": "اكتشاف القائمة الرمادية",
   "vehicle_blocked": "المركبة محظورة",
   "evaluation": "Évaluation",
-
-
-
+  "clear_bucket_first": "Veuillez d'abord vider le panier"
 
 
 } as const;

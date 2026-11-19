@@ -659,6 +659,8 @@ export const en = {
   "zero_payment_reason_grace_time": "Grace time",
   "graylist_detection": "Gray List Detection",
   "vehicle_blocked": "Vehicle Blocked",
-  "evaluation": "Evaluation"
+  "evaluation": "Evaluation",
+  "clear_bucket_first": "Please clear the bucket first"
+
 
 } as const;

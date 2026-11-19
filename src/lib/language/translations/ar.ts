@@ -661,7 +661,6 @@ export const ar = {
   "graylist_detection": "اكتشاف القائمة الرمادية",
   "vehicle_blocked": "المركبة محظورة",
   "evaluation":  "تقييم",
-
-
+  "clear_bucket_first": "يرجى مسح السلة أولاً"
     
 } as const;
