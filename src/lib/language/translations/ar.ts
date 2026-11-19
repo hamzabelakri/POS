@@ -641,6 +641,27 @@ export const ar = {
   'setup_banner_description': 'تحتاج إلى القيام بذلك مرة واحدة فقط لكل جهاز.',
   'setup_progress': 'تقدم التهيئة',
   "in_facility": "في المنشأة",
-  "cardholder": "حامل البطاقة"
+  "cardholder": "حامل البطاقة",
+  "ok": "حسنًا",
+  "copy_error": "خطأ في النسخ",
+  "graylist_season_parker": "القائمة الرمادية وصاحب اشتراك دوري",
+  "graylist_exited_with_zero_payment": "خرج بدون دفع",
+  "car_exited_in_unpaid_grace_time": "خرج خلال فترة السماح",
+  "tariff_error": "خطأ في التعرفة",
+  "graylist_subtitle": "هذه المركبة مسجلة في القائمة الرمادية",
+  "graylist_zero_payment_subtitle": "هذه المركبة مدرجة في القائمة الرمادية ولم يتم دفع أي مبلغ",
+  "unpaid_grace_time_subtitle": "تخرج هذه المركبة خلال فترة السماح المجانية. لا يستحق أي دفع",
+  "season_parker_not_present_in_facility": "صاحب الاشتراك الدوري غير موجود في المنشأة",
+  "season_parker_blocked": "الاشتراك الدوري محظور",
+  "valid": "صالح",
+  "not_valid": "غير صالح",
+  "not_in_facility": "خارج المنشأة",
+  "vehicle": "المركبة",
+  "zero_payment_reason_grace_time": "فترة السماح",
+  "graylist_detection": "اكتشاف القائمة الرمادية",
+  "vehicle_blocked": "المركبة محظورة",
+  "evaluation":  "تقييم",
 
+
+    
 } as const;

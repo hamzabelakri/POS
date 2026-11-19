@@ -21,18 +21,21 @@
   --border: oklch(0.929 0.013 255.508);
   --input: oklch(0.929 0.013 255.508);
   --ring: var(--primary);
-  /* styles/theme.css, next to your other tokens */
-  --banner-from: #0a2f5a;
-  --banner-via: #071f3d;
-  --banner-to: #040f20;
-  --panel: oklch(0.24 0.07 263);
-  --panel-glow: transparent;
+  --panel-from: #0b2a4d;
+  --panel-via: #081f3b;
+  --panel-to: #040f20;
+  --panel-foreground: #fff;
+  --panel-glow-cool: oklch(0.685 0.169 237.323 / 15%); /* sky-500 @ 15% */
+  --panel-glow-warm: oklch(0.769 0.188 70.08 / 10%); /* amber-500 @ 10% */
+  --panel-close: oklch(0.82 0.05 250); /* pale steel blue */
+  --panel-close-hover: oklch(0.75 0.12 240 / 20%); /* sky-tinted fill */
+  --panel-close-ring: oklch(0.746 0.16 232.661 / 60%); /* sky-400 @ 60% */
 }
 
 .dark {
   --background: oklch(7.5% 0 0);
   --foreground: #fff;
-  --card: oklch(19% 0 0);
+  --card: var(--background);
   --card-foreground: var(--foreground);
   --popover: var(--card);
   --popover-foreground: var(--foreground);
@@ -84,7 +87,13 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --color-panel: var(--panel);
+  --color-panel-foreground: var(--panel-foreground);
+  --color-panel-glow-cool: var(--panel-glow-cool);
+  --color-panel-glow-warm: var(--panel-glow-warm);
+
+  --color-panel-close: var(--panel-close);
+  --color-panel-close-hover: var(--panel-close-hover);
+  --color-panel-close-ring: var(--panel-close-ring);
 
   --animate-setup-in: setup-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 

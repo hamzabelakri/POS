@@ -639,7 +639,26 @@ export const en = {
   'setup_banner_description': 'You only need to do this once per terminal.',
   'setup_progress': 'Setup progress',
   "in_facility": "In facility",
-  "cardholder": "Cardholder"
-
+  "cardholder": "Cardholder",
+  "ok": "OK",
+  "copy_error": "Copy error",
+  "graylist_season_parker": "Graylist and season parker",
+  "graylist_exited_with_zero_payment": "Exited with zero payment",
+  "car_exited_in_unpaid_grace_time": "Exited within grace time",
+  "tariff_error": "Tariff error",
+  "graylist_subtitle": "This vehicle is registered on the gray list",
+  "graylist_zero_payment_subtitle": "This vehicle has zero payment and is on the gray list",
+  "unpaid_grace_time_subtitle": "This vehicle is exiting within the free grace period. No payment is due",
+  "season_parker_valid_subtitle": "This vehicle is a valid season parker and may exit",
+  "season_parker_not_present_in_facility": "Season parker not present in facility",
+  "season_parker_blocked": "Season parker blocked",
+  "valid": "Valid",
+  "not_valid": "Not valid",
+  "not_in_facility": "Not in facility",
+  "vehicle": "Vehicle",
+  "zero_payment_reason_grace_time": "Grace time",
+  "graylist_detection": "Gray List Detection",
+  "vehicle_blocked": "Vehicle Blocked",
+  "evaluation": "Evaluation"
 
 } as const;

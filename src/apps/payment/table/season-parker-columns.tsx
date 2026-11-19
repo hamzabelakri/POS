@@ -114,7 +114,7 @@ export const useSeasonParkerColumns = (
               {t('blocked')}
             </Badge>
           ) : (
-            <Badge variant='secondary' className='text-xs'>
+            <Badge variant='success' className='text-xs'>
               {t('active')}
             </Badge>
           ),

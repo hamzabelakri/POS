@@ -47,6 +47,8 @@ interface DataTableProps<TData extends RowData> {
   setQueryParams?: (params: Record<string, any>) => void
   pagination?: PaginationMetadata
   header?: ReactNode
+  className?: string
+
   showToolbar?: boolean
 }
 
@@ -59,6 +61,7 @@ export function DataTable<TData extends RowData>({
   setQueryParams,
   pagination,
   header,
+  className,
   showToolbar = true,
 }: DataTableProps<TData>) {
   const { t } = useTranslation()
@@ -93,7 +96,10 @@ export function DataTable<TData extends RowData>({
   return (
     <div className='space-y-4'>
       <div className='rounded-md'>
-        <Card paddingY='pb-4' className={cn(header && 'overflow-hidden')}>
+        <Card
+          paddingY='pb-4'
+          className={cn(header && 'overflow-hidden', className)}
+        >
           {header}
           {showToolbar && (
             <DataTableToolbar table={table} toolbarProps={toolbarProps} />

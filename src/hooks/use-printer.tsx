@@ -18,7 +18,7 @@ import { useAlertStore } from "@/stores/alert-store"
 export const CONFIG_RECEIPT_PREVIEW_KEY = ["config-receipt-preview"] as const
 
 // Shared success/error alerts for every print mutation
-function usePrintAlerts(fallbackError: string) {
+function usePrintAlerts() {
   const { showAlert } = useAlertStore()
   return {
     onSuccess: (data: PrintReceiptResponse) => {
@@ -27,7 +27,7 @@ function usePrintAlerts(fallbackError: string) {
     onError: (error: AxiosError<ApiError>) => {
       console.error("Print failed: ", error?.response?.data?.error)
       showAlert({
-        message: error?.response?.data?.error || fallbackError,
+        message: error?.response?.data?.error ?? "",
         type: AlertEnum.ERROR,
       })
     },
@@ -38,7 +38,7 @@ function usePrintAlerts(fallbackError: string) {
 export function usePrintReceipt() {
   return useMutation<PrintReceiptResponse, AxiosError<ApiError>, number>({
     mutationFn: printReceipt,
-    ...usePrintAlerts("Unable to print the receipt. Please try again."),
+    ...usePrintAlerts(),
   })
 }
 
@@ -47,7 +47,7 @@ export function usePaymentReceiptPreview(paymentId: number, enabled = true) {
   return useQuery({
     queryKey: ["payment-receipt-preview", paymentId],
     queryFn: () => previewPaymentReceipt(paymentId),
-    select: (res) => res.data.receipt,  
+    select: (res) => res.data.receipt,
     enabled,
     staleTime: Infinity,
   })
@@ -56,7 +56,7 @@ export function usePaymentReceiptPreview(paymentId: number, enabled = true) {
 export function usePrintLastReceipt() {
   return useMutation<PrintReceiptResponse, AxiosError<ApiError>, number>({
     mutationFn: printLastReceipt,
-    ...usePrintAlerts("Unable to print the last receipt. Please try again."),
+    ...usePrintAlerts(),
   })
 }
 
@@ -79,8 +79,7 @@ export function useConfigReceiptPreview() {
     },
     onError: (error) => {
       showAlert({
-        message:
-          error?.response?.data?.error || "Unable to load the receipt preview.",
+        message: error?.response?.data?.error ?? "",
         type: AlertEnum.ERROR,
       })
     },

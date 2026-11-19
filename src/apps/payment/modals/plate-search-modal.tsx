@@ -5,7 +5,6 @@ import { Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { DatePickerWithRange } from '@/components/ui/date-range-picker'
 import { LpnInput } from '@/components/ui/input-otp'
 import {
@@ -95,83 +94,77 @@ export function PlateSearchModal({
   return (
     <Dialog open onOpenChange={(next) => !next && handleClose()}>
       <DialogContent className='sm:max-w-6xl'>
-        {/* ── Header ── */}
-        <DialogHeader className='pt-5 pb-4'>
-          <div className='flex items-center gap-3'>
-            <div className='bg-primary/10 flex size-9 shrink-0 items-center justify-center rounded-lg'>
-              <IconSearch className='text-primary size-5' />
-            </div>
-            <div>
-              <DialogTitle>{t('license_plate')}</DialogTitle>
-            </div>
-          </div>
+        <DialogHeader icon={IconSearch}>
+          <DialogTitle>{t('license_plate')}</DialogTitle>
         </DialogHeader>
 
-        {/* ── Body ── */}
-        <DialogBody className='space-y-4'>
-          <Card className='gap-0 py-0'>
-            <CardContent className='py-4'>
-              <div className='flex flex-wrap items-center gap-3'>
-                <div className='flex flex-wrap items-center gap-2'>
-                  <LpnInput
-                    value={plate}
-                    onChange={setPlate}
-                    sanitize={toUpper}
-                  />
-                  <div className='flex h-9 w-28 shrink-0 items-center justify-center overflow-hidden rounded-md border px-2 font-mono text-sm tracking-widest'>
-                    <span className='truncate'>
-                      {normalizePlate(plate) || '- - -'}
-                    </span>
+        {/* p-0 so the DataTable card becomes the single visual surface.
+            DialogBody is already the flex-1 overflow-y-auto scroller. */}
+        <DialogBody className='p-0'>
+          <DataTable
+            data={cars}
+            columns={columns}
+            showToolbar={false}
+            isLoading={isLoading}
+            queryParams={queryParams}
+            setQueryParams={handleTableParams}
+            pagination={pagination}
+            // strip the card chrome so it merges into the dialog surface
+            className='rounded-none border-0 shadow-none'
+            header={
+              <div className='border-b px-6 py-4'>
+                <div className='flex flex-wrap items-center gap-3'>
+                  <div className='flex flex-wrap items-center gap-2'>
+                    <LpnInput
+                      value={plate}
+                      onChange={setPlate}
+                      sanitize={toUpper}
+                    />
+                    <div className='flex h-9 w-28 shrink-0 items-center justify-center overflow-hidden rounded-md border px-2 font-mono text-sm tracking-widest'>
+                      <span className='truncate'>
+                        {normalizePlate(plate) || '- - -'}
+                      </span>
+                    </div>
                   </div>
+
+                  <DatePickerWithRange value={range} onChange={setRange} />
+
+                  <Select
+                    value={laneId ?? ''}
+                    onValueChange={(v) =>
+                      setLaneId(v === ALL_LANES ? undefined : v)
+                    }
+                  >
+                    <SelectTrigger className='w-32' aria-label={t('lane')}>
+                      <SelectValue placeholder={t('all_lanes')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ALL_LANES}>{t('all')}</SelectItem>
+                      {cameras.map((camera) => (
+                        <SelectItem
+                          key={camera.id}
+                          value={String(camera.lane_id)}
+                        >
+                          {camera.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Button
+                    size='icon'
+                    className='shrink-0'
+                    aria-label={t('search')}
+                    onClick={runSearch}
+                  >
+                    <Search />
+                  </Button>
                 </div>
-
-                <DatePickerWithRange value={range} onChange={setRange} />
-
-                <Select
-                  value={laneId ?? ''}
-                  onValueChange={(v) =>
-                    setLaneId(v === ALL_LANES ? undefined : v)
-                  }
-                >
-                  <SelectTrigger className='w-32' aria-label={t('lane')}>
-                    <SelectValue placeholder={t('all_lanes')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={ALL_LANES}>{t('all')}</SelectItem>
-                    {cameras.map((camera) => (
-                      <SelectItem key={camera.id} value={String(camera.lane_id)}>
-                        {camera.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Button
-                  size='icon'
-                  className='shrink-0'
-                  aria-label={t('search')}
-                  onClick={runSearch}
-                >
-                  <Search />
-                </Button>
               </div>
-            </CardContent>
-          </Card>
-
-          <div className='max-h-[50vh] overflow-auto'>
-            <DataTable
-              data={cars}
-              columns={columns}
-              showToolbar={false}
-              isLoading={isLoading}
-              queryParams={queryParams}
-              setQueryParams={handleTableParams}
-              pagination={pagination}
-            />
-          </div>
+            }
+          />
         </DialogBody>
 
-        {/* ── Footer ── */}
         <DialogFooter>
           <Button
             type='button'

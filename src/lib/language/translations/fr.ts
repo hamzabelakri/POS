@@ -638,6 +638,30 @@ export const fr = {
   'setup_banner_description': 'Vous ne devez le faire qu\'une seule fois par terminal.',
   'setup_progress': 'Progression de la configuration',
   "in_facility": "Dans l'établissement",
-  "cardholder": "Titulaire de la carte"
+  "cardholder": "Titulaire de la carte",
+  "ok": "OK",
+  "copy_error": "Erreur de copie",
+  "graylist_season_parker": "Liste grise et abonné",
+  "graylist_exited_with_zero_payment": "Sorti sans paiement",
+  "car_exited_in_unpaid_grace_time": "Sorti pendant la période de grâce",
+  "tariff_error": "Erreur tarifaire",
+  "graylist_subtitle": "Ce véhicule est enregistré sur la liste grise",
+  "graylist_zero_payment_subtitle": "Ce véhicule figure sur la liste grise et n'a effectué aucun paiement",
+  "unpaid_grace_time_subtitle": "Ce véhicule sort pendant la période de grâce gratuite. Aucun paiement n'est dû",
+  "season_parker_valid_subtitle": "Ce véhicule bénéficie d'un abonnement valide et peut sortir",
+  "season_parker_not_present_in_facility": "Abonné absent du parking",
+  "season_parker_blocked": "Abonnement bloqué",
+  "valid": "Valide",
+  "not_valid": "Non valide",
+  "not_in_facility": "Hors du parking",
+  "vehicle": "Véhicule",
+  "zero_payment_reason_grace_time": "Période de grâce",
+  "graylist_detection": "اكتشاف القائمة الرمادية",
+  "vehicle_blocked": "المركبة محظورة",
+  "evaluation": "Évaluation",
+
+
+
+
 
 } as const;

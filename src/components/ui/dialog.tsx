@@ -89,8 +89,14 @@ function DialogContent({
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close
-            data-slot='dialog-close'
-            className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute end-4 top-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+            className={cn(
+              'absolute end-4 top-5.5 z-20',
+              'flex size-7 items-center justify-center rounded-md',
+              'text-white/80 transition-colors hover:bg-white/20 hover:text-white',
+              'focus:ring-2 focus:ring-white/30 focus:outline-none',
+              'disabled:pointer-events-none',
+              "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+            )}
           >
             <XIcon />
             <span className='sr-only'>Close</span>
@@ -100,11 +106,11 @@ function DialogContent({
         {/* Close button — absolute so it doesn't affect layout */}
         <DialogPrimitive.Close
           className={cn(
-            'absolute top-4 right-4 z-10',
+            'absolute end-4 top-5.5 z-20',
             'flex size-7 items-center justify-center rounded-md',
-            'text-muted-foreground/60 hover:text-foreground',
-            'hover:bg-muted transition-colors',
-            'focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none',
+            'text-panel-close transition-colors',
+            'hover:bg-panel-close-hover hover:text-white',
+            'focus-visible:ring-panel-close-ring focus-visible:ring-2 focus-visible:outline-none',
             'disabled:pointer-events-none',
             "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
           )}
@@ -121,13 +127,46 @@ function DialogContent({
 // Owns its own padding + bottom border.
 // pr-10 leaves room for the absolute close button.
 
-function DialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
+function DialogHeader({
+  className,
+  children,
+  icon: Icon,
+  ...props
+}: React.ComponentProps<'div'> & {
+  icon?: React.ComponentType<{ className?: string }>
+}) {
   return (
     <div
       data-slot='dialog-header'
-      className={cn('flex flex-col gap-1', 'px-6 pr-10', 'border-b', className)}
+      className={cn(
+        'bg-panel relative flex shrink-0 items-center gap-3 overflow-hidden text-white',
+        // pe-14 leaves room for the absolute close button
+        'ps-6 pe-14 pt-5 pb-4',
+        '**:data-[slot=dialog-title]:text-white',
+        '**:data-[slot=dialog-description]:text-white/70',
+        className
+      )}
       {...props}
-    />
+    >
+      {/* cool glow, top right */}
+      <div
+        aria-hidden
+        className='bg-panel-glow-cool pointer-events-none absolute -top-24 right-0 size-80 rounded-full blur-3xl'
+      />
+      {/* warm glow, bottom left */}
+      <div
+        aria-hidden
+        className='bg-panel-glow-warm pointer-events-none absolute -bottom-24 left-24 size-64 rounded-full blur-3xl'
+      />
+
+      {Icon && (
+        <div className='relative flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/10'>
+          <Icon className='size-5' />
+        </div>
+      )}
+
+      <div className='relative flex min-w-0 flex-col gap-1'>{children}</div>
+    </div>
   )
 }
 

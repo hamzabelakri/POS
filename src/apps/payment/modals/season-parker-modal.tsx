@@ -70,54 +70,63 @@ export function SeasonParkerModal({ onClose, title }: Props) {
           <DialogTitle>{title ?? t('season_parker')}</DialogTitle>
         </DialogHeader>
 
-        {/* space-y-4 replaces the gap the old grid DialogContent provided */}
-        <DialogBody className='space-y-4'>
-          <div className='flex flex-wrap items-center gap-3'>
-            <div className='flex flex-wrap items-center gap-2'>
-              {plate.map((char, i) => (
-                <Input
-                  key={i}
-                  value={char}
-                  maxLength={1}
-                  className='size-9 p-0 text-center'
-                  aria-label={t('plate_character', { index: i + 1 })}
-                  onChange={(e) => handlePlateChange(i, e.target.value)}
-                />
-              ))}
-              <div className='flex h-9 w-20 items-center justify-center rounded-md border text-sm'>
-                - - -
+        {/* p-0 so the DataTable card becomes the single visual surface.
+            DialogBody is already the flex-1 overflow-y-auto scroller. */}
+        <DialogBody className='p-0'>
+          <DataTable
+            data={parkers}
+            columns={columns}
+            showToolbar={false}
+            isLoading={isLoading}
+            queryParams={queryParams}
+            setQueryParams={handleTableParams}
+            pagination={pagination}
+            // strip the card chrome so it merges into the dialog surface
+            className='rounded-none border-0 shadow-none'
+            header={
+              <div className='border-b px-6 py-4'>
+                <div className='flex flex-wrap items-center gap-3'>
+                  <div className='flex flex-wrap items-center gap-2'>
+                    {plate.map((char, i) => (
+                      <Input
+                        key={i}
+                        value={char}
+                        maxLength={1}
+                        className='size-9 p-0 text-center'
+                        aria-label={t('plate_character', { index: i + 1 })}
+                        onChange={(e) => handlePlateChange(i, e.target.value)}
+                      />
+                    ))}
+                    <div className='flex h-9 w-20 items-center justify-center rounded-md border text-sm'>
+                      - - -
+                    </div>
+                  </div>
+
+                  <Input
+                    value={cardNumber}
+                    className='w-44'
+                    placeholder={t('card_number')}
+                    aria-label={t('card_number')}
+                    onChange={(e) => setCardNumber(e.target.value)}
+                  />
+
+                  <Button className='min-w-24 flex-1' onClick={runSearch}>
+                    <Search />
+                    {t('search')}
+                  </Button>
+                </div>
               </div>
-            </div>
-
-            <Input
-              value={cardNumber}
-              className='w-44'
-              placeholder={t('card_number')}
-              aria-label={t('card_number')}
-              onChange={(e) => setCardNumber(e.target.value)}
-            />
-
-            <Button className='min-w-24 flex-1' onClick={runSearch}>
-              <Search />
-              {t('search')}
-            </Button>
-          </div>
-
-          <div className='max-h-[50vh] overflow-auto'>
-            <DataTable
-              data={parkers}
-              columns={columns}
-              showToolbar={false}
-              isLoading={isLoading}
-              queryParams={queryParams}
-              setQueryParams={handleTableParams}
-              pagination={pagination}
-            />
-          </div>
+            }
+          />
         </DialogBody>
 
         <DialogFooter>
-          <Button type='button' variant='outline' onClick={onClose}>
+          <Button
+            type='button'
+            variant='ghost'
+            onClick={onClose}
+            className='text-muted-foreground'
+          >
             {t('close')}
           </Button>
         </DialogFooter>

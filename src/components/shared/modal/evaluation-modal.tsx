@@ -93,7 +93,7 @@ export function EvaluationModal({ type, open, onClose, onSuccess }: Props) {
     >
       <DialogContent className='sm:max-w-lg'>
         <DialogHeader icon={IconLock}>
-          <DialogTitle>{t('evaluation_password')}</DialogTitle>
+          <DialogTitle>{t('evaluation')}</DialogTitle>
         </DialogHeader>
 
         <DialogBody>
