@@ -44,9 +44,7 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
         ),
         meta: { label: t('card_type') },
         cell: ({ row }) => (
-          <div className='w-fit capitalize'>
-            {t(row.original.card_type)}
-          </div>
+          <div className='w-fit capitalize'>{t(row.original.card_type)}</div>
         ),
       },
       {
@@ -56,11 +54,16 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
           <DataTableColumnHeader column={column} title={t('lpn')} />
         ),
         meta: { label: t('lpn') },
-        cell: ({ row }) => (
-          <Badge variant='outline' className='font-mono whitespace-nowrap'>
-            {formatLpn(row.original.media?.lpn)}
-          </Badge>
-        ),
+        cell: ({ row }) => {
+          const lpn = row.original.media?.lpn
+          if (!lpn) return null
+
+          return (
+            <Badge variant='outline' className='font-mono whitespace-nowrap'>
+              {formatLpn(lpn)}
+            </Badge>
+          )
+        },
       },
       {
         accessorKey: 'total',
@@ -81,9 +84,7 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
         ),
         meta: { label: t('payment_method') },
         cell: ({ row }) => (
-          <div className='w-fit capitalize'>
-            {row.original.payment_method}
-          </div>
+          <div className='w-fit capitalize'>{row.original.payment_method}</div>
         ),
         filterFn: (row, id, value) =>
           value.includes(row.original.payment_method),
@@ -111,20 +112,23 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
         ),
         meta: { label: t('receipt') },
         cell: ({ row }) => (
-  <div className='flex justify-end'>
-    <ReceiptActions
-      paymentId={row.original.payment_id}
-      printDisabled={!isEvaluated || printerUi.blocked}
-      disabledReason={
-        printerUi.blocked ? printerUi.label : t('printer_disabled_tooltip')
-      }
-      onPreview={() => {
-        setCurrentPaymentId(row.original.payment_id)
-        setOpen(ShiftReportDialogEnum.RECEIPT)
-      }}
-    />
-  </div>
-),}
+          <div className='flex justify-end'>
+            <ReceiptActions
+              paymentId={row.original.payment_id}
+              printDisabled={!isEvaluated || printerUi.blocked}
+              disabledReason={
+                printerUi.blocked
+                  ? printerUi.label
+                  : t('printer_disabled_tooltip')
+              }
+              onPreview={() => {
+                setCurrentPaymentId(row.original.payment_id)
+                setOpen(ShiftReportDialogEnum.RECEIPT)
+              }}
+            />
+          </div>
+        ),
+      },
     ],
     [
       t,

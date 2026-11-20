@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { toImageSrc } from '@/lib/utils'
 import { ReceiptEmptyState } from './receipt-empty-state'
+import { ReceiptViewer } from './receipt-viewer'
 
 export function ReceiptPreviewModal({
   paymentId,
@@ -41,25 +42,24 @@ export function ReceiptPreviewModal({
         </DialogHeader>
 
         <DialogBody>
-          <div className='flex max-h-[60vh] min-h-72 items-center justify-center overflow-auto'>
-            {isLoading ? (
-              <ReceiptEmptyState variant='loading' />
-            ) : isError ? (
-              <ReceiptEmptyState
-                variant='error'
-                onRetry={() => refetch()}
-                retrying={isFetching}
-              />
-            ) : receipt ? (
-              <img
-                src={toImageSrc(receipt)}
-                alt={t('receipt')}
-                className='h-auto max-h-[50vh] w-60 object-contain'
-              />
-            ) : (
-              <ReceiptEmptyState variant='empty' />
-            )}
-          </div>
+          {isLoading ? (
+            <ReceiptEmptyState variant='loading' />
+          ) : isError ? (
+            <ReceiptEmptyState
+              variant='error'
+              onRetry={() => refetch()}
+              retrying={isFetching}
+            />
+          ) : receipt ? (
+            // key resets zoom + load state when another receipt is opened
+            <ReceiptViewer
+              key={paymentId}
+              src={toImageSrc(receipt)}
+              alt={t('receipt')}
+            />
+          ) : (
+            <ReceiptEmptyState variant='empty' />
+          )}
         </DialogBody>
       </DialogContent>
     </Dialog>

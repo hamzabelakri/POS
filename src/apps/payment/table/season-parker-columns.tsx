@@ -81,11 +81,23 @@ export const useSeasonParkerColumns = (
           <DataTableColumnHeader column={column} title={t('license_plate')} />
         ),
         meta: { label: t('license_plate') },
-        cell: ({ row }) => (
-          <LongText className='max-w-48'>
-            {row.original.lpn?.join(', ') || '-'}
-          </LongText>
-        ),
+        cell: ({ row }) => {
+          const plates = row.original.lpn?.filter(Boolean) ?? []
+
+          if (!plates.length) {
+            return <span>-</span>
+          }
+
+          return (
+            <div className='flex max-w-48 flex-wrap gap-1'>
+              {plates.map((plate) => (
+                <Badge key={plate} variant='outline' className='text-xs'>
+                  <LongText className='max-w-36'>{plate}</LongText>
+                </Badge>
+              ))}
+            </div>
+          )
+        },
         enableSorting: false,
       },
       {

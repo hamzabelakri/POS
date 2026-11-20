@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
-import { type DateRange } from 'react-day-picker'
+import { PlateSearchQueryParams } from '@/models/consult-model'
+import { buildPlateSearchParams, normalizePlate } from '@/service/consult'
 import { IconSearch } from '@tabler/icons-react'
 import { Search } from 'lucide-react'
+import { type DateRange } from 'react-day-picker'
 import { useTranslation } from 'react-i18next'
-
+import { usePosConfigStore } from '@/stores/pos-config-store'
+import { usePlateSearch, useUntrackedConsult } from '@/hooks/use-consult'
 import { Button } from '@/components/ui/button'
 import { DatePickerWithRange } from '@/components/ui/date-range-picker'
-import { LpnInput } from '@/components/ui/input-otp'
 import {
   Dialog,
   DialogBody,
@@ -15,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { LpnInput } from '@/components/ui/input-otp'
 import {
   Select,
   SelectContent,
@@ -23,12 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { DataTable } from '@/components/shared/data-table'
-
-import { usePosConfigStore } from '@/stores/pos-config-store'
 import { usePlateSearchColumns } from '../table/plate-search-columns'
-import { PlateSearchQueryParams } from '@/models/consult-model'
-import { usePlateSearch, useUntrackedConsult } from '@/hooks/use-consult'
-import { buildPlateSearchParams, normalizePlate } from '@/service/consult'
 
 // Radix Select forbids value="" on an item, so "All" uses a sentinel
 const ALL_LANES = 'all'
@@ -151,13 +149,9 @@ export function PlateSearchModal({
                     </SelectContent>
                   </Select>
 
-                  <Button
-                    size='icon'
-                    className='shrink-0'
-                    aria-label={t('search')}
-                    onClick={runSearch}
-                  >
+                  <Button className='min-w-24 flex-1' onClick={runSearch}>
                     <Search />
+                    {t('search')}
                   </Button>
                 </div>
               </div>
