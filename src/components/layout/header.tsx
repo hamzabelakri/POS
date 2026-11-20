@@ -89,8 +89,9 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
           <div
             className={cn(
               'bg-panel text-primary-foreground flex h-full items-center',
-              'ps-4 pe-8',
-              '[clip-path:polygon(0_0,100%_0,calc(100%_-_28px)_100%,0_100%)]'
+              'ps-5 pe-10',
+              'ltr:[clip-path:polygon(0_0,100%_0,calc(100%_-_28px)_100%,0_100%)]',
+              'rtl:[clip-path:polygon(0_0,100%_0,100%_100%,28px_100%)]'
             )}
           >
             <img
@@ -157,7 +158,10 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
               className='bg-panel hover:bg-panel/90 dark:border-border border border-transparent text-white hover:text-white'
             >
               <Link to='/'>
-                <ArrowLeft className='text-red-400 rtl:rotate-180' aria-hidden='true' />
+                <ArrowLeft
+                  className='text-red-400 rtl:rotate-180'
+                  aria-hidden='true'
+                />
                 <span>{t('back')}</span>
               </Link>
             </Button>

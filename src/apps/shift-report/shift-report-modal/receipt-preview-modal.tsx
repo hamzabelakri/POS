@@ -1,3 +1,4 @@
+// src/apps/shift-report/shift-report-modal/receipt-preview-modal.tsx
 import { IconFileDescription } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { usePaymentReceiptPreview } from '@/hooks/use-printer'
@@ -8,8 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Spinner } from '@/components/ui/shadcn-io/spinner'
 import { toImageSrc } from '@/lib/utils'
+import { ReceiptEmptyState } from './receipt-empty-state'
 
 export function ReceiptPreviewModal({
   paymentId,
@@ -22,10 +23,14 @@ export function ReceiptPreviewModal({
 }) {
   const { t } = useTranslation()
 
+  // Assumes a TanStack Query hook (refetch / isFetching). If yours doesn't
+  // expose them, drop `onRetry` and `retrying` below.
   const {
     data: receipt,
     isLoading,
     isError,
+    refetch,
+    isFetching,
   } = usePaymentReceiptPreview(paymentId ?? 0, open && paymentId !== null)
 
   return (
@@ -36,13 +41,15 @@ export function ReceiptPreviewModal({
         </DialogHeader>
 
         <DialogBody>
-          <div className='flex max-h-[50vh] min-h-32 items-center justify-center overflow-auto'>
+          <div className='flex max-h-[60vh] min-h-72 items-center justify-center overflow-auto'>
             {isLoading ? (
-              <Spinner variant='circle' />
+              <ReceiptEmptyState variant='loading' />
             ) : isError ? (
-              <p className='text-destructive text-sm'>
-                {t('receipt_load_failed')}
-              </p>
+              <ReceiptEmptyState
+                variant='error'
+                onRetry={() => refetch()}
+                retrying={isFetching}
+              />
             ) : receipt ? (
               <img
                 src={toImageSrc(receipt)}
@@ -50,9 +57,7 @@ export function ReceiptPreviewModal({
                 className='h-auto max-h-[50vh] w-60 object-contain'
               />
             ) : (
-              <p className='text-muted-foreground text-sm'>
-                {t('receipt_not_available')}
-              </p>
+              <ReceiptEmptyState variant='empty' />
             )}
           </div>
         </DialogBody>
