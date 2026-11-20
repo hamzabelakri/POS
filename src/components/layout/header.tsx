@@ -1,6 +1,6 @@
 import { Link, useLocation, useRouter } from '@tanstack/react-router'
 import { AlertEnum } from '@/models/alert-model'
-import { ArrowLeft, LogOut, Pause, Power } from 'lucide-react'
+import { ArrowLeft, LogOut, Pause } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAlertStore } from '@/stores/alert-store'
 import { useAuthStore } from '@/stores/auth-store'
@@ -114,7 +114,7 @@ export function Header({ className, fixed, ...props }: HeaderProps) {
                   className={cn(
                     'relative inline-flex h-full items-center px-3 text-sm font-medium',
                     'text-muted-foreground hover:text-foreground transition-colors',
-                    'data-[status=active]:text-foreground',
+                    'data-[status=active]:text-primary',
                     // underline indicator
                     'after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full',
                     'after:bg-primary after:opacity-0 after:transition-opacity',

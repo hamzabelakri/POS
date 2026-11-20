@@ -10,12 +10,12 @@ const EXIT_ENDPOINT = `/season-parkers/exit`
 export const SEASON_PARKER_PAGE_SIZE = 5
 
 export const buildSeasonParkerParams = (
-  plate: string[],
+  plate: string,
   cardNumber: string,
   page = 1
 ): SeasonParkerSearchQueryParams => ({
   // empty values are sent as undefined so axios omits them
-  lpn: plate.join('').trim() || undefined,
+  lpn: plate.trim() || undefined,
   card_number: cardNumber.trim() || undefined,
   page,
   page_size: SEASON_PARKER_PAGE_SIZE,

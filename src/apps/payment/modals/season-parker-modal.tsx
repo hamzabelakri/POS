@@ -1,3 +1,4 @@
+// src/apps/payment/modals/season-parker-modal.tsx
 import { useMemo, useState } from 'react'
 import { IconId } from '@tabler/icons-react'
 import { Search } from 'lucide-react'
@@ -13,14 +14,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { LpnInput } from '@/components/ui/input-otp'
 import { DataTable } from '@/components/shared/data-table'
 
 import { useSeasonParkerColumns } from '../table/season-parker-columns'
 import { useSeasonParkerSearch } from '@/hooks/use-season-parker'
 import { buildSeasonParkerParams } from '@/service/season-parker'
+import { normalizePlate } from '@/service/consult'
 import type { PaginationMetadata } from '@/models/api'
 
-const PLATE_SLOTS = 8
+const toUpper = (s: string) => s.toUpperCase()
 
 type Props = {
   onClose: () => void
@@ -29,13 +32,11 @@ type Props = {
 
 export function SeasonParkerModal({ onClose, title }: Props) {
   const { t } = useTranslation()
-  const [plate, setPlate] = useState<string[]>(() =>
-    Array<string>(PLATE_SLOTS).fill('')
-  )
+  const [plate, setPlate] = useState('')
   const [cardNumber, setCardNumber] = useState('')
   // starts with an empty search so the first page is listed on open
   const [queryParams, setQueryParams] = useState(() =>
-    buildSeasonParkerParams(Array<string>(PLATE_SLOTS).fill(''), '')
+    buildSeasonParkerParams('', '')
   )
 
   // `res` is the envelope: { status, message, data: SeasonParkerSearchData }
@@ -52,9 +53,6 @@ export function SeasonParkerModal({ onClose, title }: Props) {
     total_pages: result.total_pages,
     total_rows: result.total_pages * result.page_size,
   }
-
-  const handlePlateChange = (index: number, value: string) =>
-    setPlate((prev) => prev.map((char, i) => (i === index ? value : char)))
 
   const runSearch = () =>
     setQueryParams(buildSeasonParkerParams(plate, cardNumber, 1))
@@ -87,18 +85,15 @@ export function SeasonParkerModal({ onClose, title }: Props) {
               <div className='border-b px-6 py-4'>
                 <div className='flex flex-wrap items-center gap-3'>
                   <div className='flex flex-wrap items-center gap-2'>
-                    {plate.map((char, i) => (
-                      <Input
-                        key={i}
-                        value={char}
-                        maxLength={1}
-                        className='size-9 p-0 text-center'
-                        aria-label={t('plate_character', { index: i + 1 })}
-                        onChange={(e) => handlePlateChange(i, e.target.value)}
-                      />
-                    ))}
-                    <div className='flex h-9 w-20 items-center justify-center rounded-md border text-sm'>
-                      - - -
+                    <LpnInput
+                      value={plate}
+                      onChange={setPlate}
+                      sanitize={toUpper}
+                    />
+                    <div className='flex h-9 w-28 shrink-0 items-center justify-center overflow-hidden rounded-md border px-2 font-mono text-sm tracking-widest'>
+                      <span className='truncate'>
+                        {normalizePlate(plate) || '- - -'}
+                      </span>
                     </div>
                   </div>
 

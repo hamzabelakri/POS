@@ -111,23 +111,80 @@ export const useShiftReportColumns = (): ColumnDef<ShiftReportRow>[] => {
           />
         ),
         meta: { label: t('receipt') },
-        cell: ({ row }) => (
-          <div className='flex justify-end'>
-            <ReceiptActions
-              paymentId={row.original.payment_id}
-              printDisabled={!isEvaluated || printerUi.blocked}
-              disabledReason={
-                printerUi.blocked
-                  ? printerUi.label
-                  : t('printer_disabled_tooltip')
-              }
-              onPreview={() => {
-                setCurrentPaymentId(row.original.payment_id)
-                setOpen(ShiftReportDialogEnum.RECEIPT)
-              }}
-            />
-          </div>
-        ),
+        cell: ({ row }) => {
+          const printDisabled =
+            !isEvaluated || printerUi.blocked || print.isPending
+
+          return (
+            <div className='flex items-center justify-end gap-2'>
+              {/* Preview */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='text-primary hover:border-primary hover:text-primary h-8 w-8 p-0'
+                    onClick={() => {
+                      setCurrentPaymentId(row.original.payment_id)
+                      setOpen(ShiftReportDialogEnum.RECEIPT)
+                    }}
+                  >
+                    <IconEye size={16} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  colorClass='bg-primary text-primary-foreground'
+                  arrowClass='bg-primary fill-primary'
+                >
+                  {t('preview_receipt_tooltip')}
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Print — disabled shows an unclickable IconPrinterOff styled like the button */}
+              {printDisabled ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      aria-disabled='true'
+                      className='border-input text-primary flex h-8 w-8 cursor-not-allowed items-center justify-center rounded-md border bg-transparent opacity-70'
+                    >
+                      <IconPrinterOff size={16} />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    colorClass='bg-primary text-primary-foreground'
+                    arrowClass='bg-primary fill-primary'
+                  >
+                    {printerUi.blocked
+                      ? printerUi.label
+                      : t('printer_disabled_tooltip')}
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='text-primary hover:border-primary hover:text-primary h-8 w-8 p-0'
+                      onClick={() => print.mutate(row.original.payment_id)}
+                    >
+                      <IconPrinter size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    colorClass='bg-primary text-primary-foreground'
+                    arrowClass='bg-primary fill-primary'
+                  >
+                    {t('print_receipt_tooltip')}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          )
+        },
+        enableSorting: false,
+        enableHiding: false,
       },
     ],
     [
